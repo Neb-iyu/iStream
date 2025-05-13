@@ -1,0 +1,19 @@
+#newplaylist {
+    -fx-background-color:  #323131;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+}
+#playlist {
+    -fx-background-color:  #323131;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+}
+#artists:hover{
+    -fx-background-color: #514646;
+}
+#liked:hover{
+    -fx-background-color: #514646;
+}
+#home:hover{
+    -fx-background-color: #514646;
+}
