@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+
+<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #323131;" stylesheets="@../css/ScrollBar.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <VBox fx:id="songContainer" prefHeight="200.0" prefWidth="100.0">
+         <children>
+            <Label prefHeight="28.0" prefWidth="71.0" text="Songs" textFill="#e7d7d7" />
+            <ScrollPane fx:id="songScrollPane" hbarPolicy="ALWAYS" opacity="0.56" prefHeight="200.0" prefWidth="200.0" stylesheets="@../css/ScrollBar.css" vbarPolicy="NEVER">
+               <content>
+                  <HBox fx:id="songBox" alignment="CENTER_LEFT" minWidth="1000.0" prefHeight="181.0" prefWidth="200.0" style="-fx-background-color: #323131;" styleClass="scroll-bar" />
+               </content>
+            </ScrollPane>
+         </children>
+      </VBox>
+      <VBox fx:id="albumContainer" layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0">
+         <children>
+            <Label prefHeight="28.0" prefWidth="71.0" text="Albums" textFill="#dfd0d0" />
+            <ScrollPane fx:id="albumScrollPane" hbarPolicy="ALWAYS" prefHeight="200.0" prefWidth="200.0" vbarPolicy="NEVER">
+               <content>
+                  <HBox fx:id="albumBox" alignment="CENTER_LEFT" minWidth="1000.0" prefHeight="181.0" prefWidth="200.0" style="-fx-background-color: #323131;" />
+               </content>
+            </ScrollPane>
+         </children>
+      </VBox>
+   </children>
+</VBox>

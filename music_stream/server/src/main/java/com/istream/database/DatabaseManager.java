@@ -10,11 +10,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import com.istream.model.Album;
-import com.istream.model.PlayHistory;
-import com.istream.model.Playlist;
-import com.istream.model.Song;
-import com.istream.model.User;
+import com.istream.model.*;
 
 public class DatabaseManager {
     private Connection connection;
@@ -66,7 +62,13 @@ public class DatabaseManager {
             stmt.execute("CREATE TABLE IF NOT EXISTS artists (" +
                 "id SERIAL PRIMARY KEY, " +
                 "name VARCHAR(255), " +
-                "cover_art_path VARCHAR(255))");
+                "image_url VARCHAR(255))");
+            // Artist items
+            stmt.execute("CREATE TABLE IF NOT EXISTS artist_items (" +
+                "artist_id INT REFERENCES artists(id), " +
+                "song_id INT REFERENCES songs(id), " +
+                "album_id INT REFERENCES albums(id), " +
+                "PRIMARY KEY (artist_id, song_id, album_id))");
             // Users
             stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
                 "id SERIAL PRIMARY KEY, " +
@@ -592,4 +594,68 @@ public class DatabaseManager {
             pstmt.executeUpdate();
         }
     }
+    // Artist operations
+    public List<Artist> getAllArtists() throws SQLException {
+        List<Artist> artists = new ArrayList<>();
+        String sql = "SELECT * FROM artists";
+        
+        try (Statement stmt = connection.createStatement()) {
+            ResultSet rs = stmt.executeQuery(sql);
+            
+            while (rs.next()) {
+                artists.add(new Artist(rs.getInt("id"), rs.getString("name"), rs.getString("image_url"), new ArrayList<>(), new ArrayList<>()));
+            }
+        }
+        return artists;
+    }
+    public Artist getArtistById(int id) throws SQLException {
+        String sql = "SELECT * FROM artists WHERE id = ?";
+        
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+            ResultSet rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                List<Song> songs = new ArrayList<>();
+                List<Album> albums = new ArrayList<>();
+                String sql2 = "SELECT song_id FROM artist_items WHERE artist_id = ?";
+                try (PreparedStatement pstmt2 = connection.prepareStatement(sql2)) {
+                    pstmt2.setInt(1, id);
+                    ResultSet rs2 = pstmt2.executeQuery();
+                    while (rs2.next()) {
+                        songs.add(getSongById(rs2.getInt("song_id")));
+                    }
+                String sql3 = "SELECT album_id FROM artist_items WHERE artist_id = ?";
+                try (PreparedStatement pstmt3 = connection.prepareStatement(sql3)) {
+                    pstmt3.setInt(1, id);
+                    ResultSet rs3 = pstmt3.executeQuery();
+                    while (rs3.next()) {
+                        albums.add(getAlbumById(rs3.getInt("album_id")));
+                    }
+                }
+                return new Artist(rs.getInt("id"), rs.getString("name"), rs.getString("image_url"), songs, albums);
+            }
+        }
+        return null;
+        }
+    }
+
+    public List<Artist> getArtistsByName(String name) throws SQLException {
+        List<Artist> artists = new ArrayList<>();
+        String sql = "SELECT * FROM artists WHERE name LIKE ?";
+        
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, "%" + name + "%");
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                artists.add(new Artist(rs.getInt("id"), rs.getString("name"), rs.getString("image_url"), null, null));
+            }
+        }
+        return artists;
+    }
+
+
+    
+
 }

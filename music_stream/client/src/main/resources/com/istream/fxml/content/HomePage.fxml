@@ -31,4 +31,31 @@
             </content>
         </ScrollPane>
     </VBox>
+    <VBox fx:id="artistsContainer" spacing="10.0">
+        <Label text="Artists">
+            <font>
+                <Font name="Arial" size="18.0" weight="BOLD"/>
+            </font>
+        </Label>
+        <ScrollPane fitToHeight="true" hbarPolicy="ALWAYS" vbarPolicy="NEVER" 
+                    fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
+            <content>
+                <HBox fx:id="artistsBox" spacing="20.0" alignment="CENTER_LEFT" 
+                    minWidth="1000"/> <!-- Or set to a specific minimum width -->
+            </content>
+        </ScrollPane>
+    </VBox>
+    <VBox fx:id="albumsContainer" spacing="10.0">
+        <Label text="Albums">
+            <font>
+                <Font name="Arial" size="18.0" weight="BOLD"/>
+            </font>
+        </Label>
+        <ScrollPane fitToHeight="true" hbarPolicy="ALWAYS" vbarPolicy="NEVER" 
+                    fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
+            <content>
+                <HBox fx:id="albumsBox" spacing="20.0" alignment="CENTER_LEFT" 
+                    minWidth="1000"/> <!-- Or set to a specific minimum width -->
+            </content>
+    </VBox>
 </VBox>

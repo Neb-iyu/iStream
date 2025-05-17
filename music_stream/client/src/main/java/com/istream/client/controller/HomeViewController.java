@@ -8,6 +8,9 @@ import com.istream.client.service.AudioService;
 import com.istream.rmi.MusicService;
 import com.istream.model.Song;
 import com.istream.model.PlayHistory;
+import com.istream.model.Artist;
+import com.istream.model.Album;
+import com.istream.client.util.UiComponent;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -18,12 +21,17 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.concurrent.Task;
 import javafx.geometry.Pos;
-import java.util.List;
 
 public class HomeViewController {
     @FXML private VBox listenAgainContainer;
+    @FXML private VBox artistsContainer;
+    @FXML private VBox albumsContainer;
     @FXML private HBox listenAgainBox;
+    @FXML private HBox artistsBox;
+    @FXML private HBox albumsBox;
     @FXML private ScrollPane listenAgainScrollPane;
+    @FXML private ScrollPane artistsScrollPane;
+    @FXML private ScrollPane albumsScrollPane;
     
     private final MusicService musicService;
     private final int userId;
@@ -38,12 +46,13 @@ public class HomeViewController {
     @FXML
     public void initialize() {
         // Configure scroll pane behavior
-        listenAgainScrollPane.setFitToHeight(true);
-        listenAgainScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-        listenAgainScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        listenAgainScrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+        UiComponent.configureScrollPane(listenAgainScrollPane);
+        UiComponent.configureScrollPane(artistsScrollPane);
+        UiComponent.configureScrollPane(albumsScrollPane);
         
         loadListenAgainSongs();
+        loadArtists();
+        loadAlbums();
     }
 
     private void loadListenAgainSongs() {
@@ -67,59 +76,67 @@ public class HomeViewController {
             if (songs != null && !songs.isEmpty()) {
                 listenAgainBox.getChildren().clear();
                 for (Song song : songs) {
-                    VBox songBox = createSongBox(song);
+                    VBox songBox = UiComponent.createSongBox(song);
                     listenAgainBox.getChildren().add(songBox);
                 }
             } else {
-                showInfoAlert("No recent songs to display");
+                UiComponent.showInfo(null, "No recent songs to display");
             }
         });
 
         task.setOnFailed(e -> {
-            showErrorAlert("Error loading listen again songs: " + task.getException().getMessage());
+            UiComponent.showError(null, "Error loading listen again songs: " + task.getException().getMessage());
         });
 
         new Thread(task).start();
     }
 
-    private VBox createSongBox(Song song) {
-        VBox songBox = new VBox(5);
-        songBox.setAlignment(Pos.CENTER);
-        songBox.setMinWidth(150); // Set minimum width for consistent sizing
+    private void loadArtists() {
+        Task<List<Artist>> task = new Task<>() {
+            @Override
+            protected List<Artist> call() throws Exception {
+                return musicService.getAllArtists();
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            List<Artist> artists = task.getValue();
+            if (artists != null && !artists.isEmpty()) {
+                artistsBox.getChildren().clear();
+                for (Artist artist : artists) {
+                    VBox artistBox = UiComponent.createArtistBox(artist);
+                    artistsBox.getChildren().add(artistBox);
+                }
+            } else {
+                UiComponent.showInfo(null,"No artists to display");
+            }
+        });
         
-        try {
-            ImageView imageView = new ImageView(song.getCoverArtPath());
-            imageView.setFitWidth(150);
-            imageView.setFitHeight(150);
-            imageView.setPreserveRatio(true);
-            
-            Button titleButton = new Button(song.getTitle());
-            titleButton.setStyle("-fx-background-color: transparent; -fx-text-fill: white;");
-            titleButton.setOnAction(e -> {
-                audioService.playStream(musicService.streamSong(song.getId()));
-            });
-            
-            songBox.getChildren().addAll(imageView, titleButton);
-        } catch (Exception ex) {
-            System.err.println("Error loading song: " + song.getTitle() + " - " + ex.getMessage());
-        }
-        
-        return songBox;
     }
 
-    private void showErrorAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+    private void loadAlbums() {
+        Task<List<Album>> task = new Task<>() {
+            @Override
+            protected List<Album> call() throws Exception {
+                return musicService.getAllAlbums();
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            List<Album> albums = task.getValue();
+            if (albums != null && !albums.isEmpty()) {
+                albumsBox.getChildren().clear();
+                for (Album album : albums) {
+                    VBox albumBox = UiComponent.createAlbumBox(album);
+                    albumsBox.getChildren().add(albumBox);
+                }
+            } else {
+                UiComponent.showInfo(null, "No albums to display");
+            }
+        });
+
+        new Thread(task).start();
     }
 
-    private void showInfoAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Information");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
+
 }

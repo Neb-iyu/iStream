@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import com.istream.rmi.MusicService;
 import com.istream.model.Artist;
 import com.istream.model.Song;
+import com.istream.client.util.UiComponent;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -25,10 +26,12 @@ public class ArtistsViewController {
     private final MusicService musicService;
     private final int userId;
     private final ExecutorService executorService;
+    private final MainAppController mainAppController;
 
-    public ArtistsViewController(MusicService musicService, int userId) {
+    public ArtistsViewController(MusicService musicService, int userId, MainAppController mainAppController) {
         this.musicService = musicService;
         this.userId = userId;
+        this.mainAppController = mainAppController;
         this.executorService = Executors.newFixedThreadPool(2); // One for loading artists, one for loading songs
     }
     
@@ -57,16 +60,16 @@ public class ArtistsViewController {
             if (artists != null && !artists.isEmpty()) {
                 artistsBox.getChildren().clear();
                 for (Artist artist : artists) {
-                    VBox artistBox = createArtistBox(artist);
+                    VBox artistBox = UiComponent.createArtistBox(artist);
                     artistsBox.getChildren().add(artistBox);
                 }
             } else {
-                showInfoAlert("No artists to display");
+                UiComponent.showInfo(null, "No artists to display");
             }
         });
 
         loadTask.setOnFailed(e -> {
-            showErrorAlert("Error loading artists: " + loadTask.getException().getMessage());
+            UiComponent.showError(null, "Error loading artists: " + loadTask.getException().getMessage());
         });
 
         // Use JavaFX's thread pool for UI-related tasks
@@ -85,7 +88,7 @@ public class ArtistsViewController {
         service.start();
     }
 
-    private VBox createArtistBox(Artist artist) {
+    private VBox createArtistBox(Artist artist, MainAppController mainAppController) {
         VBox artistBox = new VBox(5);
         artistBox.setAlignment(Pos.CENTER);
         artistBox.setMinWidth(150);
@@ -110,11 +113,11 @@ public class ArtistsViewController {
                 loadSongsTask.setOnSucceeded(success -> {
                     List<Song> songs = loadSongsTask.getValue();
                     // TODO: Show artist songs in a new view or dialog
-                    showInfoAlert("Found " + songs.size() + " songs by " + artist.getName());
+                    UiComponent.showInfo(null, "Found " + songs.size() + " songs by " + artist.getName());
                 });
 
                 loadSongsTask.setOnFailed(fail -> {
-                    showErrorAlert("Error loading artist songs: " + loadSongsTask.getException().getMessage());
+                    UiComponent.showError(null, "Error loading artist songs: " + loadSongsTask.getException().getMessage());
                 });
 
                 // Use JavaFX's thread pool for UI-related tasks
@@ -141,22 +144,7 @@ public class ArtistsViewController {
         return artistBox;
     }
 
-    private void showErrorAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    private void showInfoAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Information");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
+    
     public void cleanup() {
         executorService.shutdown();
     }

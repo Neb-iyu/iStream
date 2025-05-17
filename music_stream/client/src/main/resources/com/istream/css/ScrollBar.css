@@ -1,0 +1,7 @@
+/* For better scrollbar appearance */
+.scroll-pane > .scroll-bar:horizontal {
+    -fx-opacity: 0.7;
+}
+.scroll-pane > .scroll-bar:horizontal:hover {
+    -fx-opacity: 1;
+}

@@ -6,6 +6,9 @@ import com.istream.client.service.RMIClient;
 import com.istream.client.view.HomeView;
 import com.istream.client.view.LikedView;
 import com.istream.client.view.ArtistsView;
+import com.istream.client.view.AlbumView;
+import com.istream.client.view.ArtistView;
+import com.istream.client.util.UiComponent;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -71,41 +74,47 @@ public class MainAppController {
             contentArea.getChildren().setAll(homeView);
         } catch (IOException e) {
             e.printStackTrace();
-            showError("Could not load home view", e.getMessage());
+            UiComponent.showError("Could not load home view", e.getMessage());
         }
     }
 
     private void loadLikedView() {
         try {
             int userId = sessionHolder.getCurrentUserId();
-            LikedView likedView = new LikedView(musicService, userId);
+            LikedView likedView = new LikedView(musicService, userId, this);
             contentArea.getChildren().setAll(likedView);
         } catch (IOException e) {
             e.printStackTrace();
-            showError("Could not load liked view", e.getMessage());
+            UiComponent.showError("Could not load liked view", e.getMessage());
         }
     }
 
     private void loadArtistsView() {
         try {
             int userId = sessionHolder.getCurrentUserId();
-            ArtistsView artistsView = new ArtistsView(musicService, userId);
+            ArtistsView artistsView = new ArtistsView(musicService, userId, this);
             contentArea.getChildren().setAll(artistsView);
         } catch (IOException e) {
             e.printStackTrace();
-            showError("Could not load artists view", e.getMessage());
+            UiComponent.showError("Could not load artists view", e.getMessage());
         }
     }
+
+    private void loadAlbumView() {
+        try {
+            int userId = sessionHolder.getCurrentUserId();
+            AlbumView albumView = new AlbumView(musicService, userId, this);
+            contentArea.getChildren().setAll(albumView);
+        } catch (IOException e) {
+            e.printStackTrace();
+            UiComponent.showError("Could not load album view", e.getMessage());
+        }
+    }
+    
 
     public void setContent(Parent newContent) {
         contentArea.getChildren().setAll(newContent);
     }
 
-    private void showError(String header, String content) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(header);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
+ 
 } 

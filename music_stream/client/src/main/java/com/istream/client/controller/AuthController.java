@@ -41,6 +41,11 @@ public class AuthController {
 
     public AuthController() {}
 
+    public AuthController(MusicService musicService, SessionHolder sessionManager) {
+        this.musicService = musicService;
+        this.sessionManager = sessionManager;
+    }
+
     public void initServices(MusicService musicService, SessionHolder sessionManager) {
         this.musicService = musicService;
         this.sessionManager = sessionManager;

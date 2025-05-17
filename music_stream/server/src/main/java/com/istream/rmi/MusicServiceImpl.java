@@ -207,6 +207,32 @@ public class MusicServiceImpl extends UnicastRemoteObject implements MusicServic
         }
         
     }
+    //Artist operations
+    @Override
+    public List<Artist> getAllArtists() throws RemoteException {
+        try {
+            return dbManager.getAllArtists();
+        } catch (SQLException e) {
+            throw new RemoteException("Error fetching all artists", e);
+        }
+    }
+    @Override
+    public Artist getArtistById(int id) throws RemoteException {
+        try {   
+            return dbManager.getArtistById(id);
+        } catch (SQLException e) {
+            throw new RemoteException("Error fetching artist by ID", e);
+        }
+    }
+    @Override
+    public List<Artist> getArtistsByName(String name) throws RemoteException {
+        try {
+            return dbManager.getArtistsByName(name);
+        } catch (SQLException e) {
+            throw new RemoteException("Error fetching artists by name", e);
+        }
+    }
+    
 
     @Override
     public String login(String username, String password) throws RemoteException {
