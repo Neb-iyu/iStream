@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ProgressBar?>
+
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@../../css/UploadView.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Label layoutX="199.0" layoutY="92.0" text="Upload music" />
+          <VBox spacing="10">
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Button fx:id="selectFileButton" text="Select File" onAction="#handleSelectFile"/>
+            <Label fx:id="selectedFileLabel" text="No file selected"/>
+        </HBox>
+
+        <TextField fx:id="titleField" promptText="Song Title *" styleClass="text-field"/>
+        <TextField fx:id="artistField" promptText="Artist *" styleClass="text-field"/>
+        <TextField fx:id="albumField" promptText="Album" styleClass="text-field"/>
+
+        <Button fx:id="uploadButton" text="Upload" onAction="#handleUpload" styleClass="primary-button"/>
+        
+        <ProgressBar fx:id="progressBar" prefWidth="Infinity"/>
+        <Label fx:id="statusLabel" styleClass="status-label"/>
+    </VBox>
+   </children>
+</Pane>

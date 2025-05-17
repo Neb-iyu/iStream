@@ -89,6 +89,39 @@ public class MusicServiceImpl extends UnicastRemoteObject implements MusicServic
         return songLibrary.getSongById(id);
     }
 
+    //Album operations
+    @Override
+    public int insertAlbum(Album album) throws RemoteException {
+        try {
+            return dbManager.insertAlbum(album);
+        } catch (SQLException e) {
+            throw new RemoteException("Error inserting album", e);
+        }
+    }
+    @Override
+    public Album getAlbumById(int id) throws RemoteException {
+        try {
+            return dbManager.getAlbumById(id);
+        } catch (SQLException e) {
+            throw new RemoteException("Error fetching album", e);
+        }
+    }
+    @Override
+    public List<Album> getAlbumsByArtist(String artist) throws RemoteException {
+        try {
+            return dbManager.getAlbumsByArtist(artist);
+        } catch (SQLException e) {
+            throw new RemoteException("Error fetching albums by artist", e);
+        }
+    }
+    @Override
+    public List<Album> getAlbumsByTitle(String title) throws RemoteException {
+        try {
+            return dbManager.getAlbumsByTitle(title);
+        } catch (SQLException e) {
+            throw new RemoteException("Error fetching albums by title", e);
+        }
+    }
     @Override
     public List<Playlist> getUserPlaylists(int userId) throws RemoteException {
         try {
@@ -116,6 +149,24 @@ public class MusicServiceImpl extends UnicastRemoteObject implements MusicServic
             throw new RemoteException("Error adding song to playlist", e);
         }
         //playlistManager.addSongToPlaylist(playlistId, songId);
+    }
+
+    @Override
+    public Playlist getPlaylist(int playlistId) throws RemoteException {
+        try {
+            return playlistManager.getPlaylist(playlistId);
+        } catch (SQLException e) {
+            throw new RemoteException("Error fetching playlist", e);
+        }
+    }
+
+    @Override
+    public List<Song> getSongsByPlaylistId(int playlistId) throws RemoteException {
+        try {
+            return playlistManager.getSongsByPlaylistId(playlistId);
+        } catch (SQLException e) {
+            throw new RemoteException("Error fetching songs by playlist ID", e);
+        }
     }
 
     @Override

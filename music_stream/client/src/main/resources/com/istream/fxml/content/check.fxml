@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="20" styleClass="upload-container" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.istream.controller.UploadController">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Upload New Song" styleClass="section-title"/>
+    
+    <VBox spacing="10">
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Button fx:id="selectFileButton" text="Select File" onAction="#handleSelectFile"/>
+            <Label fx:id="selectedFileLabel" text="No file selected"/>
+        </HBox>
+
+        <TextField fx:id="titleField" promptText="Song Title *" styleClass="text-field"/>
+        <TextField fx:id="artistField" promptText="Artist *" styleClass="text-field"/>
+        <TextField fx:id="albumField" promptText="Album" styleClass="text-field"/>
+
+        <Button fx:id="uploadButton" text="Upload" onAction="#handleUpload" styleClass="primary-button"/>
+        
+        <ProgressBar fx:id="progressBar" prefWidth="Infinity"/>
+        <Label fx:id="statusLabel" styleClass="status-label"/>
+    </VBox>
+</VBox> 

@@ -1,0 +1,78 @@
+/* Color Variables */
+* {
+    -fx-primary: #210a0a;
+    -fx-secondary: #323131;
+    -fx-accent: #e74c3c;
+    -fx-text-fill: #d9cccc;
+    -fx-background-color: -fx-primary;
+}
+
+/* Common Button Styles */
+.button {
+    -fx-background-color: -fx-secondary;
+    -fx-text-fill: -fx-text-fill;
+    -fx-font-size: 14px;
+    -fx-padding: 8 16;
+    -fx-background-radius: 4;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: derive(-fx-secondary, 20%);
+}
+
+.button:pressed {
+    -fx-background-color: derive(-fx-secondary, -20%);
+}
+
+/* Common Text Field Styles */
+.text-field, .password-field {
+    -fx-background-color: -fx-secondary;
+    -fx-text-fill: -fx-text-fill;
+    -fx-font-size: 14px;
+    -fx-padding: 8;
+    -fx-background-radius: 4;
+}
+
+.text-field:focused, .password-field:focused {
+    -fx-background-color: derive(-fx-secondary, 20%);
+}
+
+/* Common Label Styles */
+.label {
+    -fx-text-fill: -fx-text-fill;
+    -fx-font-size: 14px;
+}
+
+/* Common List View Styles */
+.list-view {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 8;
+}
+
+.list-cell:filled:hover {
+    -fx-background-color: derive(-fx-secondary, 20%);
+}
+
+.list-cell:selected {
+    -fx-background-color: -fx-accent;
+}
+
+/* Common Scroll Bar Styles */
+.scroll-bar {
+    -fx-background-color: -fx-secondary;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: derive(-fx-secondary, 20%);
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: derive(-fx-secondary, 30%);
+} 

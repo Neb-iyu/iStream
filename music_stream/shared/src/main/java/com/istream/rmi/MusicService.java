@@ -1,9 +1,13 @@
 package com.istream.rmi;
 
-import com.istream.model.*;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.*;
+import java.util.List;
+
+import com.istream.model.Album;
+import com.istream.model.PlayHistory;
+import com.istream.model.Playlist;
+import com.istream.model.Song;
 
 public interface MusicService extends Remote {
     // Song operations
@@ -11,10 +15,18 @@ public interface MusicService extends Remote {
     Song getSongById(int id) throws RemoteException;
     byte[] streamSong(int songId) throws RemoteException;
     
+    // Album operations
+    int insertAlbum(Album album) throws RemoteException;
+    List<Album> getAlbumsByArtist(String artist) throws RemoteException;
+    List<Album> getAlbumsByTitle(String title) throws RemoteException;
+    Album getAlbumById(int id) throws RemoteException;
+    
     // Playlist operations
     List<Playlist> getUserPlaylists(int userId) throws RemoteException;
     Playlist createPlaylist(int userId, String name) throws RemoteException;
     void addSongToPlaylist(int playlistId, int songId) throws RemoteException;
+    Playlist getPlaylist(int playlistId) throws RemoteException;
+    List<Song> getSongsByPlaylistId(int playlistId) throws RemoteException;
     
     // User actions
     void recordPlay(int userId, int songId) throws RemoteException;

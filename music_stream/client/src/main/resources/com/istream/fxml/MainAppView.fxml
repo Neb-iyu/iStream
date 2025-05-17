@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.istream.client.controller.MainAppController">
+    <left>
+        <fx:include source="alwaysOnDisplay/LeftMenuPane.fxml" fx:id="leftMenuPane" />
+    </left>
+    <center>
+        <VBox fx:id="contentArea" BorderPane.alignment="CENTER" />
+    </center>
+    <!-- Optional: Add a top area for a player bar -->
+    <!-- 
+    <top>
+       <fx:include source="alwaysOnDisplay/PlayerBarView.fxml" fx:id="playerBar" />
+    </top>
+    -->
+</BorderPane> 

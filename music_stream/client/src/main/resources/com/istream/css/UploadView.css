@@ -1,0 +1,57 @@
+.upload-container {
+    -fx-background-color: -fx-primary;
+    -fx-padding: 20;
+}
+
+.section-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-fill;
+}
+
+.text-field {
+    -fx-background-color: -fx-secondary;
+    -fx-text-fill: -fx-text-fill;
+    -fx-prompt-text-fill: derive(-fx-text-fill, 50%);
+    -fx-padding: 8;
+    -fx-background-radius: 4;
+}
+
+.text-field:focused {
+    -fx-background-color: derive(-fx-secondary, 20%);
+}
+
+.primary-button {
+    -fx-background-color: -fx-accent;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 10 20;
+    -fx-background-radius: 4;
+}
+
+.primary-button:hover {
+    -fx-background-color: derive(-fx-accent, 20%);
+}
+
+.primary-button:disabled {
+    -fx-background-color: derive(-fx-secondary, 20%);
+    -fx-opacity: 0.7;
+}
+
+.status-label {
+    -fx-text-fill: -fx-text-fill;
+    -fx-font-size: 14px;
+}
+
+.progress-bar {
+    -fx-accent: -fx-accent;
+}
+
+.progress-bar .track {
+    -fx-background-color: -fx-secondary;
+}
+
+.progress-bar .bar {
+    -fx-background-color: -fx-accent;
+    -fx-background-radius: 2;
+} 

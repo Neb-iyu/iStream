@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #323131;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.istream.client.controller.AuthController">
+   <children>
+      <Pane fx:id="logoPane" layoutX="193.0" layoutY="46.0" prefHeight="70.0" prefWidth="250.0">
+         <children>
+            <ImageView fitHeight="53.0" fitWidth="53.0" layoutX="48.0" layoutY="7.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../images/logo.png" />
+               </image>
+            </ImageView>
+            <Label alignment="CENTER" layoutX="97.0" layoutY="22.0" prefHeight="33.0" prefWidth="76.0" text="Stream" textFill="#e4c3c3">
+               <font>
+                  <Font name="Webdings" size="22.0" />
+               </font>
+            </Label>
+         </children></Pane>
+      <Pane fx:id="formPane" layoutX="175.0" layoutY="116.0" prefHeight="200.0" prefWidth="250.0">
+         <children>
+            <Label fx:id="fillLabel" prefHeight="27.0" prefWidth="46.0" text="Login" textFill="#d9cccc" />
+            <TextField fx:id="usernameField" layoutX="101.0" layoutY="45.0" />
+            <PasswordField fx:id="passwordField" layoutX="101.0" layoutY="80.0" />
+            <Label fx:id="usernameLabel" layoutX="19.0" layoutY="49.0" prefHeight="25.0" prefWidth="53.0" text="Username" textFill="#d9cece" />
+            <Label fx:id="passwordLabel" layoutX="19.0" layoutY="80.0" prefHeight="25.0" prefWidth="53.0" text="Password" textFill="#d9cece" />
+            <Button fx:id="loginButton" layoutX="190.0" layoutY="112.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="59.0" style="-fx-background-color: #210a0a;" text="Login" textFill="#d9cccc" />
+            <Label fx:id="switchViewLabel" layoutX="14.0" layoutY="150.0" prefHeight="17.0" prefWidth="149.0" text="Don't have an account?" textFill="#d9cccc" />
+            <Button fx:id="switchViewButton" layoutX="191.0" layoutY="146.0" mnemonicParsing="false" onAction="#handleSwitchView" style="-fx-background-color: #210a0a;" text="Register" textFill="#d9cccc" />
+            <Label fx:id="statusLabel" layoutX="14.0" layoutY="160.0" prefHeight="17.0" prefWidth="222.0" textFill="#d9cccc" />
+         </children>
+      </Pane>
+      <Pane prefHeight="400.0" prefWidth="142.0" style="-fx-background-color: #210a0a;" />
+   </children>
+</AnchorPane>

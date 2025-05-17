@@ -1,3 +1,46 @@
 .{
     -fx-background-color:  #210a0a;
 }
+
+.top-menu {
+    -fx-background-color: -fx-primary;
+    -fx-border-color: derive(-fx-primary, 20%);
+    -fx-border-width: 0 0 1 0;
+}
+
+.search-container {
+    -fx-padding: 10 20;
+    -fx-spacing: 20;
+}
+
+.search-box {
+    -fx-background-color: -fx-secondary;
+    -fx-padding: 5 10;
+    -fx-background-radius: 20;
+    -fx-min-width: 300;
+}
+
+.search-field {
+    -fx-background-color: transparent;
+    -fx-prompt-text-fill: derive(-fx-text-fill, 50%);
+}
+
+.search-button {
+    -fx-background-color: transparent;
+    -fx-padding: 5;
+    -fx-min-width: 30;
+    -fx-min-height: 30;
+}
+
+.search-button:hover {
+    -fx-background-color: derive(-fx-secondary, 20%);
+}
+
+.profile-image {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 0);
+    -fx-cursor: hand;
+}
+
+.profile-image:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 15, 0, 0, 0);
+}

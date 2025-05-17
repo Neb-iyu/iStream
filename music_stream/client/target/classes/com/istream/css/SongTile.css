@@ -1,0 +1,41 @@
+.song-tile {
+    -fx-padding: 10;
+    -fx-background-color: transparent;
+    -fx-border-color: derive(-fx-secondary, 20%);
+    -fx-border-width: 0 0 1 0;
+}
+
+.song-tile:hover {
+    -fx-background-color: derive(-fx-secondary, 10%);
+}
+
+.song-cover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 0, 0);
+}
+
+.song-details {
+    -fx-padding: 5 0;
+}
+
+.song-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.song-artist {
+    -fx-font-size: 14px;
+    -fx-text-fill: derive(-fx-text-fill, 30%);
+}
+
+.icon-button {
+    -fx-background-color: transparent;
+    -fx-padding: 5;
+    -fx-min-width: 30;
+    -fx-min-height: 30;
+    -fx-cursor: hand;
+}
+
+.icon-button:hover {
+    -fx-background-color: derive(-fx-secondary, 20%);
+    -fx-background-radius: 15;
+} 

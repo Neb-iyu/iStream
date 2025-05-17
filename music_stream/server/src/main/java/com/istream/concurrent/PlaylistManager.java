@@ -31,4 +31,12 @@ public class PlaylistManager {
     public void deletePlaylist(int playlistId) throws SQLException {
         dbManager.deletePlaylist(playlistId);
     }
+
+    public Playlist getPlaylist(int playlistId) throws SQLException {
+        return dbManager.getPlaylist(playlistId);
+    }
+
+    public List<Song> getSongsByPlaylistId(int playlistId) throws SQLException {
+        return dbManager.getSongsByPlaylistId(playlistId);
+    }
 }

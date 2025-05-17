@@ -28,7 +28,7 @@ public class Security {
     
     // RMI object validation
     public static void validateRemoteObject(Object obj) {
-        if (obj == null || !obj.getClass().getName().startsWith("com.musicstreamer.")) {
+        if (obj == null || !obj.getClass().getName().startsWith("com.istream.")) {
             throw new SecurityException("Invalid remote object");
         }
     }

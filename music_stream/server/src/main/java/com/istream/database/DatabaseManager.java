@@ -1,13 +1,20 @@
 package com.istream.database;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
-// import java.util.Dictionary;
-// import java.util.Enumeration;
-// import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import com.istream.model.*;
+
+import com.istream.model.Album;
+import com.istream.model.PlayHistory;
+import com.istream.model.Playlist;
+import com.istream.model.Song;
+import com.istream.model.User;
 
 public class DatabaseManager {
     private Connection connection;
@@ -44,6 +51,22 @@ public class DatabaseManager {
             //     "song_id INT PRIMARY KEY REFERENCES songs(id), " +
             //     "data BYTEA)");
             
+            //Album
+            stmt.execute("CREATE TABLE IF NOT EXISTS albums (" +
+                "id SERIAL PRIMARY KEY, " +
+                "title VARCHAR(255), " +
+                "artist VARCHAR(255), " +
+                "cover_art_path VARCHAR(255))");
+            //Album items
+            stmt.execute("CREATE TABLE IF NOT EXISTS album_items (" +
+                "album_id INT REFERENCES albums(id), " +
+                "song_id INT REFERENCES songs(id), " +
+                "PRIMARY KEY (album_id, song_id))");
+            //Artist
+            stmt.execute("CREATE TABLE IF NOT EXISTS artists (" +
+                "id SERIAL PRIMARY KEY, " +
+                "name VARCHAR(255), " +
+                "cover_art_path VARCHAR(255))");
             // Users
             stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
                 "id SERIAL PRIMARY KEY, " +
@@ -177,6 +200,116 @@ public class DatabaseManager {
         return null;
     }
 
+    public List<Song> getSongsByArtist(String artist) throws SQLException {
+        List<Song> songs = new ArrayList<>();
+        String sql = "SELECT * FROM songs WHERE artist = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, artist);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                songs.add(getSongById(rs.getInt("id")));
+            }
+        }
+        return songs;
+    }
+
+    public List<Song> getSongsByAlbum(String album) throws SQLException {
+        List<Song> songs = new ArrayList<>();
+        String sql = "SELECT * FROM songs WHERE album = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, album);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                songs.add(getSongById(rs.getInt("id")));
+            }
+        }
+        return songs;
+    }
+    
+    public List<Song> getSongsByTitle(String title) throws SQLException {
+        List<Song> songs = new ArrayList<>();
+        String sql = "SELECT * FROM songs WHERE title LIKE ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, "%" + title + "%");
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                songs.add(getSongById(rs.getInt("id")));
+            }
+        }
+        return songs;
+    }
+    //Album operations
+    public int insertAlbum(Album album) throws SQLException {
+        String sql = "INSERT INTO albums (title, artist, cover_art_path) VALUES (?, ?, ?) RETURNING id";
+        String sql2 = "INSERT INTO album_items (album_id,song_id) VALUES (?,?)";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, album.getTitle());
+            pstmt.setString(2, album.getArtist());
+            pstmt.setString(3, album.getCoverArtPath());
+            
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                try (PreparedStatement pstmt2 = connection.prepareStatement(sql2)) {
+                    pstmt2.setInt(1, rs.getInt("id"));
+                    for (Song song : album.getSongs()) {
+                        pstmt2.setInt(2, song.getId());
+                        
+                    }
+                    pstmt2.executeUpdate();
+                }
+                return rs.getInt("id");
+            }
+        }
+        throw new SQLException("Failed to insert album");
+    }
+
+    public Album getAlbumById(int id) throws SQLException {
+        String sql = "SELECT * FROM albums WHERE id = ?";
+        
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+            ResultSet rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                return new Album(rs.getInt("id"), rs.getString("title"), rs.getString("artist"), rs.getString("cover_art_path"), new ArrayList<>());
+            }
+        }
+        return null;
+    }
+
+    public List<Album> getAlbumsByArtist(String artist) throws SQLException {
+        List<Album> albums = new ArrayList<>();
+        String sql = "SELECT * FROM albums WHERE artist LIKE ?";
+        
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, "%" + artist + "%");
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                Album album = new Album(rs.getInt("id"), rs.getString("title"), rs.getString("artist"), rs.getString("cover_art_path"), new ArrayList<>());
+                albums.add(album);
+            }
+        }
+        return albums;
+    }
+    public List<Album> getAlbumsByTitle(String title) throws SQLException {
+        List<Album> albums = new ArrayList<>();
+        String sql = "SELECT * FROM albums WHERE title = ?";
+        
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, title);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                Album album = new Album(rs.getInt("id"), rs.getString("title"), rs.getString("artist"), rs.getString("cover_art_path"), new ArrayList<>());
+                albums.add(album);
+            }
+        }
+        return albums;
+    }
+
+    
     // Playlist operations
     public List<Playlist> getUserPlaylists(int userId) throws SQLException {
         List<Playlist> playlists = new ArrayList<>();
@@ -259,6 +392,40 @@ public class DatabaseManager {
             pstmt.executeUpdate();
         }
     }
+
+    public Playlist getPlaylist(int playlistId) throws SQLException {
+        String sql = "SELECT * FROM playlists WHERE id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, playlistId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                HashSet<Song> songs = new HashSet<>();
+                String sql2 = "SELECT song_id FROM playlist_items WHERE playlist_id = ?";
+                try (PreparedStatement pstmt2 = connection.prepareStatement(sql2)) {
+                    pstmt2.setInt(1, playlistId);
+                    ResultSet rs2 = pstmt2.executeQuery();
+                    while (rs2.next()) {
+                        songs.add(getSongById(rs2.getInt("song_id")));
+                    }
+                }
+                return new Playlist(rs.getInt("id"), rs.getString("name"), null, getUserById(rs.getInt("user_id")), songs, 0);
+            }
+        }
+        return null;
+    }
+    public List<Song> getSongsByPlaylistId(int playlistId) throws SQLException {
+        String sql = "SELECT song_id FROM playlist_items WHERE playlist_id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, playlistId);
+            ResultSet rs = pstmt.executeQuery();
+            List<Song> songs = new ArrayList<>();
+            while (rs.next()) {
+                songs.add(getSongById(rs.getInt("song_id")));
+            }
+            return songs;
+        }
+    }
+
     // User operations
     public int createUser(User user) throws SQLException {
         String sql = "INSERT INTO users (username, hashed_password, email) VALUES (?, ?, ?) RETURNING id";
