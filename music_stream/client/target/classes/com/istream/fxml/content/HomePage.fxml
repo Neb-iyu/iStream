@@ -57,5 +57,6 @@
                 <HBox fx:id="albumsBox" spacing="20.0" alignment="CENTER_LEFT" 
                     minWidth="1000"/> <!-- Or set to a specific minimum width -->
             </content>
+        </ScrollPane>
     </VBox>
 </VBox>

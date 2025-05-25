@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.istream.client.controller.PlaylistPageController"
+            styleClass="content-pane">
+    
+    <VBox spacing="20" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+        <!-- Playlist Header -->
+        <HBox spacing="20" alignment="CENTER_LEFT" styleClass="playlist-header">
+            <ImageView fx:id="playlistCover" fitWidth="200" fitHeight="200" styleClass="playlist-cover"/>
+            <VBox spacing="10">
+                <Label fx:id="playlistTitle" styleClass="playlist-title"/>
+                <Label fx:id="playlistInfo" styleClass="playlist-info"/>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button fx:id="playButton" text="Play" onAction="#handlePlayAll"/>
+                    <Button fx:id="shuffleButton" text="Shuffle" onAction="#handleShuffle"/>
+                </HBox>
+            </VBox>
+        </HBox>
+
+        <!-- Songs List -->
+        <TableView fx:id="songsTable" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="titleColumn" text="Title" prefWidth="300"/>
+                <TableColumn fx:id="artistColumn" text="Artist" prefWidth="200"/>
+                <TableColumn fx:id="albumColumn" text="Album" prefWidth="200"/>
+                <TableColumn fx:id="durationColumn" text="Duration" prefWidth="100"/>
+            </columns>
+        </TableView>
+    </VBox>
+
+    <stylesheets>
+        <URL value="@/com/istream/css/playlist-page.css"/>
+    </stylesheets>
+</AnchorPane>

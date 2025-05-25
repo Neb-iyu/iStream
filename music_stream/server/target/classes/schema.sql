@@ -6,6 +6,25 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) UNIQUE NOT NULL
 );
 
+-- Admin table
+CREATE TABLE IF NOT EXISTS admins (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(id)
+);
+-- Albums table
+CREATE TABLE IF NOT EXISTS albums (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    artist_id INT REFERENCES artists(id),
+    cover_art_path VARCHAR(255)
+);
+-- Artists table
+CREATE TABLE IF NOT EXISTS artists (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    album_id INT REFERENCES albums(id),
+    song_id INT REFERENCES songs(id),
+);
 -- Songs table
 CREATE TABLE IF NOT EXISTS songs (
     id SERIAL PRIMARY KEY,

@@ -6,22 +6,32 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.Path;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.InputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
 
 import java.util.HashSet;
 
 public class FileManager {
-    private static final String BASE_DIR = "music_stream/server/src/main/resources/music/"; // Base directory for music files
+    private static final String BASE_DIR = "music_stream/server/src/main/resources/"; // Base directory for music files
 
     public FileManager() {
-        // Ensure the base directory exists
-        File dir = new File(BASE_DIR);
+        ensureDirectoryExists(BASE_DIR + "images/");
+        ensureDirectoryExists(BASE_DIR + "songs/");
+    }
+
+    private void ensureDirectoryExists(String path) {
+        File dir = new File(path);
         if (!dir.exists()) {
             dir.mkdirs();
         }
     }
 
     public byte[] getSongData(int songId) {
-        Path path = Paths.get(BASE_DIR + songId + ".mp3");
+        Path path = Paths.get(BASE_DIR + "songs/" + songId + ".mp3");
         if (Files.exists(path)) {
             try {
                 return Files.readAllBytes(path);
@@ -32,7 +42,7 @@ public class FileManager {
         return null;
     }
     public File getSongFile(int songId) {
-        return new File(BASE_DIR + songId + ".mp3");
+        return new File(BASE_DIR + "songs/" + songId + ".mp3");
     }
 
     public HashSet<byte[]> getAllSongFiles() {
@@ -59,4 +69,23 @@ public class FileManager {
             e.printStackTrace();
         }
     }
+
+    public byte[] getImage(String path) throws IOException {
+        Path filePath = Paths.get(BASE_DIR + "images/" + path);
+        if (Files.exists(filePath)) {
+            BufferedImage image = ImageIO.read(filePath.toFile());
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", baos);
+            return baos.toByteArray();
+        }
+        return null;
+    }
+    public void saveImage(String path, byte[] image) throws IOException {
+        Path filePath = Paths.get(BASE_DIR + "images/" + path);
+        try(InputStream is = new ByteArrayInputStream(image)) {
+            BufferedImage bi = ImageIO.read(is);
+            ImageIO.write(bi, "png", filePath.toFile());
+        }
+    }
+    
 }

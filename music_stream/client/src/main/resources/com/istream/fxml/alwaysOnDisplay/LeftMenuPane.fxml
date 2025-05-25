@@ -10,6 +10,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.Insets?>
 
 <AnchorPane id="LeftMenuPane" fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="492.0" prefWidth="283.0" styleClass="left-menu" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.istream.controller.LeftMenuController">
    <children>
@@ -59,6 +60,17 @@
                         <Image url="@../../images/artist.png" />
                      </ImageView>
                      <Label styleClass="menu-button-text" text="Artists" textFill="#d9cccc" />
+                  </HBox>
+               </graphic>
+            </Button>
+
+            <Button id="upload" fx:id="uploadButton" onAction="#handleUploadClick" prefHeight="36.0" prefWidth="289.0" style="-fx-background-color: #210a0a;" styleClass="menu-button" visible="false">
+               <graphic>
+                  <HBox alignment="CENTER_LEFT" spacing="10">
+                     <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
+                        <Image url="@../../images/upload.png" />
+                     </ImageView>
+                     <Label styleClass="menu-button-text" text="Upload" textFill="#d9cccc" />
                   </HBox>
                </graphic>
             </Button>

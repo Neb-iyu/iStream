@@ -2,660 +2,185 @@ package com.istream.database;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-import com.istream.model.*;
+import com.istream.database.dao.AlbumDAO;
+import com.istream.database.dao.ArtistDAO;
+import com.istream.database.dao.HistoryDAO;
+import com.istream.database.dao.PlaylistDAO;
+import com.istream.database.dao.SongDAO;
+import com.istream.database.dao.UserDAO;
 
 public class DatabaseManager {
-    private Connection connection;
+    private static final int SESSION_CLEANUP_INTERVAL = 30; // minutes
+    private static final String URL = "jdbc:postgresql://localhost:5432/musicdb";
+    private static final String USERNAME = "user";
+    private static final String PASSWORD = "1234";
+    
+    private final SongDAO songDAO;
+    private final AlbumDAO albumDAO;
+    private final ArtistDAO artistDAO;
+    private final UserDAO userDAO;
+    private final PlaylistDAO playlistDAO;
+    private final HistoryDAO historyDAO;
     
     public DatabaseManager() {
         try {
-            // Initialize connection
-            Class.forName("org.postgresql.Driver");
-            this.connection = DriverManager.getConnection(
-                "jdbc:postgresql://localhost/musicdb",
-                "username",
-                "password"
-            );
+            // Initialize DAOs
+            this.songDAO = new SongDAO(this);
+            this.albumDAO = new AlbumDAO(this, songDAO);
+            this.artistDAO = new ArtistDAO(this, songDAO, albumDAO);
+            this.userDAO = new UserDAO(this);
+            this.playlistDAO = new PlaylistDAO(this, songDAO, userDAO);
+            this.historyDAO = new HistoryDAO(this, songDAO, userDAO);
+            
             createTablesIfNotExists();
+            startSessionCleanup();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Failed to initialize database", e);
         }
     }
     
+    private void startSessionCleanup() {
+        Thread cleanupThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    cleanupExpiredSessions();
+                    Thread.sleep(TimeUnit.MINUTES.toMillis(SESSION_CLEANUP_INTERVAL));
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        cleanupThread.setDaemon(true);
+        cleanupThread.start();
+    }
+    
+    private void cleanupExpiredSessions() throws SQLException {
+        String sql = "DELETE FROM sessions WHERE expires_at < NOW()";
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(sql);
+        }
+    }
+    
+    public Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(URL, USERNAME, PASSWORD);
+    }
+
     private void createTablesIfNotExists() throws SQLException {
-        try (Statement stmt = connection.createStatement()) {
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement()) {
+            // Artists table
+            stmt.execute("CREATE TABLE IF NOT EXISTS artists (" +
+                "id SERIAL PRIMARY KEY, " +
+                "name VARCHAR(255) NOT NULL, " +
+                "bio TEXT, " +
+                "image VARCHAR(255))");
+
+            // Albums table
+            stmt.execute("CREATE TABLE IF NOT EXISTS albums (" +
+                "id SERIAL PRIMARY KEY, " +
+                "title VARCHAR(255) NOT NULL, " +
+                "artist_id INT NOT NULL, " +
+                "cover_art_path VARCHAR(255), " +
+                "FOREIGN KEY (artist_id) REFERENCES artists(id))");
+
             // Songs table
             stmt.execute("CREATE TABLE IF NOT EXISTS songs (" +
                 "id SERIAL PRIMARY KEY, " +
-                "title VARCHAR(255), " +
-                "artist VARCHAR(255), " +
-                "album VARCHAR(255), " +
-                "duration INT, " +
-                "file_path VARCHAR(255), " +
-                "cover_art_path VARCHAR(255))");
-            
-            // Song data (separate table for BLOB)
-            // stmt.execute("CREATE TABLE IF NOT EXISTS song_data (" +
-            //     "song_id INT PRIMARY KEY REFERENCES songs(id), " +
-            //     "data BYTEA)");
-            
-            //Album
-            stmt.execute("CREATE TABLE IF NOT EXISTS albums (" +
-                "id SERIAL PRIMARY KEY, " +
-                "title VARCHAR(255), " +
-                "artist VARCHAR(255), " +
-                "cover_art_path VARCHAR(255))");
-            //Album items
+                "title VARCHAR(255) NOT NULL, " +
+                "artist_id INT NOT NULL, " +
+                "album_id INT, " +
+                "duration INT NOT NULL, " +
+                "file_path VARCHAR(255) NOT NULL, " +
+                "FOREIGN KEY (artist_id) REFERENCES artists(id), " +
+                "FOREIGN KEY (album_id) REFERENCES albums(id))");
+
+            // Album items table
             stmt.execute("CREATE TABLE IF NOT EXISTS album_items (" +
                 "album_id INT REFERENCES albums(id), " +
                 "song_id INT REFERENCES songs(id), " +
                 "PRIMARY KEY (album_id, song_id))");
-            //Artist
-            stmt.execute("CREATE TABLE IF NOT EXISTS artists (" +
-                "id SERIAL PRIMARY KEY, " +
-                "name VARCHAR(255), " +
-                "image_url VARCHAR(255))");
-            // Artist items
-            stmt.execute("CREATE TABLE IF NOT EXISTS artist_items (" +
-                "artist_id INT REFERENCES artists(id), " +
-                "song_id INT REFERENCES songs(id), " +
-                "album_id INT REFERENCES albums(id), " +
-                "PRIMARY KEY (artist_id, song_id, album_id))");
-            // Users
+
+            // Users table
             stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
                 "id SERIAL PRIMARY KEY, " +
-                "username VARCHAR(255) UNIQUE, " +
-                "hashed_password VARCHAR(255), " +
-                "email VARCHAR(255) UNIQUE)");
+                "username VARCHAR(255) UNIQUE NOT NULL, " +
+                "password VARCHAR(255) NOT NULL, " +
+                "email VARCHAR(255) UNIQUE NOT NULL, " +
+                "profile_picture VARCHAR(255))");
 
-            // Playlists
+            // Playlists table
             stmt.execute("CREATE TABLE IF NOT EXISTS playlists (" +
                 "id SERIAL PRIMARY KEY, " +
-                "user_id INT, " +
-                "name VARCHAR(255))");
-            
-            // Playlist items
+                "user_id INT NOT NULL, " +
+                "name VARCHAR(255) NOT NULL, " +
+                "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                "FOREIGN KEY (user_id) REFERENCES users(id))");
+
+            // Playlist items table
             stmt.execute("CREATE TABLE IF NOT EXISTS playlist_items (" +
                 "playlist_id INT REFERENCES playlists(id), " +
                 "song_id INT REFERENCES songs(id), " +
+                "added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
                 "PRIMARY KEY (playlist_id, song_id))");
             
-            // History
+            // Play history table
             stmt.execute("CREATE TABLE IF NOT EXISTS play_history (" +
-                "user_id INT, " +
-                "song_id INT REFERENCES songs(id), " +
-                "play_time TIMESTAMP, " +
-                "PRIMARY KEY (user_id, song_id))");
-            
-            // Likes
-            stmt.execute("CREATE TABLE IF NOT EXISTS likes (" +
-                "user_id INT, " +
-                "song_id INT REFERENCES songs(id), " +
-                "PRIMARY KEY (user_id, song_id))");
-            //Session
+                "id SERIAL PRIMARY KEY, " +
+                "user_id INT NOT NULL, " +
+                "song_id INT NOT NULL, " +
+                "played_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                "FOREIGN KEY (user_id) REFERENCES users(id), " +
+                "FOREIGN KEY (song_id) REFERENCES songs(id))");
+
+            // Liked songs table
+            stmt.execute("CREATE TABLE IF NOT EXISTS liked_songs (" +
+                "user_id INT NOT NULL, " +
+                "song_id INT NOT NULL, " +
+                "liked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                "PRIMARY KEY (user_id, song_id), " +
+                "FOREIGN KEY (user_id) REFERENCES users(id), " +
+                "FOREIGN KEY (song_id) REFERENCES songs(id))");
+
+            // Sessions table
             stmt.execute("CREATE TABLE IF NOT EXISTS sessions (" +
-                "token VARCHAR(64) PRIMARY KEY," + 
+                "token VARCHAR(64) PRIMARY KEY, " +
                 "user_id INT NOT NULL, " + 
-                "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," + 
+                "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
                 "expires_at TIMESTAMP NOT NULL, " + 
                 "FOREIGN KEY (user_id) REFERENCES users(id))");
         }
     }
     
-    // Song operations
-    public int insertSong(Song song) throws SQLException {
-        String sql = "INSERT INTO songs (title, artist, album, duration, file_path, cover_art_path) " +
-                     "VALUES (?, ?, ?, ?, ?, ?) RETURNING id";
-        
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, song.getTitle());
-            pstmt.setString(2, song.getArtist());
-            pstmt.setString(3, song.getAlbum());
-            pstmt.setInt(4, song.getDuration());
-            pstmt.setString(5, song.getFilePath());
-            pstmt.setString(6, song.getCoverArtPath());
-            
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-        }
-        throw new SQLException("Failed to insert song");
-    }
-    
-    // public void storeSongData(int songId, byte[] data) throws SQLException {
-    //     String sql = "INSERT INTO song_data (song_id, data) VALUES (?, ?)";
-        
-    //     try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-    //         pstmt.setInt(1, songId);
-    //         pstmt.setBytes(2, data);
-    //         pstmt.executeUpdate();
-    //     }
-    // }
-    
-    // public byte[] getSongData(int songId) throws SQLException {
-    //     String sql = "SELECT data FROM song_data WHERE song_id = ?";
-        
-    //     try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-    //         pstmt.setInt(1, songId);
-    //         ResultSet rs = pstmt.executeQuery();
-            
-    //         if (rs.next()) {
-    //             return rs.getBytes(1);
-    //         }
-    //     }
-    //     return null;
-    // }
-    public List<Song> getAllSongs() throws SQLException {
-        List<Song> songs = new ArrayList<>();
-        String sql = "SELECT * FROM songs";
-        
-        try (Statement stmt = connection.createStatement()) {
-            ResultSet rs = stmt.executeQuery(sql);
-            
-            while (rs.next()) {
-                Song song = new Song(
-                    rs.getInt("id"),
-                    rs.getString("title"),
-                    rs.getString("artist"),
-                    rs.getString("album"),
-                    rs.getString("genre"),
-                    rs.getInt("duration"),
-                    rs.getString("file_path"),
-                    rs.getString("cover_art_path"),
-                    rs.getInt("year")
-                );
-                songs.add(song);
-            }
-        }
-        return songs;
-    }
-    public Song getSongById(int id) throws SQLException {
-        String sql = "SELECT * FROM songs WHERE id = ?";
-        
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, id);
-            ResultSet rs = pstmt.executeQuery();
-            
-            if (rs.next()) {
-                return new Song(
-                    rs.getInt("id"),
-                    rs.getString("title"),
-                    rs.getString("artist"),
-                    rs.getString("album"),
-                    rs.getString("genre"),
-                    rs.getInt("duration"),
-                    rs.getString("file_path"),
-                    rs.getString("cover_art_path"),
-                    rs.getInt("year")
-                );
-            }
-        }
-        return null;
+    // Getters for DAOs
+    public SongDAO getSongDAO() {
+        return songDAO;
     }
 
-    public List<Song> getSongsByArtist(String artist) throws SQLException {
-        List<Song> songs = new ArrayList<>();
-        String sql = "SELECT * FROM songs WHERE artist = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, artist);
-            ResultSet rs = pstmt.executeQuery();
-            while (rs.next()) {
-                songs.add(getSongById(rs.getInt("id")));
-            }
-        }
-        return songs;
+    public AlbumDAO getAlbumDAO() {
+        return albumDAO;
     }
 
-    public List<Song> getSongsByAlbum(String album) throws SQLException {
-        List<Song> songs = new ArrayList<>();
-        String sql = "SELECT * FROM songs WHERE album = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, album);
-            ResultSet rs = pstmt.executeQuery();
-            while (rs.next()) {
-                songs.add(getSongById(rs.getInt("id")));
-            }
-        }
-        return songs;
-    }
-    
-    public List<Song> getSongsByTitle(String title) throws SQLException {
-        List<Song> songs = new ArrayList<>();
-        String sql = "SELECT * FROM songs WHERE title LIKE ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, "%" + title + "%");
-            ResultSet rs = pstmt.executeQuery();
-            while (rs.next()) {
-                songs.add(getSongById(rs.getInt("id")));
-            }
-        }
-        return songs;
-    }
-    //Album operations
-    public int insertAlbum(Album album) throws SQLException {
-        String sql = "INSERT INTO albums (title, artist, cover_art_path) VALUES (?, ?, ?) RETURNING id";
-        String sql2 = "INSERT INTO album_items (album_id,song_id) VALUES (?,?)";
-
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, album.getTitle());
-            pstmt.setString(2, album.getArtist());
-            pstmt.setString(3, album.getCoverArtPath());
-            
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                try (PreparedStatement pstmt2 = connection.prepareStatement(sql2)) {
-                    pstmt2.setInt(1, rs.getInt("id"));
-                    for (Song song : album.getSongs()) {
-                        pstmt2.setInt(2, song.getId());
-                        
-                    }
-                    pstmt2.executeUpdate();
-                }
-                return rs.getInt("id");
-            }
-        }
-        throw new SQLException("Failed to insert album");
+    public ArtistDAO getArtistDAO() {
+        return artistDAO;
     }
 
-    public Album getAlbumById(int id) throws SQLException {
-        String sql = "SELECT * FROM albums WHERE id = ?";
-        
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, id);
-            ResultSet rs = pstmt.executeQuery();
-            
-            if (rs.next()) {
-                return new Album(rs.getInt("id"), rs.getString("title"), rs.getString("artist"), rs.getString("cover_art_path"), new ArrayList<>());
-            }
-        }
-        return null;
+    public UserDAO getUserDAO() {
+        return userDAO;
     }
 
-    public List<Album> getAlbumsByArtist(String artist) throws SQLException {
-        List<Album> albums = new ArrayList<>();
-        String sql = "SELECT * FROM albums WHERE artist LIKE ?";
-        
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, "%" + artist + "%");
-            ResultSet rs = pstmt.executeQuery();
-            
-            while (rs.next()) {
-                Album album = new Album(rs.getInt("id"), rs.getString("title"), rs.getString("artist"), rs.getString("cover_art_path"), new ArrayList<>());
-                albums.add(album);
-            }
-        }
-        return albums;
-    }
-    public List<Album> getAlbumsByTitle(String title) throws SQLException {
-        List<Album> albums = new ArrayList<>();
-        String sql = "SELECT * FROM albums WHERE title = ?";
-        
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, title);
-            ResultSet rs = pstmt.executeQuery();
-            
-            while (rs.next()) {
-                Album album = new Album(rs.getInt("id"), rs.getString("title"), rs.getString("artist"), rs.getString("cover_art_path"), new ArrayList<>());
-                albums.add(album);
-            }
-        }
-        return albums;
+    public PlaylistDAO getPlaylistDAO() {
+        return playlistDAO;
     }
 
-    
-    // Playlist operations
-    public List<Playlist> getUserPlaylists(int userId) throws SQLException {
-        List<Playlist> playlists = new ArrayList<>();
-        String sql = "SELECT * FROM playlists WHERE user_id = ?";
-        
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
-            ResultSet rs = pstmt.executeQuery();
-            
-            while (rs.next()) {
-                HashSet<Song> songs = new HashSet<>();
-                String sql2 = "SELECT song_id FROM playlist_items WHERE playlist_id = ?";
-                try (PreparedStatement pstmt2 = connection.prepareStatement(sql2)) {
-                    pstmt2.setInt(1, rs.getInt("id"));
-                    ResultSet rs2 = pstmt2.executeQuery();
-                    
-                    while (rs2.next()) {
-                        Song song = getSongById(rs2.getInt("song_id"));
-                        if (song != null) {
-                            songs.add(song);
-                        }
-                    }
-                }
-                User owner = getUserById(rs.getInt("user_id"));
-                 Playlist playlist = new Playlist(
-                     rs.getInt("id"),
-                     rs.getString("name"),
-                     null, // description not used here
-                     owner,
-                     songs,
-                     0
-                 );
-                 playlists.add(playlist);
-            }
-        }
-        return playlists;
+    public HistoryDAO getHistoryDAO() {
+        return historyDAO;
     }
-    public Playlist createPlaylist(int userId, String name) throws SQLException {
-        String sql = "INSERT INTO playlists (user_id, name) VALUES (?, ?) RETURNING id";
-        
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
-            pstmt.setString(2, name);
-            
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return new Playlist(rs.getInt(1), name, null, getUserById(userId), new HashSet<>(), 0);
-            }
-        }
-        throw new SQLException("Failed to create playlist");
-    }
-    public void addSongToPlaylist(int playlistId, int songId) throws SQLException {
-        String sql = "INSERT INTO playlist_items (playlist_id, song_id) VALUES (?, ?)";
-        
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, playlistId);
-            pstmt.setInt(2, songId);
-            pstmt.executeUpdate();
-        }
-    }
-    public void removeSongFromPlaylist(int playlistId, int songId) throws SQLException {
-        String sql = "DELETE FROM playlist_items WHERE playlist_id = ? AND song_id = ?";
-        
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, playlistId);
-            pstmt.setInt(2, songId);
-            pstmt.executeUpdate();
-        }
-    }
-    public void deletePlaylist(int playlistId) throws SQLException {
-        String sql = "DELETE FROM playlists WHERE id = ?";
-        String sql2 = "DELETE FROM playlist_items where playlist_id = ?";
-        
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, playlistId);
-            pstmt.executeUpdate();
-        }
-        try (PreparedStatement pstmt = connection.prepareStatement(sql2)) {
-            pstmt.setInt(1, playlistId);
-            pstmt.executeUpdate();
-        }
-    }
-
-    public Playlist getPlaylist(int playlistId) throws SQLException {
-        String sql = "SELECT * FROM playlists WHERE id = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, playlistId);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                HashSet<Song> songs = new HashSet<>();
-                String sql2 = "SELECT song_id FROM playlist_items WHERE playlist_id = ?";
-                try (PreparedStatement pstmt2 = connection.prepareStatement(sql2)) {
-                    pstmt2.setInt(1, playlistId);
-                    ResultSet rs2 = pstmt2.executeQuery();
-                    while (rs2.next()) {
-                        songs.add(getSongById(rs2.getInt("song_id")));
-                    }
-                }
-                return new Playlist(rs.getInt("id"), rs.getString("name"), null, getUserById(rs.getInt("user_id")), songs, 0);
-            }
-        }
-        return null;
-    }
-    public List<Song> getSongsByPlaylistId(int playlistId) throws SQLException {
-        String sql = "SELECT song_id FROM playlist_items WHERE playlist_id = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, playlistId);
-            ResultSet rs = pstmt.executeQuery();
-            List<Song> songs = new ArrayList<>();
-            while (rs.next()) {
-                songs.add(getSongById(rs.getInt("song_id")));
-            }
-            return songs;
-        }
-    }
-
-    // User operations
-    public int createUser(User user) throws SQLException {
-        String sql = "INSERT INTO users (username, hashed_password, email) VALUES (?, ?, ?) RETURNING id";
-        
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, user.getUsername());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getEmail());
-            
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-        }
-        throw new SQLException("Failed to create user");
-    }
-    
-    public User getUserByUsername(String username) throws SQLException {
-        String sql = "SELECT * FROM users WHERE username = ?";
-        
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, username);
-            ResultSet rs = pstmt.executeQuery();
-            
-            if (rs.next()) {
-                return new User(
-                    rs.getInt("id"),
-                    rs.getString("username"),
-                    rs.getString("hashed_password"),
-                    rs.getString("email"),
-                    null
-                );
-            }
-        }
-        return null;
-    }
-    
-    public User getUserByEmail(String email) throws SQLException {
-        String sql = "SELECT * FROM users WHERE email = ?";
-        
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, email);
-            ResultSet rs = pstmt.executeQuery();
-            
-            if (rs.next()) {
-                return new User(
-                    rs.getInt("id"),
-                    rs.getString("username"),
-                    rs.getString("hashed_password"),
-                    rs.getString("email"),
-                    null
-                );
-            }
-        }
-        return null;
-    }
-    public User getUserById(int id) throws SQLException {
-        String sql = "SELECT * FROM users WHERE id = ?";
-        
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, id);
-            ResultSet rs = pstmt.executeQuery();
-            
-            if (rs.next()) {
-                return new User(
-                    rs.getInt("id"),
-                    rs.getString("username"),
-                    rs.getString("hashed_password"),
-                    rs.getString("email"),
-                    null
-                );
-            }
-        }
-        return null;
-    }
-    public void recordPlay(int userId, int songId) throws SQLException {
-        String sql = "INSERT INTO play_history (user_id, song_id, play_time) VALUES (?, ?, NOW())";
-        
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
-            pstmt.setInt(2, songId);
-            pstmt.executeUpdate();
-        }
-    }
-    public void likeSong(int userId, int songId) throws SQLException {
-        String sql = "INSERT INTO likes (user_id, song_id) VALUES (?, ?)";
-        
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
-            pstmt.setInt(2, songId);
-            pstmt.executeUpdate();
-        }
-    }
-    public List<Song> getHistory(int userId) throws SQLException {
-        List<Song> history = new ArrayList<>();
-        String sql = "SELECT song_id FROM play_history WHERE user_id = ?";
-        
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
-            ResultSet rs = pstmt.executeQuery();
-            
-            while (rs.next()) {
-                Song song = getSongById(rs.getInt("song_id"));
-                if (song != null) {
-                    history.add(song);
-                }
-            }
-        }
-        return history;
-    }
-    // History operations
-    public List<PlayHistory> getUserHistory(int userId) throws SQLException {
-        List<PlayHistory> history = new ArrayList<>();
-        String sql = "SELECT * FROM play_history WHERE user_id = ?";
-        
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
-            ResultSet rs = pstmt.executeQuery();
-            
-            while (rs.next()) {
-                PlayHistory playHistory = new PlayHistory(
-                    rs.getInt("user_id"),
-                    rs.getInt("song_id"),
-                    rs.getString("play_time")
-                );
-                history.add(playHistory);
-            }
-        }
-        return history;
-    }
-    public PlayHistory getPlayHistory(int userId, int songId) throws SQLException {
-        String sql = "SELECT * FROM play_history WHERE user_id = ? AND song_id = ?";
-        
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
-            pstmt.setInt(2, songId);
-            ResultSet rs = pstmt.executeQuery();
-            
-            if (rs.next()) {
-                return new PlayHistory(
-                    rs.getInt("user_id"),
-                    rs.getInt("song_id"),
-                    rs.getString("play_time")
-                );
-            }
-        }
-        return null;
-    }
-    public void clearHistory(int userId) throws SQLException {
-        String sql = "DELETE FROM play_history WHERE user_id = ?";
-        
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
-            pstmt.executeUpdate();
-        }
-    }
-    public void recordPlay(int userId, int songId, String timestamp) throws SQLException {
-        String sql = "INSERT INTO play_history (user_id, song_id, play_time) VALUES (?, ?, ?)";
-        
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
-            pstmt.setInt(2, songId);
-            pstmt.setString(3, timestamp);
-            pstmt.executeUpdate();
-        }
-    }
-    // Artist operations
-    public List<Artist> getAllArtists() throws SQLException {
-        List<Artist> artists = new ArrayList<>();
-        String sql = "SELECT * FROM artists";
-        
-        try (Statement stmt = connection.createStatement()) {
-            ResultSet rs = stmt.executeQuery(sql);
-            
-            while (rs.next()) {
-                artists.add(new Artist(rs.getInt("id"), rs.getString("name"), rs.getString("image_url"), new ArrayList<>(), new ArrayList<>()));
-            }
-        }
-        return artists;
-    }
-    public Artist getArtistById(int id) throws SQLException {
-        String sql = "SELECT * FROM artists WHERE id = ?";
-        
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, id);
-            ResultSet rs = pstmt.executeQuery();
-            
-            if (rs.next()) {
-                List<Song> songs = new ArrayList<>();
-                List<Album> albums = new ArrayList<>();
-                String sql2 = "SELECT song_id FROM artist_items WHERE artist_id = ?";
-                try (PreparedStatement pstmt2 = connection.prepareStatement(sql2)) {
-                    pstmt2.setInt(1, id);
-                    ResultSet rs2 = pstmt2.executeQuery();
-                    while (rs2.next()) {
-                        songs.add(getSongById(rs2.getInt("song_id")));
-                    }
-                String sql3 = "SELECT album_id FROM artist_items WHERE artist_id = ?";
-                try (PreparedStatement pstmt3 = connection.prepareStatement(sql3)) {
-                    pstmt3.setInt(1, id);
-                    ResultSet rs3 = pstmt3.executeQuery();
-                    while (rs3.next()) {
-                        albums.add(getAlbumById(rs3.getInt("album_id")));
-                    }
-                }
-                return new Artist(rs.getInt("id"), rs.getString("name"), rs.getString("image_url"), songs, albums);
-            }
-        }
-        return null;
-        }
-    }
-
-    public List<Artist> getArtistsByName(String name) throws SQLException {
-        List<Artist> artists = new ArrayList<>();
-        String sql = "SELECT * FROM artists WHERE name LIKE ?";
-        
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, "%" + name + "%");
-            ResultSet rs = pstmt.executeQuery();
-            
-            while (rs.next()) {
-                artists.add(new Artist(rs.getInt("id"), rs.getString("name"), rs.getString("image_url"), null, null));
-            }
-        }
-        return artists;
-    }
-
-
-    
-
 }

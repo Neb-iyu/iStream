@@ -1,14 +1,31 @@
 package com.istream.model;
 
-public class PlayHistory {
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
+public class PlayHistory implements Serializable {
+    private int id;
     private int userId;
     private int songId;
-    private String timestamp;
+    private LocalDateTime timestamp;
 
-    public PlayHistory(int userId, int songId, String timestamp) {
+    public PlayHistory() {
+        this.timestamp = LocalDateTime.now();
+    }
+
+    public PlayHistory(int id, int userId, int songId, LocalDateTime timestamp) {
+        this.id = id;
         this.userId = userId;
         this.songId = songId;
         this.timestamp = timestamp;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public int getUserId() {
@@ -27,11 +44,11 @@ public class PlayHistory {
         this.songId = songId;
     }
 
-    public String getTimestamp() {
+    public LocalDateTime getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
 }

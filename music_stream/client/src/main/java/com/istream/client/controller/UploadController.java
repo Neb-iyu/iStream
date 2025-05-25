@@ -1,12 +1,12 @@
 package com.istream.client.controller;
 
 import java.io.File;
-import java.util.concurrent.CompletableFuture;
 
 import com.istream.client.service.FileUploadService;
 import com.istream.client.service.RMIClient;
 import com.istream.model.Song;
 
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -24,17 +24,11 @@ public class UploadController {
     @FXML private ProgressBar progressBar;
     @FXML private Label selectedFileLabel;
 
-    private final RMIClient rmiClient;
-    private final FileUploadService fileUploadService;
+    private RMIClient rmiClient;
     private File selectedFile;
 
-    public UploadController(RMIClient rmiClient) {
+    public void initServices(RMIClient rmiClient) {
         this.rmiClient = rmiClient;
-        this.fileUploadService = new FileUploadService();
-    }
-
-    @FXML
-    public void initialize() {
         uploadButton.setDisable(true);
         progressBar.setVisible(false);
         statusLabel.setText("");
@@ -50,7 +44,7 @@ public class UploadController {
 
         File file = fileChooser.showOpenDialog(selectFileButton.getScene().getWindow());
         if (file != null) {
-            FileUploadService.FileValidationResult validation = fileUploadService.validateFile(file);
+            FileUploadService.FileValidationResult validation = FileUploadService.validateFile(file);
             if (validation.isValid()) {
                 selectedFile = file;
                 selectedFileLabel.setText(file.getName());
@@ -75,29 +69,30 @@ public class UploadController {
         progressBar.setVisible(true);
         progressBar.setProgress(0);
 
-        CompletableFuture.runAsync(() -> {
-            try {
-                byte[] fileData = fileUploadService.readFile(selectedFile);
-                Song song = new Song(0, titleField.getText(), artistField.getText(), albumField.getText(), "", 0, "", "", 0);
-                rmiClient.uploadSong(
-                    song,
-                    fileData
-                );
-                
-                javafx.application.Platform.runLater(() -> {
-                    statusLabel.setText("Upload successful!");
-                    progressBar.setProgress(1);
-                    resetForm();
-                });
-            } catch (Exception e) {
-                javafx.application.Platform.runLater(() -> {
-                    statusLabel.setText("Upload failed: " + e.getMessage());
-                    progressBar.setVisible(false);
-                    uploadButton.setDisable(false);
-                    selectFileButton.setDisable(false);
-                });
+        Task<Void> uploadTask = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                byte[] fileData = FileUploadService.readFile(selectedFile);
+                Song song = new Song(0, titleField.getText(), 0, 0, "", 0, "", "", 0);
+                rmiClient.uploadSong(song, fileData, artistField.getText(), albumField.getText());
+                return null;
             }
+        };
+
+        uploadTask.setOnSucceeded(e -> {
+            statusLabel.setText("Upload successful!");
+            progressBar.setProgress(1);
+            resetForm();
         });
+
+        uploadTask.setOnFailed(e -> {
+            statusLabel.setText("Upload failed: " + uploadTask.getException().getMessage());
+            progressBar.setVisible(false);
+            uploadButton.setDisable(false);
+            selectFileButton.setDisable(false);
+        });
+
+        new Thread(uploadTask).start();
     }
 
     private void resetForm() {

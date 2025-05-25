@@ -8,36 +8,97 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.effect.DropShadow?>
 
-<AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #323131;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.istream.client.controller.AuthController">
+<AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: linear-gradient(to bottom right, #1a1a1a, #2d2d2d);" xmlns="http://javafx.com/javafx/17.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.istream.client.controller.AuthController">
    <children>
-      <Pane fx:id="logoPane" layoutX="193.0" layoutY="46.0" prefHeight="70.0" prefWidth="250.0">
+      <Pane layoutX="0.0" layoutY="0.0" prefHeight="600.0" prefWidth="400.0" style="-fx-background-color: #210a0a;">
          <children>
-            <ImageView fitHeight="53.0" fitWidth="53.0" layoutX="48.0" layoutY="7.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../../images/logo.png" />
-               </image>
-            </ImageView>
-            <Label alignment="CENTER" layoutX="97.0" layoutY="22.0" prefHeight="33.0" prefWidth="76.0" text="Stream" textFill="#e4c3c3">
-               <font>
-                  <Font name="Webdings" size="22.0" />
-               </font>
-            </Label>
-         </children></Pane>
-      <Pane fx:id="formPane" layoutX="175.0" layoutY="116.0" prefHeight="200.0" prefWidth="250.0">
-         <children>
-            <Label fx:id="fillLabel" prefHeight="27.0" prefWidth="46.0" text="Login" textFill="#d9cccc" />
-            <TextField fx:id="usernameField" layoutX="101.0" layoutY="45.0" />
-            <PasswordField fx:id="passwordField" layoutX="101.0" layoutY="80.0" />
-            <Label fx:id="usernameLabel" layoutX="19.0" layoutY="49.0" prefHeight="25.0" prefWidth="53.0" text="Username" textFill="#d9cece" />
-            <Label fx:id="passwordLabel" layoutX="19.0" layoutY="80.0" prefHeight="25.0" prefWidth="53.0" text="Password" textFill="#d9cece" />
-            <Button fx:id="loginButton" layoutX="190.0" layoutY="112.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="59.0" style="-fx-background-color: #210a0a;" text="Login" textFill="#d9cccc" />
-            <Label fx:id="switchViewLabel" layoutX="14.0" layoutY="150.0" prefHeight="17.0" prefWidth="149.0" text="Don't have an account?" textFill="#d9cccc" />
-            <Button fx:id="switchViewButton" layoutX="191.0" layoutY="146.0" mnemonicParsing="false" onAction="#handleSwitchView" style="-fx-background-color: #210a0a;" text="Register" textFill="#d9cccc" />
-            <Label fx:id="statusLabel" layoutX="14.0" layoutY="160.0" prefHeight="17.0" prefWidth="222.0" textFill="#d9cccc" />
+            <VBox alignment="CENTER" layoutX="50.0" layoutY="150.0" prefHeight="300.0" prefWidth="300.0" spacing="20.0">
+               <children>
+                  <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../images/logo.png" />
+                     </image>
+                     <effect>
+                        <DropShadow color="#e4c3c3" radius="10.0" />
+                     </effect>
+                  </ImageView>
+                  <Text fill="#e4c3c3" strokeType="OUTSIDE" strokeWidth="0.0" text="iStream" textAlignment="CENTER">
+                     <font>
+                        <Font name="System Bold" size="36.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#e4c3c3" strokeType="OUTSIDE" strokeWidth="0.0" text="Your Music, Your Way" textAlignment="CENTER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+               </children>
+            </VBox>
          </children>
       </Pane>
-      <Pane prefHeight="400.0" prefWidth="142.0" style="-fx-background-color: #210a0a;" />
+      <VBox alignment="CENTER" layoutX="400.0" layoutY="0.0" prefHeight="600.0" prefWidth="400.0" spacing="20.0">
+         <children>
+            <Text fill="#e4c3c3" strokeType="OUTSIDE" strokeWidth="0.0" text="Welcome Back" textAlignment="CENTER">
+               <font>
+                  <Font name="System Bold" size="24.0" />
+               </font>
+            </Text>
+            <Text fill="#e4c3c3" strokeType="OUTSIDE" strokeWidth="0.0" text="Sign in to continue" textAlignment="CENTER">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Text>
+            <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="300.0" spacing="15.0">
+               <children>
+                  <VBox spacing="5.0">
+                     <children>
+                        <Label text="Username" textFill="#e4c3c3">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <TextField fx:id="usernameField" prefHeight="40.0" prefWidth="300.0" promptText="Enter your username" style="-fx-background-color: #323131; -fx-text-fill: #e4c3c3; -fx-prompt-text-fill: #666666;" />
+                     </children>
+                  </VBox>
+                  <VBox spacing="5.0">
+                     <children>
+                        <Label text="Password" textFill="#e4c3c3">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <PasswordField fx:id="passwordField" prefHeight="40.0" prefWidth="300.0" promptText="Enter your password" style="-fx-background-color: #323131; -fx-text-fill: #e4c3c3; -fx-prompt-text-fill: #666666;" />
+                     </children>
+                  </VBox>
+                  <Label fx:id="statusLabel" prefHeight="20.0" prefWidth="300.0" textFill="#e74c3c" />
+                  <Button fx:id="loginButton" mnemonicParsing="false" onAction="#handleLogin" prefHeight="40.0" prefWidth="300.0" style="-fx-background-color: #210a0a; -fx-background-radius: 5;" text="Sign In" textFill="#e4c3c3">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Button>
+                  <HBox alignment="CENTER" spacing="5.0">
+                     <children>
+                        <Label text="Don't have an account?" textFill="#e4c3c3">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <Button fx:id="switchViewButton" mnemonicParsing="false" onAction="#handleSwitchView" style="-fx-background-color: transparent;" text="Register" textFill="#e4c3c3">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Button>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </children>
+      </VBox>
    </children>
 </AnchorPane>

@@ -35,7 +35,7 @@ public class FileUploadService {
         }
     }
 
-    public FileValidationResult validateFile(File file) {
+    public static FileValidationResult validateFile(File file) {
         // Check if file exists
         if (!file.exists()) {
             return new FileValidationResult(false, "File does not exist");
@@ -59,7 +59,7 @@ public class FileUploadService {
         return new FileValidationResult(true, null);
     }
 
-    public byte[] readFile(File file) throws IOException {
+    public static byte[] readFile(File file) throws IOException {
         return Files.readAllBytes(file.toPath());
     }
 } 

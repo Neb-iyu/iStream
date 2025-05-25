@@ -22,7 +22,8 @@ public class SongTile extends HBox {
         Label titleLabel = new Label(song.getTitle());
         titleLabel.getStyleClass().add("song-title");
         
-        Label artistLabel = new Label(song.getArtist());
+        
+        Label artistLabel = new Label(String.valueOf(song.getArtistId()));
         artistLabel.getStyleClass().add("song-artist");
         
         // Create play button

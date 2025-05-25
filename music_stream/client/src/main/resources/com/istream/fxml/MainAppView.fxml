@@ -10,6 +10,12 @@
     <center>
         <VBox fx:id="contentArea" BorderPane.alignment="CENTER" />
     </center>
+    <top>
+        <fx:include source="alwaysOnDisplay/TopMenuPane.fxml" fx:id="topMenuPane" />
+    </top>
+    <right>
+        <fx:include source="alwaysOnDisplay/PlayerBarView.fxml" fx:id="playerBar" />
+    </right>
     <!-- Optional: Add a top area for a player bar -->
     <!-- 
     <top>

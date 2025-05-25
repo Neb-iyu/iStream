@@ -3,10 +3,12 @@ package com.istream.client.controller;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.rmi.RemoteException;
 import com.istream.rmi.MusicService;
 import com.istream.model.Artist;
 import com.istream.model.Song;
 import com.istream.client.util.UiComponent;
+import com.istream.client.service.RMIClient;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -17,22 +19,19 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.concurrent.Task;
 import javafx.geometry.Pos;
+import javafx.application.Platform;
 
 public class ArtistsViewController {
     @FXML private VBox artistsContainer;
     @FXML private HBox artistsBox;
     @FXML private ScrollPane artistsScrollPane;
     
-    private final MusicService musicService;
-    private final int userId;
-    private final ExecutorService executorService;
+    private final RMIClient rmiClient;
     private final MainAppController mainAppController;
 
-    public ArtistsViewController(MusicService musicService, int userId, MainAppController mainAppController) {
-        this.musicService = musicService;
-        this.userId = userId;
+    public ArtistsViewController(RMIClient rmiClient, MainAppController mainAppController) {
+        this.rmiClient = rmiClient;
         this.mainAppController = mainAppController;
-        this.executorService = Executors.newFixedThreadPool(2); // One for loading artists, one for loading songs
     }
     
     @FXML
@@ -47,45 +46,25 @@ public class ArtistsViewController {
     }
 
     private void loadArtists() {
-        // Use JavaFX Task since this operation updates the UI
-        Task<List<Artist>> loadTask = new Task<>() {
+        Task<List<Artist>> task = new Task<>() {
             @Override
             protected List<Artist> call() throws Exception {
-                return musicService.getAllArtists();
+                return rmiClient.getAllArtists();
             }
         };
 
-        loadTask.setOnSucceeded(e -> {
-            List<Artist> artists = loadTask.getValue();
-            if (artists != null && !artists.isEmpty()) {
-                artistsBox.getChildren().clear();
-                for (Artist artist : artists) {
-                    VBox artistBox = UiComponent.createArtistBox(artist);
-                    artistsBox.getChildren().add(artistBox);
-                }
-            } else {
-                UiComponent.showInfo(null, "No artists to display");
-            }
+        task.setOnSucceeded(e -> {
+            List<Artist> artists = task.getValue();
+            UiComponent.createArtistRow(artists, artistsBox, rmiClient, mainAppController);
         });
 
-        loadTask.setOnFailed(e -> {
-            UiComponent.showError(null, "Error loading artists: " + loadTask.getException().getMessage());
+        task.setOnFailed(e -> {
+            Platform.runLater(() -> 
+                UiComponent.showError("Error", "Failed to load artists: " + task.getException().getMessage())
+            );
         });
 
-        // Use JavaFX's thread pool for UI-related tasks
-        javafx.concurrent.Service<Void> service = new javafx.concurrent.Service<>() {
-            @Override
-            protected Task<Void> createTask() {
-                return new Task<>() {
-                    @Override
-                    protected Void call() {
-                        loadTask.run();
-                        return null;
-                    }
-                };
-            }
-        };
-        service.start();
+        new Thread(task).start();
     }
 
     private VBox createArtistBox(Artist artist, MainAppController mainAppController) {
@@ -94,7 +73,7 @@ public class ArtistsViewController {
         artistBox.setMinWidth(150);
         
         try {
-            ImageView imageView = new ImageView(artist.getImagePath());
+            ImageView imageView = new ImageView(artist.getImageUrl());
             imageView.setFitWidth(150);
             imageView.setFitHeight(150);
             imageView.setPreserveRatio(true);
@@ -106,14 +85,14 @@ public class ArtistsViewController {
                 Task<List<Song>> loadSongsTask = new Task<>() {
                     @Override
                     protected List<Song> call() throws Exception {
-                        return musicService.getSongsByArtist(artist.getId());
+                        return rmiClient.getSongsByArtistId(artist.getId());
                     }
                 };
 
                 loadSongsTask.setOnSucceeded(success -> {
                     List<Song> songs = loadSongsTask.getValue();
                     // TODO: Show artist songs in a new view or dialog
-                    UiComponent.showInfo(null, "Found " + songs.size() + " songs by " + artist.getName());
+                    UiComponent.showInputDialog(null, "Found " + songs.size() + " songs by " + artist.getName());
                 });
 
                 loadSongsTask.setOnFailed(fail -> {
@@ -146,6 +125,6 @@ public class ArtistsViewController {
 
     
     public void cleanup() {
-        executorService.shutdown();
+        // executorService.shutdown();
     }
 } 

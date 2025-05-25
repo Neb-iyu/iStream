@@ -13,7 +13,7 @@
     
     <Label text="Artists">
         <font>
-            <Font name="Arial" size="24.0" weight="BOLD"/>
+            <Font name="Arial BOLD" size="24.0"/>
         </font>
     </Label>
     

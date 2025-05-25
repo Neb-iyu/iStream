@@ -1,66 +1,61 @@
 package com.istream.client.util;
 
-import com.istream.rmi.MusicService;
-import java.rmi.RemoteException;
+import com.istream.client.service.RMIClient;
+import com.istream.client.service.RMIClientImpl;
 
 public class SessionHolder {
-    private final MusicService musicService;
+    private final RMIClient rmiClient;
     private String authToken;
     private String username;
     
-    public SessionHolder(MusicService musicService) {
-        this.musicService = musicService;
+    public SessionHolder(RMIClient rmiClient) {
+        this.rmiClient = rmiClient;
     }
     
-    public void createSession(String token, String username) {
-        this.authToken = token;
+    public void createSession(String authToken, String username) {
+        this.authToken = authToken;
         this.username = username;
-    }
-    public boolean login(String username, String password) {
-        try {
-            this.authToken = musicService.login(username, password);
-            return authToken != null;
-        } catch (RemoteException e) {
-            return false;
+        if (rmiClient instanceof RMIClientImpl) {
+            ((RMIClientImpl) rmiClient).setUserId(1); // Temporary hardcoded value
         }
     }
     
-    public void logout() {
+    public void clearSession() {
         try {
-            musicService.logout(authToken);
-        } catch (RemoteException e) {
-            // Log error
-        } finally {
-            authToken = null;
+            if (authToken != null) {
+                rmiClient.logout();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        this.authToken = null;
+        this.username = null;
+        if (rmiClient instanceof RMIClientImpl) {
+            ((RMIClientImpl) rmiClient).setUserId(-1);
+        }
+    }
+    
+    public String getAuthToken() {
+        return authToken;
+    }
+    
+    public String getUsername() {
+        return username;
+    }
+    
+    public int getCurrentUserId() {
+        if (rmiClient instanceof RMIClientImpl) {
+            return ((RMIClientImpl) rmiClient).getUserId();
+        }
+        return -1;
     }
     
     public boolean isLoggedIn() {
-        return authToken != null;
-    }
-    
-    // Other session-aware methods...
-    public String getCurrentSessionToken() {
-        return authToken;
-    }
-
-    public String getCurrentUsername() {
-        return username;
-    }
-
-    // FIXME: This needs a proper implementation to get the user ID.
-    // This might involve calling a method on musicService to get user details by username/token,
-    // or the login method should return the userId along with the token.
-    public int getCurrentUserId() {
-        if (username != null && !username.isEmpty()) {
-            // Placeholder: try to derive from username, e.g. "user1" -> 1. Highly unreliable.
-            // Or, if you have a fixed mapping or a test user ID.
-            // For demonstration, returning a hash code or a fixed value.
-            // return Math.abs(username.hashCode() % 1000); // Example of a non-stable ID
-            if ("testuser".equals(username)) return 1; // Example for a known user
-            return 1; // Default placeholder, replace with actual logic
+        try {
+            return authToken != null && rmiClient.isLoggedIn();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
-        return -1; // Indicates no user or ID not found
     }
-    
 }

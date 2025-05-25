@@ -5,6 +5,9 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
 
 <AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" 
             prefHeight="70.0" prefWidth="649.0" style="-fx-background-color: #210a0a;" 
@@ -12,17 +15,27 @@
             xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.istream.controller.TopMenuController">
    <children>
-      <Pane fx:id="searchPane" layoutX="174.0" layoutY="-1.0" prefHeight="70.0" prefWidth="301.0">
-         <children>
-            <TextField fx:id="searchField" layoutX="-1.0" layoutY="11.0" prefHeight="38.0" prefWidth="188.0" 
-                      style="-fx-background-color: #312a2a;" />
-            <Button fx:id="searchButton" layoutX="187.0" layoutY="11.0" mnemonicParsing="false" 
-                    prefHeight="38.0" prefWidth="52.0" style="-fx-background-color: #312a2a;" 
-                    text="Search" textFill="#f7f0f0" />
-         </children>
-      </Pane>
-      <ImageView fx:id="profileImage" fitHeight="49.0" fitWidth="61.0" layoutX="574.0" layoutY="10.0" 
-                 pickOnBounds="true" preserveRatio="true" />
-      <Pane fx:id="leftPane" layoutY="-1.0" prefHeight="70.0" prefWidth="106.0" />
+      <HBox spacing="10" alignment="CENTER_LEFT" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <padding>
+            <Insets top="10" right="20" bottom="10" left="20"/>
+         </padding>
+         
+         <Pane fx:id="leftPane" prefWidth="200"/>
+         
+         <HBox fx:id="searchPane" spacing="5" HBox.hgrow="ALWAYS">
+            <TextField fx:id="searchField" promptText="Search..." HBox.hgrow="ALWAYS"/>
+            <Button fx:id="searchButton" text="Search"/>
+         </HBox>
+         
+         <ImageView fx:id="profileImage" fitHeight="30" fitWidth="30" preserveRatio="true"/>
+      </HBox>
+      
+      <VBox fx:id="searchResultsBox" AnchorPane.leftAnchor="220.0" AnchorPane.topAnchor="50.0" AnchorPane.rightAnchor="20.0"
+            style="-fx-background-color: white; -fx-background-radius: 5; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 3);"
+            visible="false">
+         <padding>
+            <Insets top="5" right="5" bottom="5" left="5"/>
+         </padding>
+      </VBox>
    </children>
 </AnchorPane>

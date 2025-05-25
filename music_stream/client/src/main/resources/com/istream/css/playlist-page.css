@@ -1,0 +1,61 @@
+.content-pane {
+    -fx-background-color: #121212;
+    -fx-padding: 20;
+}
+
+.playlist-header {
+    -fx-padding: 20;
+    -fx-background-color: #181818;
+    -fx-background-radius: 5;
+}
+
+.playlist-cover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 0);
+}
+
+.playlist-title {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.playlist-info {
+    -fx-font-size: 14px;
+    -fx-text-fill: #b3b3b3;
+}
+
+.button {
+    -fx-background-color: #1DB954;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 10 20;
+    -fx-background-radius: 20;
+}
+
+.button:hover {
+    -fx-background-color: #1ed760;
+}
+
+.songs-table {
+    -fx-background-color: transparent;
+}
+
+.songs-table .column-header {
+    -fx-background-color: #181818;
+    -fx-text-fill: #b3b3b3;
+    -fx-font-size: 12px;
+}
+
+.songs-table .table-row-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #282828 transparent;
+    -fx-text-fill: white;
+}
+
+.songs-table .table-row-cell:hover {
+    -fx-background-color: #282828;
+}
+
+.songs-table .table-row-cell:selected {
+    -fx-background-color: #404040;
+} 

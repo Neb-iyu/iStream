@@ -1,0 +1,328 @@
+/* Main theme colors */
+* {
+    -fx-primary: #1db954;
+    -fx-primary-hover: #1ed760;
+    -fx-secondary: #282828;
+    -fx-secondary-hover: #383838;
+    -fx-background: #121212;
+    -fx-text-primary: white;
+    -fx-text-secondary: #b3b3b3;
+}
+
+/* Root styles */
+.root {
+    -fx-background-color: -fx-background;
+    -fx-font-family: "System";
+}
+
+/* ScrollPane styles */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Button styles */
+.button {
+    -fx-background-color: -fx-secondary;
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-weight: bold;
+    -fx-padding: 10 20;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: -fx-secondary-hover;
+}
+
+.button.primary {
+    -fx-background-color: -fx-primary;
+}
+
+.button.primary:hover {
+    -fx-background-color: -fx-primary-hover;
+}
+
+/* Label styles */
+.label {
+    -fx-text-fill: -fx-text-primary;
+}
+
+.label.title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.label.subtitle {
+    -fx-font-size: 18px;
+    -fx-text-fill: -fx-text-secondary;
+}
+
+/* TableView styles */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-table-cell-border-color: transparent;
+}
+
+.table-view .column-header {
+    -fx-background-color: -fx-secondary;
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-weight: bold;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: -fx-text-primary;
+}
+
+.table-view .table-cell {
+    -fx-text-fill: -fx-text-primary;
+    -fx-border-color: transparent;
+}
+
+.table-view .table-row-cell {
+    -fx-background-color: transparent;
+}
+
+.table-view .table-row-cell:odd {
+    -fx-background-color: -fx-secondary;
+}
+
+.table-view .table-row-cell:selected {
+    -fx-background-color: -fx-primary;
+}
+
+/* ComboBox styles */
+.combo-box {
+    -fx-background-color: -fx-secondary;
+    -fx-text-fill: -fx-text-primary;
+}
+
+.combo-box .text-field {
+    -fx-text-fill: -fx-text-primary;
+    -fx-background-color: -fx-secondary;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: -fx-text-primary;
+    -fx-background-color: -fx-secondary;
+}
+
+.combo-box .list-view {
+    -fx-background-color: -fx-secondary;
+}
+
+.combo-box .list-cell:hover {
+    -fx-background-color: -fx-secondary-hover;
+}
+
+/* TextField styles */
+.text-field {
+    -fx-background-color: -fx-secondary;
+    -fx-text-fill: -fx-text-primary;
+    -fx-prompt-text-fill: -fx-text-secondary;
+}
+
+/* VBox and HBox styles */
+.vbox, .hbox {
+    -fx-background-color: transparent;
+}
+
+/* Card styles (for playlist and album views) */
+.card {
+    -fx-background-color: -fx-secondary;
+    -fx-background-radius: 5;
+    -fx-padding: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 2);
+}
+
+.card:hover {
+    -fx-background-color: -fx-secondary-hover;
+    -fx-cursor: hand;
+}
+
+/* ImageView styles */
+.image-view {
+    -fx-background-color: -fx-secondary;
+    -fx-background-radius: 5;
+}
+
+/* Alert dialog styles */
+.dialog-pane {
+    -fx-background-color: -fx-secondary;
+}
+
+.dialog-pane .header-panel {
+    -fx-background-color: -fx-secondary;
+}
+
+.dialog-pane .content {
+    -fx-text-fill: -fx-text-primary;
+}
+
+.dialog-pane .button-bar .button {
+    -fx-background-color: -fx-primary;
+    -fx-text-fill: -fx-text-primary;
+}
+
+.dialog-pane .button-bar .button:hover {
+    -fx-background-color: -fx-primary-hover;
+}
+
+/* Player bar styles */
+.player-bar {
+    -fx-background-color: #2c2c2c;
+    -fx-padding: 10px;
+    -fx-spacing: 10px;
+}
+
+.player-bar .song-title {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.player-bar .artist-name {
+    -fx-text-fill: #b3b3b3;
+    -fx-font-size: 12px;
+}
+
+.player-bar .control-button {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}
+
+.player-bar .control-button:hover {
+    -fx-background-color: #404040;
+}
+
+.player-bar .progress-slider {
+    -fx-pref-width: 300px;
+}
+
+.player-bar .volume-slider {
+    -fx-pref-width: 100px;
+}
+
+.player-bar .time-label {
+    -fx-text-fill: #b3b3b3;
+    -fx-font-size: 12px;
+}
+
+.player-bar .queue-title {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 5px 0;
+}
+
+.player-bar .queue-list {
+    -fx-background-color: transparent;
+    -fx-border-color: #404040;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+}
+
+.player-bar .queue-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-padding: 5px;
+}
+
+.player-bar .queue-list .list-cell:hover {
+    -fx-background-color: #404040;
+}
+
+.player-bar .queue-list .list-cell:selected {
+    -fx-background-color: #1db954;
+}
+
+.player-bar .queue-list .scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.player-bar .queue-list .scroll-bar .thumb {
+    -fx-background-color: #404040;
+}
+
+.player-bar .queue-list .scroll-bar .track {
+    -fx-background-color: transparent;
+}
+
+/* Search box styles */
+.search-box {
+    -fx-background-color: -fx-secondary;
+    -fx-text-fill: -fx-text-primary;
+    -fx-prompt-text-fill: -fx-text-secondary;
+    -fx-background-radius: 5;
+    -fx-padding: 5 10;
+}
+
+/* Grid styles */
+.grid-pane {
+    -fx-background-color: transparent;
+    -fx-hgap: 20;
+    -fx-vgap: 20;
+}
+
+/* ScrollBar styles */
+.scroll-bar {
+    -fx-background-color: -fx-secondary;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: -fx-primary;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: -fx-primary-hover;
+}
+
+/* Menu styles */
+.menu-bar {
+    -fx-background-color: -fx-secondary;
+}
+
+.menu {
+    -fx-background-color: -fx-secondary;
+}
+
+.menu-item {
+    -fx-background-color: -fx-secondary;
+}
+
+.menu-item:hover {
+    -fx-background-color: -fx-secondary-hover;
+}
+
+.menu-item .label {
+    -fx-text-fill: -fx-text-primary;
+}
+
+/* Tooltip styles */
+.tooltip {
+    -fx-background-color: -fx-secondary;
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-size: 12px;
+}
+
+.player-bar .like-button {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-padding: 5px;
+}
+
+.player-bar .like-button:hover {
+    -fx-background-color: #404040;
+}
+
+.player-bar .like-button.liked {
+    -fx-background-color: transparent;
+}
+
+.player-bar .like-button.liked .image-view {
+    -fx-effect: dropshadow(gaussian, #ff0000, 10, 0, 0, 0);
+} 

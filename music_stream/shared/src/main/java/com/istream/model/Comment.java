@@ -1,19 +1,26 @@
 package com.istream.model;
 
-public class Comment {
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
+public class Comment implements Serializable {
     private int id;
     private String content; // The content of the comment
-    private User user; // The user who made the comment
-    private Song song; // The song on which the comment was made
-    private Playlist playlist; // The playlist on which the comment was made
-    private String timestamp; // Timestamp of when the comment was made
+    private int userId;
+    private Integer songId;
+    private Integer playlistId;
+    private LocalDateTime timestamp;
 
-    public Comment(int id, String content, User user, Song song, Playlist playlist, String timestamp) {
+    public Comment() {
+        this.timestamp = LocalDateTime.now();
+    }
+
+    public Comment(int id, String content, int userId, Integer songId, Integer playlistId, LocalDateTime timestamp) {
         this.id = id;
         this.content = content;
-        this.user = user;
-        this.song = song;
-        this.playlist = playlist;
+        this.userId = userId;
+        this.songId = songId;
+        this.playlistId = playlistId;
         this.timestamp = timestamp;
     }
 
@@ -21,24 +28,47 @@ public class Comment {
         return id;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public String getContent() {
         return content;
     }
 
-    public User getUser() {
-        return user;
+    public void setContent(String content) {
+        this.content = content;
     }
 
-    public Song getSong() {
-        return song;
+    public int getUserId() {
+        return userId;
     }
 
-    public Playlist getPlaylist() {
-        return playlist;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
-    public String getTimestamp() {
+    public Integer getSongId() {
+        return songId;
+    }
+
+    public void setSongId(Integer songId) {
+        this.songId = songId;
+    }
+
+    public Integer getPlaylistId() {
+        return playlistId;
+    }
+
+    public void setPlaylistId(Integer playlistId) {
+        this.playlistId = playlistId;
+    }
+
+    public LocalDateTime getTimestamp() {
         return timestamp;
     }
-    
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
 }

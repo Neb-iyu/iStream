@@ -1,0 +1,48 @@
+.player-bar {
+    -fx-background-color: #2c2c2c;
+    -fx-padding: 10px;
+    -fx-spacing: 10px;
+    -fx-min-width: 300px;
+    -fx-max-width: 300px;
+}
+
+.song-title {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.artist-name {
+    -fx-text-fill: #b3b3b3;
+    -fx-font-size: 12px;
+}
+
+.control-button {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}
+
+.control-button:hover {
+    -fx-background-color: #404040;
+}
+
+.control-button:pressed {
+    -fx-background-color: #505050;
+}
+
+.slider .track {
+    -fx-background-color: #404040;
+}
+
+.slider .thumb {
+    -fx-background-color: #1db954;
+}
+
+.slider .thumb:hover {
+    -fx-background-color: #1ed760;
+}
+
+#currentTime, #totalTime {
+    -fx-text-fill: #b3b3b3;
+    -fx-font-size: 12px;
+} 

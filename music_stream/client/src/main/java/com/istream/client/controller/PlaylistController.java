@@ -1,6 +1,6 @@
 package com.istream.client.controller;
 
-import com.istream.rmi.MusicService;
+import com.istream.client.service.RMIClient;
 import com.istream.client.util.SessionHolder;
 import com.istream.model.Playlist;
 import com.istream.model.Song;
@@ -24,18 +24,18 @@ public class PlaylistController {
     @FXML private ListView<Playlist> playlistListView;
     @FXML private Button newPlaylistButton;
 
-    private MusicService musicService;
+    private RMIClient rmiClient;
     private int userId;
     private ObservableList<Playlist> playlists = FXCollections.observableArrayList();
 
     public PlaylistController() {}
 
-    public void initServices(MusicService musicService, int userId) {
-        this.musicService = musicService;
+    public void initServices(RMIClient rmiClient, int userId) {
+        this.rmiClient = rmiClient;
         this.userId = userId;
-        if (playlistListView != null && this.musicService != null) {
+        if (playlistListView != null && this.rmiClient != null) {
             loadPlaylists();
-        } else if (this.musicService != null) {
+        } else if (this.rmiClient != null) {
             // if initialize() hasn't run yet, loadPlaylists will be called by it later.
         }
     }
@@ -45,7 +45,7 @@ public class PlaylistController {
         if (playlistListView != null) {
             playlistListView.setItems(playlists);
         }
-        if (musicService != null) {
+        if (rmiClient != null) {
             loadPlaylists();
         }
         if (newPlaylistButton != null) {
@@ -58,7 +58,7 @@ public class PlaylistController {
             @Override
             protected List<Playlist> call() throws Exception {
                 try {
-                    return musicService.getUserPlaylists(userId);
+                    return rmiClient.getUserPlaylists();
                 } catch (RemoteException e) {
                     throw new Exception("Failed to load playlists: " + e.getMessage(), e);
                 }
@@ -98,7 +98,7 @@ public class PlaylistController {
             @Override
             protected Void call() throws Exception {
                 try {
-                    musicService.addSongToPlaylist(playlistId, songId);
+                    rmiClient.addSongToPlaylist(playlistId, songId);
                     return null;
                 } catch (RemoteException e) {
                     throw new Exception("Failed to add song to playlist: " + e.getMessage(), e);
@@ -125,7 +125,7 @@ public class PlaylistController {
             @Override
             protected Playlist call() throws Exception {
                 try {
-                    return musicService.createPlaylist(userId, name);
+                    return rmiClient.createPlaylist(name);
                 } catch (RemoteException e) {
                     throw new Exception("Failed to create playlist: " + e.getMessage(), e);
                 }

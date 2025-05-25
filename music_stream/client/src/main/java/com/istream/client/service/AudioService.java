@@ -1,5 +1,6 @@
 package com.istream.client.service;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -7,21 +8,138 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.CompletableFuture;
 
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.util.Duration;
+
+import com.istream.model.Song;
 
 public class AudioService {
     private MediaPlayer mediaPlayer;
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
-    private Queue<byte[]> audioQueue;
+    private LinkedList<Song> songQueue;
+    private Queue<byte[]> audioDataQueue;
+    private Song currentSong;
     private boolean isPlaying;
+    private Duration currentPosition;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private LinkedList<Song> history;
     
     public AudioService() {
-        this.audioQueue = new LinkedList<>();
+        this.songQueue = new LinkedList<>();
+        this.audioDataQueue = new LinkedList<>();
+        this.history = new LinkedList<>();
         this.isPlaying = false;
+    }
+    
+    public void playSong(Song song, byte[] audioData) {
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+        }
+        if (currentSong != null) {
+            history.addFirst(currentSong);
+        }
+        currentSong = song;
+        Media media = createMediaFromStream(audioData);
+        mediaPlayer = new MediaPlayer(media);
+        mediaPlayer.play();
+        isPlaying = true;
+    }
+    
+    public CompletableFuture<Void> addToQueueAsync(Song song, byte[] audioData) {
+        return CompletableFuture.runAsync(() -> {
+            synchronized (songQueue) {
+                songQueue.add(song);
+                audioDataQueue.add(audioData);
+            }
+        }, executor);
+    }
+    
+    public void playNext() {
+        if (!songQueue.isEmpty() && !audioDataQueue.isEmpty()) {
+            Song nextSong;
+            byte[] nextAudioData;
+            synchronized (songQueue) {
+                nextSong = songQueue.poll();
+                nextAudioData = audioDataQueue.poll();
+            }
+            playSong(nextSong, nextAudioData);
+        }
+    }
+    
+    public void playPrevious() {
+        if (!history.isEmpty()) {
+            Song previousSong = history.removeFirst();
+            if (currentSong != null) {
+                songQueue.addFirst(currentSong);
+            }
+            try {
+                byte[] audioData = getAudioDataForSong(previousSong);
+                playSong(previousSong, audioData);
+            } catch (Exception e) {
+                Platform.runLater(() -> showError("Error", "Failed to play previous song: " + e.getMessage()));
+            }
+        }
+    }
+    
+    private byte[] getAudioDataForSong(Song song) {
+        // This method should be implemented to retrieve audio data for a song
+        // For now, we'll return null and handle the error in the calling method
+        return null;
+    }
+    
+    public void pause() {
+        if (mediaPlayer != null) {
+            currentPosition = mediaPlayer.getCurrentTime();
+            mediaPlayer.pause();
+            isPlaying = false;
+        }
+    }
+    
+    public void resume() {
+        if (mediaPlayer != null) {
+            mediaPlayer.seek(currentPosition);
+            mediaPlayer.play();
+            isPlaying = true;
+        }
+    }
+    
+    public void stop() {
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            isPlaying = false;
+        }
+    }
+    
+    public Song getCurrentSong() {
+        return currentSong;
+    }
+    
+    public boolean isPlaying() {
+        return isPlaying;
+    }
+    
+    public Duration getCurrentPosition() {
+        return mediaPlayer != null ? mediaPlayer.getCurrentTime() : Duration.ZERO;
+    }
+    
+    public Duration getTotalDuration() {
+        return mediaPlayer != null ? mediaPlayer.getTotalDuration() : Duration.ZERO;
+    }
+    
+    public void setVolume(double volume) {
+        if (mediaPlayer != null) {
+            mediaPlayer.setVolume(volume);
+        }
+    }
+    
+    public void seek(Duration position) {
+        if (mediaPlayer != null) {
+            mediaPlayer.seek(position);
+        }
     }
     
     public void playStream(byte[] stream) {
@@ -43,52 +161,57 @@ public class AudioService {
         });
     }
     
-    private Media createMediaFromStream(byte[] stream) throws IOException {
-        // Implementation for streaming audio
+    private Media createMediaFromStream(byte[] stream) {
         try {
             File tempFile = File.createTempFile("stream", ".mp3");
+            tempFile.deleteOnExit();
             try (FileOutputStream fos = new FileOutputStream(tempFile)) {
                 fos.write(stream);
             }
             return new Media(tempFile.toURI().toString());
         } catch (IOException e) {
-            throw new IOException("Failed to create media from stream: " + e.getMessage());
+            throw new RuntimeException("Failed to create media from stream: " + e.getMessage());
         }
     }
 
     private void showError(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
-    
-    public void addToQueue(byte[] audioStream) {
-        audioQueue.offer(audioStream);
-        if (!isPlaying) {
-            playNextInQueue();
-        }
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle(title);
+            alert.setContentText(content);
+            alert.showAndWait();
+        });
     }
     
     public void clearQueue() {
-        audioQueue.clear();
+        synchronized (songQueue) {
+            songQueue.clear();
+            audioDataQueue.clear();
+        }
     }
     
     public boolean isQueueEmpty() {
-        return audioQueue.isEmpty();
+        synchronized (songQueue) {
+            return songQueue.isEmpty() && audioDataQueue.isEmpty();
+        }
     }
     
     private void playNextInQueue() {
-        byte[] nextStream = audioQueue.poll();
-        if (nextStream != null) {
-            playStream(nextStream);
+        if (!songQueue.isEmpty() && !audioDataQueue.isEmpty()) {
+            Song nextSong;
+            byte[] nextAudioData;
+            synchronized (songQueue) {
+                nextSong = songQueue.poll();
+                nextAudioData = audioDataQueue.poll();
+            }
+            playSong(nextSong, nextAudioData);
         } else {
             isPlaying = false;
         }
     }
     
     public void skipToNext() {
-        if (!audioQueue.isEmpty()) {
+        if (!songQueue.isEmpty()) {
             if (mediaPlayer != null) {
                 mediaPlayer.stop();
             }
@@ -103,17 +226,9 @@ public class AudioService {
         }
     }
     
-    public void pause() {
-        if (mediaPlayer != null) {
-            mediaPlayer.pause();
-            isPlaying = false;
-        }
-    }
-    
-    public void stop() {
-        if (mediaPlayer != null) {
-            mediaPlayer.stop();
-            isPlaying = false;
+    public Queue<Song> getSongQueue() {
+        synchronized (songQueue) {
+            return new LinkedList<>(songQueue);
         }
     }
 }
