@@ -1,0 +1,9 @@
+com\istream\model\Playlist.class
+com\istream\model\Comment.class
+com\istream\model\Session.class
+com\istream\model\Album.class
+com\istream\model\PlayHistory.class
+com\istream\rmi\MusicService.class
+com\istream\model\Artist.class
+com\istream\model\Song.class
+com\istream\model\User.class
