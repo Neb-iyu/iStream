@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.net.URL?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
@@ -9,26 +10,13 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-<?import javafx.geometry.Insets?>
 
 <AnchorPane id="LeftMenuPane" fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="492.0" prefWidth="283.0" styleClass="left-menu" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.istream.client.controller.LeftMenuController">
    <children>
-      <VBox prefHeight="492.0" prefWidth="283.0" spacing="10" styleClass="menu-container">
+      <VBox prefWidth="283.0" spacing="10" styleClass="menu-container">
          <padding>
             <Insets bottom="20" left="10" right="10" top="20" />
          </padding>
-         
-         <HBox alignment="CENTER" styleClass="logo-container">
-            <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
-               <Image url="@../../images/logo.png" />
-            </ImageView>
-            <Label styleClass="app-title" text="Stream" textFill="#eae3e3">
-               <font>
-                  <Font name="Microsoft JhengHei Light" size="12.0" />
-               </font>
-            </Label>
-         </HBox>
          
          <VBox prefHeight="150.0" prefWidth="283.0" spacing="5" styleClass="menu-buttons" stylesheets="@../../css/LeftMenuPane.css">
             <Button id="home" fx:id="homeButton" onAction="#handleHomeClick" prefHeight="54.0" prefWidth="282.0" style="-fx-background-color: #210a0a;" styleClass="menu-button">

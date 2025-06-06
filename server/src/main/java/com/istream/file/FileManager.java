@@ -16,7 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.HashSet;
 
 public class FileManager {
-    private static final String BASE_DIR = "music_stream/server/src/main/resources/"; // Base directory for music files
+    private static final String BASE_DIR = "server/src/main/resources/"; // Base directory for music files
 
     public FileManager() {
         ensureDirectoryExists(BASE_DIR + "images/");

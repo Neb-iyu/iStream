@@ -62,6 +62,15 @@ public class AlbumDAO implements BaseDAO {
         throw new SQLException("Failed to insert album");
     }
 
+    public void insertAlbumItems(int albumId, int songId) throws SQLException {
+        String sql = "INSERT INTO album_items (album_id, song_id) VALUES (?, ?)";
+        try (Connection conn = dbManager.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, albumId);
+                pstmt.setInt(2, songId);
+                pstmt.executeUpdate();
+        }
+    }
     public Album getAlbumById(int id) throws SQLException {
         String sql = "SELECT * FROM albums WHERE id = ?";
         

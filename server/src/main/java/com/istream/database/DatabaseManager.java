@@ -97,8 +97,11 @@ public class DatabaseManager {
                 "title VARCHAR(255) NOT NULL, " +
                 "artist_id INT NOT NULL, " +
                 "album_id INT, " +
+                "genre VARCHAR(255), " +
                 "duration INT NOT NULL, " +
                 "file_path VARCHAR(255) NOT NULL, " +
+                "cover_art_path VARCHAR(255), " +
+                "year INT, " +
                 "FOREIGN KEY (artist_id) REFERENCES artists(id), " +
                 "FOREIGN KEY (album_id) REFERENCES albums(id))");
 
@@ -116,12 +119,18 @@ public class DatabaseManager {
                 "email VARCHAR(255) UNIQUE NOT NULL, " +
                 "profile_picture VARCHAR(255))");
 
+            // Admins table
+            stmt.execute("CREATE TABLE IF NOT EXISTS admins (" +
+                "user_id INT PRIMARY KEY, " +
+                "FOREIGN KEY (user_id) REFERENCES users(id))");
+
             // Playlists table
             stmt.execute("CREATE TABLE IF NOT EXISTS playlists (" +
                 "id SERIAL PRIMARY KEY, " +
                 "user_id INT NOT NULL, " +
                 "name VARCHAR(255) NOT NULL, " +
                 "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                "description TEXT, " +
                 "FOREIGN KEY (user_id) REFERENCES users(id))");
 
             // Playlist items table

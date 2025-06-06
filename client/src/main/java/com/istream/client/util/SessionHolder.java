@@ -2,6 +2,7 @@ package com.istream.client.util;
 
 import com.istream.client.service.RMIClient;
 import com.istream.client.service.RMIClientImpl;
+import com.istream.model.User;
 
 public class SessionHolder {
     private final RMIClient rmiClient;
@@ -15,8 +16,13 @@ public class SessionHolder {
     public void createSession(String authToken, String username) {
         this.authToken = authToken;
         this.username = username;
-        if (rmiClient instanceof RMIClientImpl) {
-            ((RMIClientImpl) rmiClient).setUserId(1); // Temporary hardcoded value
+        try {
+            User user = rmiClient.getCurrentUser();
+            if (user != null && rmiClient instanceof RMIClientImpl) {
+                ((RMIClientImpl) rmiClient).setUserId(user.getId());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
     

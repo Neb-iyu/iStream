@@ -26,33 +26,43 @@ public class LeftMenuController {
     private Consumer<Void> onArtistsClick;
     private Consumer<Parent> onPlaylistClick;
     private Consumer<Parent> onUploadClick;
+    private Consumer<Void> onNewPlaylistClick;
 
     public void initServices(RMIClient rmiClient) {
         this.rmiClient = rmiClient;
+        System.out.println("Initializing LeftMenuController services");
         loadPlaylists();
         checkAdminStatus();
     }
 
     private void checkAdminStatus() {
-        Task<Boolean> task = new Task<>() {
+        System.out.println("Checking admin status for user: " + rmiClient.getUserId());
+        
+        Task<Boolean> adminTask = new Task<Boolean>() {
             @Override
             protected Boolean call() throws Exception {
-                return rmiClient.isAdmin(rmiClient.getUserId());
+                boolean isAdmin = rmiClient.isAdmin(rmiClient.getUserId());
+                System.out.println("Admin status check result: " + isAdmin);
+                return isAdmin;
             }
         };
 
-        task.setOnSucceeded(e -> {
-            boolean isAdmin = task.getValue();
-            uploadButton.setVisible(isAdmin);
+        adminTask.setOnSucceeded(event -> {
+            boolean isAdmin = adminTask.getValue();
+            Platform.runLater(() -> {
+                uploadButton.setVisible(isAdmin);
+                System.out.println("Upload button visibility set to: " + isAdmin);
+            });
         });
 
-        task.setOnFailed(e -> {
-            Platform.runLater(() -> 
-                UiComponent.showError("Error", "Failed to check admin status: " + task.getException().getMessage())
-            );
+        adminTask.setOnFailed(event -> {
+            String errorMsg = "Failed to check admin status: " + adminTask.getException().getMessage();
+            System.err.println(errorMsg);
+            adminTask.getException().printStackTrace();
+            Platform.runLater(() -> UiComponent.showError("Error", errorMsg));
         });
 
-        new Thread(task).start();
+        new Thread(adminTask).start();
     }
 
     public void setOnHomeClick(Consumer<Void> callback) {
@@ -73,6 +83,10 @@ public class LeftMenuController {
 
     public void setOnUploadClick(Consumer<Parent> callback) {
         this.onUploadClick = callback;
+    }
+
+    public void setOnNewPlaylistClick(Consumer<Void> callback) {
+        this.onNewPlaylistClick = callback;
     }
 
     @FXML
@@ -97,6 +111,13 @@ public class LeftMenuController {
     }
 
     @FXML
+    private void handleNewPlaylistClick() {
+        if (onNewPlaylistClick != null) {
+            onNewPlaylistClick.accept(null);
+        }
+    }
+
+    @FXML
     private void handleUploadClick() {
         if (onUploadClick != null) {
             try {
@@ -112,47 +133,58 @@ public class LeftMenuController {
     }
 
     private void loadPlaylists() {
-        Task<List<Playlist>> task = new Task<>() {
+        System.out.println("Loading playlists for user: " + rmiClient.getUserId());
+        
+        Task<List<Playlist>> playlistTask = new Task<List<Playlist>>() {
             @Override
             protected List<Playlist> call() throws Exception {
-                return rmiClient.getUserPlaylists();
+                List<Playlist> playlists = rmiClient.getUserPlaylists();
+                System.out.println("Successfully loaded " + playlists.size() + " playlists");
+                return playlists;
             }
         };
 
-        task.setOnSucceeded(e -> {
-            List<Playlist> playlists = task.getValue();
-            for (Playlist playlist : playlists) {
-                Button playlistButton = new Button(playlist.getName());
-                playlistButton.getStyleClass().add("playlist-button");
-                playlistButton.setOnAction(event -> handlePlaylistClick(playlist));
-                playlistsBox.getChildren().add(playlistButton);
-            }
+        playlistTask.setOnSucceeded(event -> {
+            List<Playlist> playlists = playlistTask.getValue();
+            Platform.runLater(() -> {
+                playlistsBox.getChildren().clear(); // Clear existing playlists
+                for (Playlist playlist : playlists) {
+                    Button playlistButton = new Button(playlist.getName());
+                    playlistButton.getStyleClass().add("playlist-button");
+                    playlistButton.setOnAction(event2 -> handlePlaylistClick(playlist));
+                    playlistsBox.getChildren().add(playlistButton);
+                    System.out.println("Added playlist button: " + playlist.getName());
+                }
+            });
         });
 
-        task.setOnFailed(e -> {
-            Platform.runLater(() -> 
-                UiComponent.showError("Error", "Failed to load playlists: " + task.getException().getMessage())
-            );
+        playlistTask.setOnFailed(event -> {
+            String errorMsg = "Failed to load playlists: " + playlistTask.getException().getMessage();
+            System.err.println(errorMsg);
+            playlistTask.getException().printStackTrace();
+            Platform.runLater(() -> UiComponent.showError("Error", errorMsg));
         });
 
-        new Thread(task).start();
+        new Thread(playlistTask).start();
     }
 
     private void handlePlaylistClick(Playlist playlist) {
+        System.out.println("Handling click for playlist: " + playlist.getName());
         try {
             Parent playlistPage = PlaylistPageController.createView();
             PlaylistPageController controller = (PlaylistPageController) playlistPage.getUserData();
             controller.setRMIClient(rmiClient);
             controller.loadPlaylist(playlist);
             
-            // Update the main content area
             if (onPlaylistClick != null) {
                 onPlaylistClick.accept(playlistPage);
+                System.out.println("Successfully loaded playlist page: " + playlist.getName());
             }
         } catch (Exception ex) {
-            Platform.runLater(() -> 
-                UiComponent.showError("Error", "Failed to load playlist: " + ex.getMessage())
-            );
+            String errorMsg = "Failed to load playlist: " + ex.getMessage();
+            System.err.println(errorMsg);
+            ex.printStackTrace();
+            Platform.runLater(() -> UiComponent.showError("Error", errorMsg));
         }
     }
 
@@ -160,27 +192,36 @@ public class LeftMenuController {
     private void createPlaylist() {
         String name = UiComponent.showInputDialog("Create Playlist", "Enter playlist name:");
         if (name != null && !name.trim().isEmpty()) {
-            Task<Playlist> task = new Task<>() {
+            System.out.println("Creating new playlist: " + name);
+            
+            Task<Playlist> createTask = new Task<Playlist>() {
                 @Override
                 protected Playlist call() throws Exception {
-                    return rmiClient.createPlaylist(name);
+                    Playlist playlist = rmiClient.createPlaylist(name);
+                    System.out.println("Successfully created playlist: " + name);
+                    return playlist;
                 }
             };
 
-            task.setOnSucceeded(e -> {
-                Playlist playlist = task.getValue();
-                Button playlistButton = new Button(playlist.getName());
-                playlistButton.getStyleClass().add("playlist-button");
-                playlistsBox.getChildren().add(playlistButton);
+            createTask.setOnSucceeded(event -> {
+                Playlist playlist = createTask.getValue();
+                Platform.runLater(() -> {
+                    Button playlistButton = new Button(playlist.getName());
+                    playlistButton.getStyleClass().add("playlist-button");
+                    playlistButton.setOnAction(event2 -> handlePlaylistClick(playlist));
+                    playlistsBox.getChildren().add(playlistButton);
+                    System.out.println("Added new playlist button: " + playlist.getName());
+                });
             });
 
-            task.setOnFailed(e -> {
-                Platform.runLater(() -> 
-                    UiComponent.showError("Error", "Failed to create playlist: " + task.getException().getMessage())
-                );
+            createTask.setOnFailed(event -> {
+                String errorMsg = "Failed to create playlist: " + createTask.getException().getMessage();
+                System.err.println(errorMsg);
+                createTask.getException().printStackTrace();
+                Platform.runLater(() -> UiComponent.showError("Error", errorMsg));
             });
 
-            new Thread(task).start();
+            new Thread(createTask).start();
         }
     }
 

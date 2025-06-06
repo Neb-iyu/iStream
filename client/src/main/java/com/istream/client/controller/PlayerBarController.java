@@ -33,6 +33,8 @@ public class PlayerBarController {
     @FXML private ListView<Song> queueListView;
     @FXML private VBox queueContainer;
     @FXML private Button likeButton;
+    @FXML private Button previousButton;
+    @FXML private Button nextButton;
     @FXML private ImageView likeIcon;
 
     private AudioService audioService;
@@ -146,6 +148,16 @@ public class PlayerBarController {
             audioService.seek(newPosition);
         }
         isDragging = false;
+    }
+
+    @FXML
+    private void handleSliderValueChanged() {
+        if (audioService != null && isDragging) {
+            Duration total = audioService.getTotalDuration();
+            double percentage = progressSlider.getValue() / 100.0;
+            Duration newPosition = Duration.seconds(total.toSeconds() * percentage);
+            currentTime.setText(formatDuration(newPosition));
+        }
     }
 
     @FXML

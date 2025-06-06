@@ -2,7 +2,7 @@
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(255) UNIQUE NOT NULL,
-    hashed_password VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL
 );
 
@@ -32,8 +32,10 @@ CREATE TABLE IF NOT EXISTS songs (
     artist VARCHAR(255),
     album VARCHAR(255),
     duration INT,
+    genre VARCHAR(255),
     file_path VARCHAR(255),
-    cover_art_path VARCHAR(255)
+    cover_art_path VARCHAR(255),
+    year INT
 );
 
 -- Playlists table

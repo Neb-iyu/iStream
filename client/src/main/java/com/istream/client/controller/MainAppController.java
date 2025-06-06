@@ -17,10 +17,12 @@ import com.istream.client.view.ProfileView;
 import com.istream.model.Song;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.Pane;
 
 public class MainAppController {
     @FXML private BorderPane rootPane;
@@ -43,67 +45,84 @@ public class MainAppController {
 
     @FXML
     public void initialize() {
-        // Load CSS
-        Scene scene = rootPane.getScene();
-        if (scene != null) {
-            scene.getStylesheets().add(getClass().getResource("/com/istream/styles/main.css").toExternalForm());
+        try {
+            // Load CSS
+            Scene scene = rootPane.getScene();
+            if (scene != null) {
+                scene.getStylesheets().add(getClass().getResource("/com/istream/css/common.css").toExternalForm());
+                scene.getStylesheets().add(getClass().getResource("/com/istream/css/components.css").toExternalForm());
+                scene.getStylesheets().add(getClass().getResource("/com/istream/css/pages.css").toExternalForm());
+                scene.getStylesheets().add(getClass().getResource("/com/istream/css/animations.css").toExternalForm());
+            }
+
+            // Initialize the left menu
+            if (leftMenuPaneController == null) {
+                System.err.println("Warning: leftMenuPaneController is null. Will be initialized in initializeServices.");
+            }
+
+            // Initialize the top menu
+            if (topMenuController == null) {
+                topMenuController = new TopMenuController();
+            }
+
+            // Initialize the player bar
+            if (playerBarController != null) {
+                playerBarController.setAudioService(audioService);
+            }
+        } catch (Exception e) {
+            System.err.println("Error during initialization: " + e.getMessage());
+            e.printStackTrace();
         }
-
-        // Initialize the left menu
-        leftMenuPaneController = new LeftMenuController();
-        leftMenuPaneController.initServices(rmiClient);
-        leftMenuPaneController.setOnHomeClick(v -> loadHomeView());
-        leftMenuPaneController.setOnLikedClick(v -> loadLikedView());
-        leftMenuPaneController.setOnArtistsClick(v -> loadArtistsView());
-        leftMenuPaneController.setOnPlaylistClick(content -> contentArea.getChildren().setAll(content));
-        leftMenuPaneController.setOnUploadClick(content -> contentArea.getChildren().setAll(content));
-        ((VBox)leftMenuPane).getChildren().add(leftMenuPaneController.createView());
-
-        // Initialize the top menu
-        topMenuController = new TopMenuController();
-        topMenuController.initServices(rmiClient);
-        topMenuController.setOnSearchByName(this::handleSearchByName);
-        topMenuController.setOnProfileClick(this::handleProfileClick);
-        topMenuController.setOnResultClick(this::handleSearchResult);
-        ((VBox)topMenuPane).getChildren().add(topMenuController.createView());
-
-        // Initialize search service
-        searchService = new SearchService(rmiClient, topMenuController);
-
-        // Initialize the player bar
-        playerBarController.setAudioService(audioService);
-        playerBarController.setRMIClient(rmiClient);
-
-        // Load the home view by default
-        loadHomeView();
     }
 
     public void initializeServices(RMIClient rmiClient, SessionHolder sessionHolder) {
         this.rmiClient = rmiClient;
         this.sessionHolder = sessionHolder;
 
-        if (leftMenuPaneController != null) {
-            leftMenuPaneController.initServices(rmiClient);
-            
-            // Set up navigation callbacks
-            leftMenuPaneController.setOnHomeClick(v -> loadHomeView());
-            leftMenuPaneController.setOnLikedClick(v -> loadLikedView());
-            leftMenuPaneController.setOnArtistsClick(v -> loadArtistsView());
-            
+        try {
+            // Initialize the left menu if not already done
+            if (leftMenuPaneController == null) {
+                FXMLLoader leftMenuLoader = new FXMLLoader(getClass().getResource("/com/istream/fxml/alwaysOnDisplay/LeftMenuPane.fxml"));
+                Parent leftMenuView = leftMenuLoader.load();
+                leftMenuPaneController = leftMenuLoader.getController();
+                
+                if (leftMenuPane instanceof Pane) {
+                    ((Pane)leftMenuPane).getChildren().add(leftMenuView);
+                }
+            }
+
+            // Initialize left menu services and callbacks
+            if (leftMenuPaneController != null) {
+                leftMenuPaneController.initServices(rmiClient);
+                leftMenuPaneController.setOnHomeClick(v -> loadHomeView());
+                leftMenuPaneController.setOnLikedClick(v -> loadLikedView());
+                leftMenuPaneController.setOnArtistsClick(v -> loadArtistsView());
+                leftMenuPaneController.setOnPlaylistClick(content -> contentArea.getChildren().setAll(content));
+                leftMenuPaneController.setOnUploadClick(content -> contentArea.getChildren().setAll(content));
+                leftMenuPaneController.setOnNewPlaylistClick(v -> loadPlaylistsView());
+            } else {
+                System.err.println("Error: Failed to initialize leftMenuPaneController");
+            }
+
+            // Initialize top menu services
+            if (topMenuController != null) {
+                topMenuController.initServices(rmiClient);
+                topMenuController.setOnSearchByName(this::handleSearchByName);
+                topMenuController.setOnProfileClick(this::handleProfileClick);
+                topMenuController.setOnResultClick(this::handleSearchResult);
+                searchService = new SearchService(rmiClient, topMenuController);
+            }
+
+            // Initialize player bar
+            if (playerBarController != null) {
+                playerBarController.setRMIClient(rmiClient);
+            }
+
             // Load home view by default
             loadHomeView();
-        } else {
-            System.err.println("MainAppController: leftMenuPaneController is null. Check FXML setup for LeftMenuPane.fxml.");
-        }
-
-        // Update player bar with RMI client
-        if (playerBarController != null) {
-            playerBarController.setRMIClient(rmiClient);
-        }
-
-        // Initialize search service
-        if (topMenuController != null) {
-            searchService = new SearchService(rmiClient, topMenuController);
+        } catch (Exception e) {
+            System.err.println("Error during service initialization: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

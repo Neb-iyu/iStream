@@ -1,0 +1,179 @@
+/* Always On Display Components */
+
+/* Now Playing Bar */
+.now-playing-bar {
+    -fx-background-color: -fx-secondary;
+    -fx-padding: 10 20;
+    -fx-spacing: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, -2);
+}
+
+.now-playing-info {
+    -fx-spacing: 10;
+    -fx-alignment: center-left;
+}
+
+.now-playing-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-fill;
+}
+
+.now-playing-artist {
+    -fx-font-size: 14px;
+    -fx-text-fill: -fx-text-fill-secondary;
+}
+
+.now-playing-artist:hover {
+    -fx-text-fill: -fx-accent;
+    -fx-underline: true;
+    -fx-cursor: hand;
+}
+
+/* Playback Controls */
+.playback-controls {
+    -fx-spacing: 20;
+    -fx-alignment: center;
+}
+
+.control-button {
+    -fx-background-color: transparent;
+    -fx-padding: 8;
+    -fx-min-width: 40;
+    -fx-min-height: 40;
+    -fx-cursor: hand;
+}
+
+.control-button:hover {
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+.play-pause-button {
+    -fx-background-color: -fx-accent;
+    -fx-background-radius: 20;
+    -fx-min-width: 50;
+    -fx-min-height: 50;
+}
+
+.play-pause-button:hover {
+    -fx-background-color: -fx-accent-hover;
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+/* Progress Bar */
+.progress-bar {
+    -fx-background-color: -fx-secondary;
+    -fx-background-radius: 5;
+    -fx-padding: 0;
+}
+
+.progress-bar .track {
+    -fx-background-color: -fx-secondary;
+    -fx-background-radius: 5;
+}
+
+.progress-bar .bar {
+    -fx-background-color: -fx-accent;
+    -fx-background-radius: 5;
+}
+
+.progress-bar .bar:hover {
+    -fx-background-color: -fx-accent-hover;
+}
+
+/* Volume Control */
+.volume-control {
+    -fx-spacing: 10;
+    -fx-alignment: center-right;
+}
+
+.volume-slider {
+    -fx-pref-width: 100;
+}
+
+.volume-slider .track {
+    -fx-background-color: -fx-secondary;
+    -fx-background-radius: 5;
+}
+
+.volume-slider .bar {
+    -fx-background-color: -fx-accent;
+    -fx-background-radius: 5;
+}
+
+.volume-slider .thumb {
+    -fx-background-color: -fx-text-fill;
+    -fx-background-radius: 5;
+    -fx-pref-width: 10;
+    -fx-pref-height: 10;
+}
+
+.volume-slider .thumb:hover {
+    -fx-background-color: -fx-accent;
+    -fx-scale-x: 1.2;
+    -fx-scale-y: 1.2;
+}
+
+/* Album Art */
+.album-art {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 0);
+    -fx-background-radius: 5;
+}
+
+.album-art:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 15, 0, 0, 0);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* Time Labels */
+.time-label {
+    -fx-text-fill: -fx-text-fill-secondary;
+    -fx-font-size: 12px;
+}
+
+/* Like Button */
+.like-button {
+    -fx-background-color: transparent;
+    -fx-padding: 5;
+    -fx-cursor: hand;
+}
+
+.like-button:hover {
+    -fx-scale-x: 1.2;
+    -fx-scale-y: 1.2;
+}
+
+.like-button .icon {
+    -fx-fill: -fx-text-fill-secondary;
+}
+
+.like-button:hover .icon {
+    -fx-fill: -fx-accent;
+}
+
+.like-button.liked .icon {
+    -fx-fill: -fx-accent;
+}
+
+/* Queue Button */
+.queue-button {
+    -fx-background-color: transparent;
+    -fx-padding: 5;
+    -fx-cursor: hand;
+}
+
+.queue-button:hover {
+    -fx-scale-x: 1.2;
+    -fx-scale-y: 1.2;
+}
+
+.queue-button .icon {
+    -fx-fill: -fx-text-fill-secondary;
+}
+
+.queue-button:hover .icon {
+    -fx-fill: -fx-accent;
+} 

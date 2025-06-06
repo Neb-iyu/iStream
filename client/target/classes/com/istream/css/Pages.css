@@ -1,3 +1,266 @@
 .sdf{
     background-color: #312a2a;
 }
+
+/* Page Styles */
+
+/* Main App */
+.main-app {
+    -fx-background-color: -fx-primary;
+}
+
+/* Home Page */
+.home-page {
+    -fx-padding: 20;
+    -fx-spacing: 20;
+}
+
+/* Library Page */
+.library-page {
+    -fx-padding: 20;
+    -fx-spacing: 20;
+}
+
+/* Search Page */
+.search-page {
+    -fx-padding: 20;
+    -fx-spacing: 20;
+}
+
+/* Playlist Page */
+.playlist-page {
+    -fx-padding: 20;
+    -fx-spacing: 20;
+}
+
+.playlist-header {
+    -fx-padding: 20;
+    -fx-spacing: 15;
+    -fx-background-color: -fx-secondary;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 1);
+}
+
+.playlist-header-image {
+    -fx-fit-width: 200;
+    -fx-fit-height: 200;
+    -fx-background-radius: 4;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 0);
+}
+
+.playlist-header-info {
+    -fx-spacing: 10;
+    -fx-alignment: center-left;
+}
+
+.playlist-header-title {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-fill;
+}
+
+.playlist-header-details {
+    -fx-font-size: 14px;
+    -fx-text-fill: -fx-text-fill-secondary;
+}
+
+/* Artist Page */
+.artist-page {
+    -fx-padding: 20;
+    -fx-spacing: 20;
+}
+
+.artist-header {
+    -fx-padding: 20;
+    -fx-spacing: 15;
+    -fx-background-color: -fx-secondary;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 1);
+}
+
+.artist-header-image {
+    -fx-fit-width: 200;
+    -fx-fit-height: 200;
+    -fx-background-radius: 100;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 0);
+}
+
+.artist-header-info {
+    -fx-spacing: 10;
+    -fx-alignment: center-left;
+}
+
+.artist-header-name {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-fill;
+}
+
+.artist-header-stats {
+    -fx-font-size: 14px;
+    -fx-text-fill: -fx-text-fill-secondary;
+}
+
+/* Album Page */
+.album-page {
+    -fx-padding: 20;
+    -fx-spacing: 20;
+}
+
+.album-header {
+    -fx-padding: 20;
+    -fx-spacing: 15;
+    -fx-background-color: -fx-secondary;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 1);
+}
+
+.album-header-image {
+    -fx-fit-width: 200;
+    -fx-fit-height: 200;
+    -fx-background-radius: 4;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 0);
+}
+
+.album-header-info {
+    -fx-spacing: 10;
+    -fx-alignment: center-left;
+}
+
+.album-header-title {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-fill;
+}
+
+.album-header-artist {
+    -fx-font-size: 18px;
+    -fx-text-fill: -fx-text-fill-secondary;
+}
+
+.album-header-year {
+    -fx-font-size: 14px;
+    -fx-text-fill: -fx-text-fill-secondary;
+}
+
+/* Profile Page */
+.profile-page {
+    -fx-padding: 20;
+    -fx-spacing: 20;
+}
+
+.profile-header {
+    -fx-padding: 20;
+    -fx-spacing: 15;
+    -fx-background-color: -fx-secondary;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 1);
+}
+
+.profile-header-image {
+    -fx-fit-width: 150;
+    -fx-fit-height: 150;
+    -fx-background-radius: 75;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 0);
+}
+
+.profile-header-info {
+    -fx-spacing: 10;
+    -fx-alignment: center-left;
+}
+
+.profile-header-name {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-fill;
+}
+
+.profile-header-email {
+    -fx-font-size: 16px;
+    -fx-text-fill: -fx-text-fill-secondary;
+}
+
+/* Upload Page */
+.upload-page {
+    -fx-padding: 20;
+    -fx-spacing: 20;
+}
+
+.upload-form {
+    -fx-padding: 20;
+    -fx-spacing: 15;
+    -fx-background-color: -fx-secondary;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 1);
+}
+
+.upload-form-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-fill;
+}
+
+.upload-form-field {
+    -fx-spacing: 5;
+}
+
+.upload-form-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: -fx-text-fill;
+}
+
+.upload-form-input {
+    -fx-min-width: 300;
+}
+
+.upload-form-button {
+    -fx-min-width: 150;
+}
+
+/* Login Page */
+.login-page {
+    -fx-padding: 20;
+    -fx-spacing: 20;
+    -fx-alignment: center;
+}
+
+.login-form {
+    -fx-padding: 30;
+    -fx-spacing: 20;
+    -fx-background-color: -fx-secondary;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 1);
+    -fx-min-width: 400;
+}
+
+.login-form-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-fill;
+}
+
+.login-form-field {
+    -fx-spacing: 5;
+}
+
+.login-form-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: -fx-text-fill;
+}
+
+.login-form-input {
+    -fx-min-width: 300;
+}
+
+.login-form-button {
+    -fx-min-width: 150;
+}
+
+.login-form-link {
+    -fx-text-fill: -fx-accent;
+    -fx-cursor: hand;
+}
+
+.login-form-link:hover {
+    -fx-underline: true;
+}

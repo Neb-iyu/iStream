@@ -5,149 +5,130 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 import com.istream.database.DatabaseManager;
 import com.istream.database.dao.UserDAO;
-import com.istream.model.Session;
 
 public class SessionManager {
-    private static final long SESSION_TIMEOUT = TimeUnit.MINUTES.toMillis(30);
+    private static final long SESSION_DURATION = 30 * 60 * 1000; // 30 minutes in milliseconds
     private final DatabaseManager dbManager;
     private final UserDAO userDAO;
-    private final ConcurrentHashMap<String, Session> activeSessions;
 
     public SessionManager() {
         this.dbManager = new DatabaseManager();
         this.userDAO = dbManager.getUserDAO();
-        this.activeSessions = new ConcurrentHashMap<>();
-        startSessionCleanup();
     }
 
-    public String createSession(int userId) throws SQLException {
-        String token = UUID.randomUUID().toString();
-        Session session = new Session(token, userId, 30); // 30 minutes validity
+    public SessionManager(DatabaseManager dbManager) {
+        this.dbManager = dbManager;
+        this.userDAO = dbManager.getUserDAO();
+    }
+
+    public String createSession(int userId) {
+        String token = generateToken();
+        Timestamp expiresAt = new Timestamp(System.currentTimeMillis() + SESSION_DURATION);
 
         String sql = "INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)";
         try (Connection conn = dbManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
             pstmt.setString(1, token);
             pstmt.setInt(2, userId);
-            pstmt.setTimestamp(3, Timestamp.valueOf(session.getExpiryTime()));
+            pstmt.setTimestamp(3, expiresAt);
             pstmt.executeUpdate();
+            
+            return token;
+        } catch (SQLException e) {
+            System.err.println("Error creating session: " + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
-
-        activeSessions.put(token, session);
-        return token;
     }
 
     public boolean validateSession(String token) {
-        if (token == null || token.isEmpty()) {
-            return false;
-        }
+        if (token == null) return false;
 
-        // Check in-memory cache first
-        Session session = activeSessions.get(token);
-        if (session != null) {
-            if (session.isValid()) {
-                return true;
-            }
-            activeSessions.remove(token);
-            return false;
-        }
-
-        // If not in cache, check database
-        try {
-            String sql = "SELECT * FROM sessions WHERE token = ? AND expires_at > NOW()";
-            try (Connection conn = dbManager.getConnection();
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setString(1, token);
-                ResultSet rs = pstmt.executeQuery();
-                
+        String sql = "SELECT * FROM sessions WHERE token = ? AND expires_at > NOW()";
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, token);
+            try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    int userId = rs.getInt("user_id");
-                    Session newSession = new Session(token, userId, 30);
-                    activeSessions.put(token, newSession);
+                    // Update the session expiry time
+                    updateSessionExpiry(token);
                     return true;
                 }
             }
         } catch (SQLException e) {
+            System.err.println("Error validating session: " + e.getMessage());
             e.printStackTrace();
         }
         return false;
     }
 
     public void invalidateSession(String token) {
-        activeSessions.remove(token);
-        try {
-            String sql = "DELETE FROM sessions WHERE token = ?";
-            try (Connection conn = dbManager.getConnection();
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setString(1, token);
-                pstmt.executeUpdate();
-            }
+        String sql = "DELETE FROM sessions WHERE token = ?";
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, token);
+            pstmt.executeUpdate();
         } catch (SQLException e) {
+            System.err.println("Error invalidating session: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     public Integer getUserIdFromToken(String token) {
-        if (!validateSession(token)) {
-            return null;
-        }
+        if (token == null) return null;
 
-        Session session = activeSessions.get(token);
-        if (session != null) {
-            return session.getUserId();
-        }
-
-        try {
-            String sql = "SELECT user_id FROM sessions WHERE token = ?";
-            try (Connection conn = dbManager.getConnection();
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setString(1, token);
-                ResultSet rs = pstmt.executeQuery();
-                
+        String sql = "SELECT user_id FROM sessions WHERE token = ? AND expires_at > NOW()";
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, token);
+            try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("user_id");
                 }
             }
         } catch (SQLException e) {
+            System.err.println("Error getting user ID from token: " + e.getMessage());
             e.printStackTrace();
         }
         return null;
     }
 
-    private void startSessionCleanup() {
-        Thread cleanupThread = new Thread(() -> {
-            while (!Thread.currentThread().isInterrupted()) {
-                try {
-                    cleanupExpiredSessions();
-                    Thread.sleep(TimeUnit.MINUTES.toMillis(5)); // Run every 5 minutes
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    break;
-                }
-            }
-        });
-        cleanupThread.setDaemon(true);
-        cleanupThread.start();
+    private void updateSessionExpiry(String token) {
+        String sql = "UPDATE sessions SET expires_at = ? WHERE token = ?";
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            Timestamp newExpiry = new Timestamp(System.currentTimeMillis() + SESSION_DURATION);
+            pstmt.setTimestamp(1, newExpiry);
+            pstmt.setString(2, token);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Error updating session expiry: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
-    private void cleanupExpiredSessions() {
-        // Cleanup in-memory sessions
-        activeSessions.entrySet().removeIf(entry -> !entry.getValue().isValid());
+    private String generateToken() {
+        return UUID.randomUUID().toString().replace("-", "");
+    }
 
-        // Cleanup database sessions
-        try {
-            String sql = "DELETE FROM sessions WHERE expires_at < NOW()";
-            try (Connection conn = dbManager.getConnection();
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.executeUpdate();
-            }
+    public void cleanupExpiredSessions() {
+        String sql = "DELETE FROM sessions WHERE expires_at <= NOW()";
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.executeUpdate();
         } catch (SQLException e) {
+            System.err.println("Error cleaning up expired sessions: " + e.getMessage());
             e.printStackTrace();
         }
     }

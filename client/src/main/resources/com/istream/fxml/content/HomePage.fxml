@@ -3,59 +3,61 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Pos?>
 
-<VBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.istream.client.controller.HomeViewController">
+<VBox styleClass="home-page fade-in" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
     <padding>
         <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
     </padding>
     <spacing>20.0</spacing>
-    <alignment><Pos value="CENTER"/></alignment>
+    <alignment>CENTER</alignment>
     
-    <Label text="Welcome to iStream">
+    <Label text="Welcome to iStream" styleClass="section-title">
         <font>
-            <Font name="Arial" size="24.0" weight="BOLD"/>
+            <Font name="Arial Bold" size="24.0" />
         </font>
     </Label>
     
-    <VBox fx:id="listenAgainContainer" spacing="10.0">
-        <Label text="Listen Again">
+    <VBox fx:id="listenAgainContainer" styleClass="section-container slide-in" spacing="10.0">
+        <Label text="Listen Again" styleClass="section-header">
             <font>
-                <Font name="Arial" size="18.0" weight="BOLD"/>
+                <Font name="Arial Bold" size="18.0"/>
             </font>
         </Label>
         <ScrollPane fitToHeight="true" hbarPolicy="ALWAYS" vbarPolicy="NEVER" 
-                    fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
+                    fitToWidth="true" styleClass="scroll-pane">
             <content>
-                <HBox fx:id="listenAgainBox" spacing="20.0" alignment="CENTER_LEFT" 
-                    minWidth="1000"/> <!-- Or set to a specific minimum width -->
+                <HBox fx:id="listenAgainBox" styleClass="content-row" spacing="20.0" alignment="CENTER_LEFT" 
+                    minWidth="1000"/>
             </content>
         </ScrollPane>
     </VBox>
-    <VBox fx:id="artistsContainer" spacing="10.0">
-        <Label text="Artists">
+    <VBox fx:id="artistsContainer" styleClass="section-container slide-in" spacing="10.0">
+        <Label text="Artists" styleClass="section-header">
             <font>
-                <Font name="Arial" size="18.0" weight="BOLD"/>
+                <Font name="Arial Bold" size="18.0" />
             </font>
         </Label>
         <ScrollPane fitToHeight="true" hbarPolicy="ALWAYS" vbarPolicy="NEVER" 
-                    fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
+                    fitToWidth="true" styleClass="scroll-pane">
             <content>
-                <HBox fx:id="artistsBox" spacing="20.0" alignment="CENTER_LEFT" 
-                    minWidth="1000"/> <!-- Or set to a specific minimum width -->
+                <HBox fx:id="artistsBox" styleClass="content-row" spacing="20.0" alignment="CENTER_LEFT" 
+                    minWidth="1000"/>
             </content>
         </ScrollPane>
     </VBox>
-    <VBox fx:id="albumsContainer" spacing="10.0">
-        <Label text="Albums">
+    <VBox fx:id="albumsContainer" styleClass="section-container slide-in" spacing="10.0">
+        <Label text="Albums" styleClass="section-header">
             <font>
-                <Font name="Arial" size="18.0" weight="BOLD"/>
+                <Font name="Arial Bold" size="18.0" />
             </font>
         </Label>
         <ScrollPane fitToHeight="true" hbarPolicy="ALWAYS" vbarPolicy="NEVER" 
-                    fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
+                    fitToWidth="true" styleClass="scroll-pane">
             <content>
-                <HBox fx:id="albumsBox" spacing="20.0" alignment="CENTER_LEFT" 
-                    minWidth="1000"/> <!-- Or set to a specific minimum width -->
+                <HBox fx:id="albumsBox" styleClass="content-row" spacing="20.0" alignment="CENTER_LEFT" 
+                    minWidth="1000"/>
             </content>
         </ScrollPane>
     </VBox>

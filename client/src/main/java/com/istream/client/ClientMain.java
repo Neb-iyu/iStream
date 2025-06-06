@@ -31,6 +31,7 @@ public class ClientMain extends Application {
         this.primaryStage = primaryStage;
         initializeRMI();
         showLoginScreen();
+        //DummyDataService.populateRMIClient(rmiClient);
         
         primaryStage.setTitle("iStream");
         primaryStage.setMinWidth(800);
@@ -80,6 +81,7 @@ public class ClientMain extends Application {
             showErrorAndExit("Error", "Could not load main application: " + e.getMessage());
         }
     }
+
     
     private void showErrorAndExit(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -97,4 +99,3 @@ public class ClientMain extends Application {
         launch();
     }
 }
-

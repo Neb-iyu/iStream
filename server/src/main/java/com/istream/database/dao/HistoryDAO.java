@@ -112,6 +112,9 @@ public class HistoryDAO implements BaseDAO {
         return history;
     }
     public List<Song> getHistorySongs(int userId) throws SQLException {
+        if (!userDAO.isAdmin(userId)) {
+            throw new SQLException("User is not an admin");
+        }
         List<Song> songs = new ArrayList<>();
         String sql = "SELECT * FROM play_history WHERE user_id = ? ORDER BY played_at DESC";
         

@@ -58,13 +58,13 @@ public class MusicServiceImpl extends UnicastRemoteObject implements MusicServic
     }
 
     private void validateSession(String token) throws RemoteException {
-        if (!sessionManager.validateSession(token)) {
+        if (!authService.validateSession(token)) {
             throw new RemoteException("Invalid session");
         }
     }
 
     private int getUserId(String token) throws RemoteException {
-        Integer userId = sessionManager.getUserIdFromToken(token);
+        Integer userId = authService.getUserIdFromToken(token);
         if (userId == null) {
             throw new RemoteException("Invalid session");
         }
@@ -103,11 +103,19 @@ public class MusicServiceImpl extends UnicastRemoteObject implements MusicServic
 
     @Override
     public byte[] streamSong(int songId) throws RemoteException {
+        System.out.println("Streaming song with ID: " + songId);
         activeStreams.add(songId);
         try {
-            return songLibrary.getSongData(songId);
+            byte[] songData = songLibrary.getSongData(songId);
+            System.out.println("Successfully retrieved song data for ID: " + songId);
+            return songData;
+        } catch (Exception e) {
+            System.err.println("Error streaming song " + songId + ": " + e.getMessage());
+            e.printStackTrace();
+            throw new RemoteException("Error streaming song: " + e.getMessage(), e);
         } finally {
             activeStreams.remove(songId);
+            System.out.println("Stream ended for song ID: " + songId);
         }
     }
 
@@ -115,35 +123,64 @@ public class MusicServiceImpl extends UnicastRemoteObject implements MusicServic
     public synchronized void uploadSong(Song song, byte[] fileData, String artistName, String albumName) 
             throws RemoteException {
         try {
-            if (songLibrary.getSongById(song.getId()) != null) {
-                throw new RemoteException("Song already exists with ID: " + song.getId());
-            }
+            System.out.println("Attempting to upload song: " + song.getTitle());
+            System.out.println("Artist: " + artistName + ", Album: " + albumName);
+            
+            // if (songLibrary.getSongById(song.getId()) != null) {
+            //     System.err.println("Error: Song already exists with ID: " + song.getId());
+            //     throw new RemoteException("Song already exists with ID: " + song.getId());
+            // }
             
             Artist artist = artistDAO.getArtistByName(artistName);
             Album album = albumDAO.getAlbumByName(albumName);
             
             if (artist == null) {
+                System.out.println("Creating new artist: " + artistName);
                 artist = new Artist(0, artistName, "", new ArrayList<>(), new ArrayList<>());
                 int artistId = artistDAO.addArtist(artist);
                 artist.setId(artistId);
+                System.out.println("Created artist with ID: " + artistId);
             }
             
             if (album == null) {
+                System.out.println("Creating new album: " + albumName);
                 album = new Album(0, albumName, artist.getId(), "", null);
                 int albumId = albumDAO.addAlbum(album);
                 album.setId(albumId);
+                System.out.println("Created album with ID: " + albumId);
             }
             
             song.setArtistId(artist.getId());
             song.setAlbumId(album.getId());
+            System.out.println("Inserting song into database...");
             int songId = songDAO.insertSong(song);
+            System.out.println("Song inserted with ID: " + songId);
             
+            // Add song to album_items table
+            System.out.println("Adding song to album items...");
+            albumDAO.insertAlbumItems(album.getId(), songId);
+                System.out.println("Successfully added song to album items");
+            
+            
+            System.out.println("Storing song data...");
             fileManager.storeSongData(songId, fileData);
+            System.out.println("Song data stored successfully");
+            
+            System.out.println("Refreshing song library...");
             songLibrary.refresh();
+            System.out.println("Song upload completed successfully");
         } catch (SQLException e) {
-            throw new RemoteException("Error storing song in database", e);
+            System.err.println("Database error during song upload: " + e.getMessage());
+            e.printStackTrace();
+            throw new RemoteException("Error storing song in database: " + e.getMessage(), e);
         } catch (IOException e) {
-            throw new RemoteException("Error storing song data", e);
+            System.err.println("File system error during song upload: " + e.getMessage());
+            e.printStackTrace();
+            throw new RemoteException("Error storing song data: " + e.getMessage(), e);
+        } catch (Exception e) {
+            System.err.println("Unexpected error during song upload: " + e.getMessage());
+            e.printStackTrace();
+            throw new RemoteException("Unexpected error during song upload: " + e.getMessage(), e);
         }
     }
 
@@ -157,9 +194,14 @@ public class MusicServiceImpl extends UnicastRemoteObject implements MusicServic
     @Override
     public int insertAlbum(Album album) throws RemoteException {
         try {
-            return albumDAO.insertAlbum(album);
+            System.out.println("Inserting album: " + album.getTitle());
+            int albumId = albumDAO.insertAlbum(album);
+            System.out.println("Successfully inserted album with ID: " + albumId);
+            return albumId;
         } catch (SQLException e) {
-            throw new RemoteException("Error inserting album", e);
+            System.err.println("Error inserting album: " + e.getMessage());
+            e.printStackTrace();
+            throw new RemoteException("Error inserting album: " + e.getMessage(), e);
         }
     }
     @Override
@@ -214,36 +256,51 @@ public class MusicServiceImpl extends UnicastRemoteObject implements MusicServic
     public Playlist createPlaylist(String token, String name) throws RemoteException {
         int userId = getUserId(token);
         try {
-            return playlistManager.createPlaylist(userId, name);
+            System.out.println("Creating playlist '" + name + "' for user " + userId);
+            Playlist playlist = playlistManager.createPlaylist(userId, name);
+            System.out.println("Successfully created playlist with ID: " + playlist.getId());
+            return playlist;
         } catch (SQLException e) {
-            throw new RemoteException("Error creating playlist", e);
+            System.err.println("Error creating playlist for user " + userId + ": " + e.getMessage());
+            e.printStackTrace();
+            throw new RemoteException("Error creating playlist: " + e.getMessage(), e);
         }
     }
 
     @Override
     public void addSongToPlaylist(int playlistId, int songId) throws RemoteException {
         try {
+            System.out.println("Adding song " + songId + " to playlist " + playlistId);
             playlistManager.addSongToPlaylist(playlistId, songId);
+            System.out.println("Successfully added song to playlist");
+        } catch (SQLException e) {
+            System.err.println("Error adding song " + songId + " to playlist " + playlistId + ": " + e.getMessage());
+            e.printStackTrace();
+            throw new RemoteException("Error adding song to playlist: " + e.getMessage(), e);
         }
-        catch (SQLException e) {
-            throw new RemoteException("Error adding song to playlist", e);
-        }
-        //playlistManager.addSongToPlaylist(playlistId, songId);
     }
     @Override
     public void removeSongFromPlaylist(int playlistId, int songId) throws RemoteException {
         try {
+            System.out.println("Removing song " + songId + " from playlist " + playlistId);
             playlistManager.removeSongFromPlaylist(playlistId, songId);
+            System.out.println("Successfully removed song from playlist");
         } catch (SQLException e) {
-            throw new RemoteException("Error removing song from playlist", e);
+            System.err.println("Error removing song " + songId + " from playlist " + playlistId + ": " + e.getMessage());
+            e.printStackTrace();
+            throw new RemoteException("Error removing song from playlist: " + e.getMessage(), e);
         }
     }
     @Override
     public void deletePlaylist(int playlistId) throws RemoteException {
         try {
+            System.out.println("Deleting playlist " + playlistId);
             playlistManager.deletePlaylist(playlistId);
+            System.out.println("Successfully deleted playlist");
         } catch (SQLException e) {
-            throw new RemoteException("Error deleting playlist", e);
+            System.err.println("Error deleting playlist " + playlistId + ": " + e.getMessage());
+            e.printStackTrace();
+            throw new RemoteException("Error deleting playlist: " + e.getMessage(), e);
         }
     }
     @Override
@@ -268,9 +325,13 @@ public class MusicServiceImpl extends UnicastRemoteObject implements MusicServic
     public void recordPlay(int songId, String token) throws RemoteException {
         int userId = getUserId(token);
         try {
+            System.out.println("Recording play of song " + songId + " for user " + userId);
             historyDAO.addToHistory(userId, songId);
+            System.out.println("Successfully recorded play");
         } catch (SQLException e) {
-            throw new RemoteException("Error recording play", e);
+            System.err.println("Error recording play for user " + userId + " song " + songId + ": " + e.getMessage());
+            e.printStackTrace();
+            throw new RemoteException("Error recording play: " + e.getMessage(), e);
         }
     }
 
@@ -278,18 +339,26 @@ public class MusicServiceImpl extends UnicastRemoteObject implements MusicServic
     public void likeSong(int songId, String token) throws RemoteException {
         int userId = getUserId(token);
         try {
+            System.out.println("User " + userId + " liking song " + songId);
             songDAO.likeSong(userId, songId);
+            System.out.println("Successfully liked song " + songId + " for user " + userId);
         } catch (SQLException e) {
-            throw new RemoteException("Error liking song", e);
+            System.err.println("Error liking song " + songId + " for user " + userId + ": " + e.getMessage());
+            e.printStackTrace();
+            throw new RemoteException("Error liking song: " + e.getMessage(), e);
         }
     }
     @Override
     public void unlikeSong(int songId, String token) throws RemoteException {
         int userId = getUserId(token);
         try {
+            System.out.println("User " + userId + " unliking song " + songId);
             songDAO.unlikeSong(userId, songId);
+            System.out.println("Successfully unliked song " + songId + " for user " + userId);
         } catch (SQLException e) {
-            throw new RemoteException("Error unliking song", e);
+            System.err.println("Error unliking song " + songId + " for user " + userId + ": " + e.getMessage());
+            e.printStackTrace();
+            throw new RemoteException("Error unliking song: " + e.getMessage(), e);
         }
     }
     @Override
@@ -313,15 +382,7 @@ public class MusicServiceImpl extends UnicastRemoteObject implements MusicServic
     @Override
     public String login(String username, String password) throws RemoteException {
         try {
-            System.out.println("Login attempt for user: " + username);
-            String sessionToken = userDAO.authenticateUser(username, password);
-            if (sessionToken != null) {
-                System.out.println("Login successful for user: " + username);
-                activeSessions.put(sessionToken, System.currentTimeMillis());
-            } else {
-                System.out.println("Login failed for user: " + username + " - Invalid credentials");
-            }
-            return sessionToken;
+            return authService.login(username, password);
         } catch (SQLException e) {
             System.err.println("Database error during login: " + e.getMessage());
             e.printStackTrace();
@@ -335,16 +396,12 @@ public class MusicServiceImpl extends UnicastRemoteObject implements MusicServic
 
     @Override
     public void logout(String authToken) throws RemoteException {
-        activeSessions.remove(authToken);
+        authService.logout(authToken);
     }
 
     @Override
     public boolean isLoggedIn(String authToken) throws RemoteException {
-        if (activeSessions.containsKey(authToken)) {
-            activeSessions.put(authToken, System.currentTimeMillis()); // Update last access time
-            return true;
-        }
-        return false;
+        return authService.isLoggedIn(authToken);
     }
 
     @Override
@@ -368,16 +425,9 @@ public class MusicServiceImpl extends UnicastRemoteObject implements MusicServic
     }
 
     public void cleanupOldSessions() {
-        long currentTime = System.currentTimeMillis();
-        
-        // Cleanup expired sessions
-        activeSessions.entrySet().removeIf(entry -> 
-            (currentTime - entry.getValue()) > SESSION_TIMEOUT
-        );
-
+        authService.cleanupOldSessions();
         // Cleanup expired streams
         activeStreams.clear(); // Reset active streams periodically
-
         // Force garbage collection of unused resources
         System.gc();
     }
@@ -412,9 +462,13 @@ public class MusicServiceImpl extends UnicastRemoteObject implements MusicServic
     public void clearHistory(String token) throws RemoteException {
         int userId = getUserId(token);
         try {
+            System.out.println("Clearing history for user " + userId);
             historyDAO.clearHistory(userId);
+            System.out.println("Successfully cleared history");
         } catch (SQLException e) {
-            throw new RemoteException("Error clearing history", e);
+            System.err.println("Error clearing history for user " + userId + ": " + e.getMessage());
+            e.printStackTrace();
+            throw new RemoteException("Error clearing history: " + e.getMessage(), e);
         }
     }
 
@@ -431,18 +485,12 @@ public class MusicServiceImpl extends UnicastRemoteObject implements MusicServic
     @Override
     public Boolean register(String username, String password, String email) throws RemoteException {
         try {
-            System.out.println("Registration attempt for user: " + username);
-            authService.register(username, password, email);
-            System.out.println("Registration successful for user: " + username);
-            return true;
+            String sessionToken = authService.register(username, password, email);
+            return sessionToken != null;
         } catch (SQLException e) {
             System.err.println("Database error during registration: " + e.getMessage());
             e.printStackTrace();
             throw new RemoteException("Database error during registration: " + e.getMessage(), e);
-        } catch (IllegalArgumentException e) {
-            System.err.println("Invalid registration data: " + e.getMessage());
-            e.printStackTrace();
-            throw new RemoteException("Invalid registration data: " + e.getMessage(), e);
         } catch (Exception e) {
             System.err.println("Unexpected error during registration: " + e.getMessage());
             e.printStackTrace();
@@ -463,9 +511,13 @@ public class MusicServiceImpl extends UnicastRemoteObject implements MusicServic
     @Override
     public void addUser(User user) throws RemoteException {
         try {
+            System.out.println("Adding user: " + user.getUsername());
             userDAO.createUser(user);
+            System.out.println("Successfully added user");
         } catch (SQLException e) {
-            throw new RemoteException("Error adding user", e);
+            System.err.println("Error adding user: " + e.getMessage());
+            e.printStackTrace();
+            throw new RemoteException("Error adding user: " + e.getMessage(), e);
         }
     }
     
@@ -474,17 +526,25 @@ public class MusicServiceImpl extends UnicastRemoteObject implements MusicServic
     @Override
     public void addAdmin(int userId) throws RemoteException {
         try {
+            System.out.println("Adding admin privileges for user " + userId);
             userDAO.addAdmin(userId);
+            System.out.println("Successfully added admin privileges");
         } catch (SQLException e) {
-            throw new RemoteException("Error adding admin", e);
+            System.err.println("Error adding admin privileges: " + e.getMessage());
+            e.printStackTrace();
+            throw new RemoteException("Error adding admin: " + e.getMessage(), e);
         }
     }
     @Override
     public void removeAdmin(int userId) throws RemoteException {
         try {
+            System.out.println("Removing admin privileges for user " + userId);
             userDAO.removeAdmin(userId);
+            System.out.println("Successfully removed admin privileges");
         } catch (SQLException e) {
-            throw new RemoteException("Error removing admin", e);
+            System.err.println("Error removing admin privileges: " + e.getMessage());
+            e.printStackTrace();
+            throw new RemoteException("Error removing admin: " + e.getMessage(), e);
         }
     }
     @Override
@@ -528,9 +588,13 @@ public class MusicServiceImpl extends UnicastRemoteObject implements MusicServic
     @Override
     public void addArtist(Artist artist) throws RemoteException {
         try {
+            System.out.println("Adding artist: " + artist.getName());
             artistDAO.addArtist(artist);
+            System.out.println("Successfully added artist with ID: " + artist.getId());
         } catch (SQLException e) {
-            throw new RemoteException("Error adding artist", e);
+            System.err.println("Error adding artist: " + e.getMessage());
+            e.printStackTrace();
+            throw new RemoteException("Error adding artist: " + e.getMessage(), e);
         }
     }
 

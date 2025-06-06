@@ -1,0 +1,264 @@
+/* Animations and Transitions */
+
+/* Fade In */
+.fade-in {
+    -fx-opacity: 0;
+    -fx-animation: fadeIn 0.3s ease-in forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        -fx-opacity: 0;
+    }
+    to {
+        -fx-opacity: 1;
+    }
+}
+
+/* Fade Out */
+.fade-out {
+    -fx-opacity: 1;
+    -fx-animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeOut {
+    from {
+        -fx-opacity: 1;
+    }
+    to {
+        -fx-opacity: 0;
+    }
+}
+
+/* Slide In */
+.slide-in {
+    -fx-translate-x: -100;
+    -fx-animation: slideIn 0.3s ease-out forwards;
+}
+
+@keyframes slideIn {
+    from {
+        -fx-translate-x: -100;
+    }
+    to {
+        -fx-translate-x: 0;
+    }
+}
+
+/* Slide Out */
+.slide-out {
+    -fx-translate-x: 0;
+    -fx-animation: slideOut 0.3s ease-in forwards;
+}
+
+@keyframes slideOut {
+    from {
+        -fx-translate-x: 0;
+    }
+    to {
+        -fx-translate-x: -100;
+    }
+}
+
+/* Scale In */
+.scale-in {
+    -fx-scale-x: 0;
+    -fx-scale-y: 0;
+    -fx-animation: scaleIn 0.3s ease-out forwards;
+}
+
+@keyframes scaleIn {
+    from {
+        -fx-scale-x: 0;
+        -fx-scale-y: 0;
+    }
+    to {
+        -fx-scale-x: 1;
+        -fx-scale-y: 1;
+    }
+}
+
+/* Scale Out */
+.scale-out {
+    -fx-scale-x: 1;
+    -fx-scale-y: 1;
+    -fx-animation: scaleOut 0.3s ease-in forwards;
+}
+
+@keyframes scaleOut {
+    from {
+        -fx-scale-x: 1;
+        -fx-scale-y: 1;
+    }
+    to {
+        -fx-scale-x: 0;
+        -fx-scale-y: 0;
+    }
+}
+
+/* Rotate */
+.rotate {
+    -fx-animation: rotate 0.3s ease-in-out;
+}
+
+@keyframes rotate {
+    from {
+        -fx-rotate: 0;
+    }
+    to {
+        -fx-rotate: 360;
+    }
+}
+
+/* Pulse */
+.pulse {
+    -fx-animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0% {
+        -fx-scale-x: 1;
+        -fx-scale-y: 1;
+    }
+    50% {
+        -fx-scale-x: 1.1;
+        -fx-scale-y: 1.1;
+    }
+    100% {
+        -fx-scale-x: 1;
+        -fx-scale-y: 1;
+    }
+}
+
+/* Shake */
+.shake {
+    -fx-animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% {
+        -fx-translate-x: 0;
+    }
+    10%, 30%, 50%, 70%, 90% {
+        -fx-translate-x: -5;
+    }
+    20%, 40%, 60%, 80% {
+        -fx-translate-x: 5;
+    }
+}
+
+/* Bounce */
+.bounce {
+    -fx-animation: bounce 0.5s ease-in-out;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        -fx-translate-y: 0;
+    }
+    40% {
+        -fx-translate-y: -20;
+    }
+    60% {
+        -fx-translate-y: -10;
+    }
+}
+
+/* Transition Classes */
+.transition-all {
+    -fx-transition: all 0.3s ease-in-out;
+}
+
+.transition-opacity {
+    -fx-transition: opacity 0.3s ease-in-out;
+}
+
+.transition-transform {
+    -fx-transition: transform 0.3s ease-in-out;
+}
+
+.transition-color {
+    -fx-transition: color 0.3s ease-in-out;
+}
+
+.transition-background {
+    -fx-transition: background-color 0.3s ease-in-out;
+}
+
+/* Hover Effects */
+.hover-scale {
+    -fx-transition: transform 0.2s ease-in-out;
+}
+
+.hover-scale:hover {
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.hover-rotate {
+    -fx-transition: rotate 0.2s ease-in-out;
+}
+
+.hover-rotate:hover {
+    -fx-rotate: 5;
+}
+
+.hover-bright {
+    -fx-transition: brightness 0.2s ease-in-out;
+}
+
+.hover-bright:hover {
+    -fx-brightness: 1.2;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    -fx-animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        -fx-rotate: 0;
+    }
+    to {
+        -fx-rotate: 360;
+    }
+}
+
+/* Progress Bar Animation */
+.progress-bar .bar {
+    -fx-animation: progress 1s linear infinite;
+}
+
+@keyframes progress {
+    from {
+        -fx-background-insets: 0;
+    }
+    to {
+        -fx-background-insets: 100;
+    }
+}
+
+/* Toast Notification */
+.toast {
+    -fx-animation: toast 3s ease-in-out forwards;
+}
+
+@keyframes toast {
+    0% {
+        -fx-opacity: 0;
+        -fx-translate-y: 20;
+    }
+    10% {
+        -fx-opacity: 1;
+        -fx-translate-y: 0;
+    }
+    90% {
+        -fx-opacity: 1;
+        -fx-translate-y: 0;
+    }
+    100% {
+        -fx-opacity: 0;
+        -fx-translate-y: -20;
+    }
+} 
