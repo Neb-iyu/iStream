@@ -5,9 +5,9 @@ import java.util.function.Consumer;
 
 import com.istream.client.service.RMIClient;
 import com.istream.client.util.UiComponent;
+import com.istream.client.util.ThreadManager;
 import com.istream.model.Playlist;
 
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -49,7 +49,7 @@ public class LeftMenuController {
 
         adminTask.setOnSucceeded(event -> {
             boolean isAdmin = adminTask.getValue();
-            Platform.runLater(() -> {
+            ThreadManager.runOnFxThread(() -> {
                 uploadButton.setVisible(isAdmin);
                 System.out.println("Upload button visibility set to: " + isAdmin);
             });
@@ -59,10 +59,10 @@ public class LeftMenuController {
             String errorMsg = "Failed to check admin status: " + adminTask.getException().getMessage();
             System.err.println(errorMsg);
             adminTask.getException().printStackTrace();
-            Platform.runLater(() -> UiComponent.showError("Error", errorMsg));
+            ThreadManager.runOnFxThread(() -> UiComponent.showError("Error", errorMsg));
         });
 
-        new Thread(adminTask).start();
+        ThreadManager.submitTask(adminTask);
     }
 
     public void setOnHomeClick(Consumer<Void> callback) {
@@ -146,7 +146,7 @@ public class LeftMenuController {
 
         playlistTask.setOnSucceeded(event -> {
             List<Playlist> playlists = playlistTask.getValue();
-            Platform.runLater(() -> {
+            ThreadManager.runOnFxThread(() -> {
                 if (playlistsBox == null) {
                     System.err.println("Warning: playlistsBox is null");
                     return;
@@ -172,10 +172,10 @@ public class LeftMenuController {
             String errorMsg = "Failed to load playlists: " + playlistTask.getException().getMessage();
             System.err.println(errorMsg);
             playlistTask.getException().printStackTrace();
-            Platform.runLater(() -> UiComponent.showError("Error", errorMsg));
+            ThreadManager.runOnFxThread(() -> UiComponent.showError("Error", errorMsg));
         });
 
-        new Thread(playlistTask).start();
+        ThreadManager.submitTask(playlistTask);
     }
 
     private void handlePlaylistClick(Playlist playlist) {
@@ -194,7 +194,7 @@ public class LeftMenuController {
             String errorMsg = "Failed to load playlist: " + ex.getMessage();
             System.err.println(errorMsg);
             ex.printStackTrace();
-            Platform.runLater(() -> UiComponent.showError("Error", errorMsg));
+            ThreadManager.runOnFxThread(() -> UiComponent.showError("Error", errorMsg));
         }
     }
 
@@ -215,7 +215,7 @@ public class LeftMenuController {
 
             createTask.setOnSucceeded(event -> {
                 Playlist playlist = createTask.getValue();
-                Platform.runLater(() -> {
+                ThreadManager.runOnFxThread(() -> {
                     Button playlistButton = new Button(playlist.getName());
                     playlistButton.getStyleClass().add("playlist-button");
                     playlistButton.setOnAction(event2 -> handlePlaylistClick(playlist));
@@ -228,10 +228,10 @@ public class LeftMenuController {
                 String errorMsg = "Failed to create playlist: " + createTask.getException().getMessage();
                 System.err.println(errorMsg);
                 createTask.getException().printStackTrace();
-                Platform.runLater(() -> UiComponent.showError("Error", errorMsg));
+                ThreadManager.runOnFxThread(() -> UiComponent.showError("Error", errorMsg));
             });
 
-            new Thread(createTask).start();
+            ThreadManager.submitTask(createTask);
         }
     }
 

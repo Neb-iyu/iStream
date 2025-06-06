@@ -1,17 +1,13 @@
 package com.istream.client.controller;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.rmi.RemoteException;
-import com.istream.rmi.MusicService;
 import com.istream.model.Artist;
 import com.istream.model.Song;
 import com.istream.client.util.UiComponent;
+import com.istream.client.util.ThreadManager;
 import com.istream.client.service.RMIClient;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
@@ -19,7 +15,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.concurrent.Task;
 import javafx.geometry.Pos;
-import javafx.application.Platform;
 
 public class ArtistsViewController {
     @FXML private VBox artistsContainer;
@@ -55,16 +50,18 @@ public class ArtistsViewController {
 
         task.setOnSucceeded(e -> {
             List<Artist> artists = task.getValue();
-            UiComponent.createArtistRow(artists, artistsBox, rmiClient, mainAppController);
+            ThreadManager.runOnFxThread(() -> {
+                UiComponent.createArtistRow(artists, artistsBox, rmiClient, mainAppController);
+            });
         });
 
         task.setOnFailed(e -> {
-            Platform.runLater(() -> 
+            ThreadManager.runOnFxThread(() -> 
                 UiComponent.showError("Error", "Failed to load artists: " + task.getException().getMessage())
             );
         });
 
-        new Thread(task).start();
+        ThreadManager.submitTask(task);
     }
 
     private VBox createArtistBox(Artist artist, MainAppController mainAppController) {
@@ -73,15 +70,15 @@ public class ArtistsViewController {
         artistBox.setMinWidth(150);
         
         try {
-            ImageView imageView = new ImageView(artist.getImageUrl());
+            ImageView imageView = new ImageView();
             imageView.setFitWidth(150);
             imageView.setFitHeight(150);
             imageView.setPreserveRatio(true);
+            UiComponent.loadImage(imageView, "images/artist/" + artist.getId() + ".png", rmiClient);
             
             Button nameButton = new Button(artist.getName());
             nameButton.setStyle("-fx-background-color: transparent; -fx-text-fill: white;");
             nameButton.setOnAction(e -> {
-                // Use JavaFX Task for UI updates when loading songs
                 Task<List<Song>> loadSongsTask = new Task<>() {
                     @Override
                     protected List<Song> call() throws Exception {
@@ -91,28 +88,18 @@ public class ArtistsViewController {
 
                 loadSongsTask.setOnSucceeded(success -> {
                     List<Song> songs = loadSongsTask.getValue();
-                    // TODO: Show artist songs in a new view or dialog
-                    UiComponent.showInputDialog(null, "Found " + songs.size() + " songs by " + artist.getName());
+                    ThreadManager.runOnFxThread(() -> {
+                        UiComponent.showNotification("Artist Songs", "Found " + songs.size() + " songs by " + artist.getName());
+                    });
                 });
 
                 loadSongsTask.setOnFailed(fail -> {
-                    UiComponent.showError(null, "Error loading artist songs: " + loadSongsTask.getException().getMessage());
+                    ThreadManager.runOnFxThread(() -> {
+                        UiComponent.showError("Error", "Failed to load artist songs: " + loadSongsTask.getException().getMessage());
+                    });
                 });
 
-                // Use JavaFX's thread pool for UI-related tasks
-                javafx.concurrent.Service<Void> service = new javafx.concurrent.Service<>() {
-                    @Override
-                    protected Task<Void> createTask() {
-                        return new Task<>() {
-                            @Override
-                            protected Void call() {
-                                loadSongsTask.run();
-                                return null;
-                            }
-                        };
-                    }
-                };
-                service.start();
+                ThreadManager.submitTask(loadSongsTask);
             });
             
             artistBox.getChildren().addAll(imageView, nameButton);
@@ -121,10 +108,5 @@ public class ArtistsViewController {
         }
         
         return artistBox;
-    }
-
-    
-    public void cleanup() {
-        // executorService.shutdown();
     }
 } 

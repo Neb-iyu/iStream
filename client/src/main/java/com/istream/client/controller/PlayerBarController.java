@@ -2,6 +2,8 @@ package com.istream.client.controller;
 
 import com.istream.client.service.AudioService;
 import com.istream.client.service.RMIClient;
+import com.istream.client.util.ThreadManager;
+import com.istream.client.util.UiComponent;
 import com.istream.model.Song;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -185,17 +187,19 @@ public class PlayerBarController {
                 };
 
                 task.setOnSucceeded(e -> {
-                    isLiked = !isLiked;
-                    updateLikeButtonState();
+                    ThreadManager.runOnFxThread(() -> {
+                        isLiked = !isLiked;
+                        updateLikeButtonState();
+                    });
                 });
 
                 task.setOnFailed(e -> {
-                    Platform.runLater(() -> 
-                        System.err.println("Failed to update like status: " + task.getException().getMessage())
+                    ThreadManager.runOnFxThread(() -> 
+                        UiComponent.showError("Error", "Failed to update like status: " + task.getException().getMessage())
                     );
                 });
 
-                new Thread(task).start();
+                ThreadManager.submitTask(task);
             }
         }
     }
@@ -228,17 +232,19 @@ public class PlayerBarController {
                 };
 
                 task.setOnSucceeded(e -> {
-                    isLiked = task.getValue();
-                    updateLikeButtonState();
+                    ThreadManager.runOnFxThread(() -> {
+                        isLiked = task.getValue();
+                        updateLikeButtonState();
+                    });
                 });
 
                 task.setOnFailed(e -> {
-                    Platform.runLater(() -> 
-                        System.err.println("Failed to check like status: " + task.getException().getMessage())
+                    ThreadManager.runOnFxThread(() -> 
+                        UiComponent.showError("Error", "Failed to check like status: " + task.getException().getMessage())
                     );
                 });
 
-                new Thread(task).start();
+                ThreadManager.submitTask(task);
             }
             
             // Load song image
@@ -253,17 +259,17 @@ public class PlayerBarController {
                 task.setOnSucceeded(e -> {
                     Image image = task.getValue();
                     if (image != null) {
-                        Platform.runLater(() -> songImage.setImage(image));
+                        ThreadManager.runOnFxThread(() -> songImage.setImage(image));
                     }
                 });
 
                 task.setOnFailed(e -> {
-                    Platform.runLater(() -> 
-                        System.err.println("Failed to load song image: " + task.getException().getMessage())
+                    ThreadManager.runOnFxThread(() -> 
+                        UiComponent.showError("Error", "Failed to load song image: " + task.getException().getMessage())
                     );
                 });
 
-                new Thread(task).start();
+                ThreadManager.submitTask(task);
             }
             
             timeline.play();
@@ -273,7 +279,7 @@ public class PlayerBarController {
 
     private void updateQueueDisplay() {
         if (audioService != null) {
-            Platform.runLater(() -> {
+            ThreadManager.runOnFxThread(() -> {
                 queueItems.clear();
                 queueItems.addAll(audioService.getSongQueue());
             });

@@ -12,6 +12,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import com.istream.model.Playlist;
 import com.istream.model.Song;
 import com.istream.client.service.RMIClient;
+import com.istream.client.util.UiComponent;
+import com.istream.client.util.ThreadManager;
 import java.util.List;
 
 public class PlaylistPageController {
@@ -77,13 +79,9 @@ public class PlaylistPageController {
             songs = FXCollections.observableArrayList(currentPlaylist.getSongs());
             songsTable.setItems(songs);
         } catch (Exception e) {
-            e.printStackTrace();
-            // Show error dialog
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Failed to load playlist songs");
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
+            ThreadManager.runOnFxThread(() -> 
+                UiComponent.showError("Error", "Failed to load playlist songs: " + e.getMessage())
+            );
         }
     }
 
@@ -107,22 +105,18 @@ public class PlaylistPageController {
             rmiClient.recordPlay(song.getId());
             // TODO: Implement actual song playback
         } catch (Exception e) {
-            e.printStackTrace();
-            // Show error dialog
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Failed to play song");
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
+            ThreadManager.runOnFxThread(() -> 
+                UiComponent.showError("Error", "Failed to play song: " + e.getMessage())
+            );
         }
     }
 
     public static Parent createView() {
         try {
-            FXMLLoader loader = new FXMLLoader(PlaylistPageController.class.getResource("/com/istream/fxml/content/PlaylistPage.fxml"));
+            FXMLLoader loader = new FXMLLoader(PlaylistPageController.class.getResource("/com/istream/fxml/content/PlaylistView.fxml"));
             return loader.load();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to load PlaylistPage.fxml", e);
+            throw new RuntimeException("Failed to load PlaylistView.fxml", e);
         }
     }
 } 

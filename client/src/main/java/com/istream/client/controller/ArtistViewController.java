@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.istream.client.service.RMIClient;
 import com.istream.client.util.UiComponent;
+import com.istream.client.util.ThreadManager;
 import com.istream.model.Artist;
 import com.istream.model.Song;
 
@@ -12,7 +13,6 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.concurrent.Task;
-import javafx.application.Platform;
 
 public class ArtistViewController {
     @FXML private ImageView artistImage;
@@ -45,18 +45,19 @@ public class ArtistViewController {
 
         task.setOnSucceeded(e -> {
             Artist artist = task.getValue();
-            artistName.setText(artist.getName());
-            // TODO: Load artist image
-            UiComponent.loadImage(artistImage, "images/artist/" + artist.getId() + ".png", rmiClient);
+            ThreadManager.runOnFxThread(() -> {
+                artistName.setText(artist.getName());
+                UiComponent.loadImage(artistImage, "images/artist/" + artist.getId() + ".png", rmiClient);
+            });
         });
 
         task.setOnFailed(e -> {
-            Platform.runLater(() -> 
+            ThreadManager.runOnFxThread(() -> 
                 UiComponent.showError("Error", "Failed to load artist details: " + task.getException().getMessage())
             );
         });
 
-        new Thread(task).start();
+        ThreadManager.submitTask(task);
     }
 
     private void loadArtistSongs() {
@@ -69,15 +70,17 @@ public class ArtistViewController {
 
         task.setOnSucceeded(e -> {
             List<Song> songs = task.getValue();
-            UiComponent.createSongRow(songs, songsBox, rmiClient, mainAppController);
+            ThreadManager.runOnFxThread(() -> {
+                UiComponent.createSongRow(songs, songsBox, rmiClient, mainAppController);
+            });
         });
 
         task.setOnFailed(e -> {
-            Platform.runLater(() -> 
+            ThreadManager.runOnFxThread(() -> 
                 UiComponent.showError("Error", "Failed to load artist songs: " + task.getException().getMessage())
             );
         });
 
-        new Thread(task).start();
+        ThreadManager.submitTask(task);
     }
 }

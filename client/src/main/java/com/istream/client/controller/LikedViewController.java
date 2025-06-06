@@ -4,9 +4,9 @@ import java.util.List;
 
 import com.istream.client.service.RMIClient;
 import com.istream.client.util.UiComponent;
+import com.istream.client.util.ThreadManager;
 import com.istream.model.Song;
 
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.layout.HBox;
@@ -37,7 +37,7 @@ public class LikedViewController {
 
         task.setOnSucceeded(e -> {
             List<Song> songs = task.getValue();
-            Platform.runLater(() -> {
+            ThreadManager.runOnFxThread(() -> {
                 if (likedSongsBox == null) {
                     System.err.println("Warning: likedSongsBox is null");
                     return;
@@ -53,11 +53,11 @@ public class LikedViewController {
         });
 
         task.setOnFailed(e -> {
-            Platform.runLater(() -> 
+            ThreadManager.runOnFxThread(() -> 
                 UiComponent.showError("Error", "Failed to load liked songs: " + task.getException().getMessage())
             );
         });
 
-        new Thread(task).start();
+        ThreadManager.submitTask(task);
     }
 }

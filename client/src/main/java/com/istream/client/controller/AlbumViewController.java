@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.istream.client.service.RMIClient;
 import com.istream.client.util.UiComponent;
+import com.istream.client.util.ThreadManager;
 import com.istream.model.Album;
 import com.istream.model.Song;
 
@@ -12,8 +13,6 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.concurrent.Task;
-import javafx.application.Platform;
-import javafx.scene.image.Image;
 
 public class AlbumViewController {
     @FXML private ImageView albumCover;
@@ -47,20 +46,20 @@ public class AlbumViewController {
 
         task.setOnSucceeded(e -> {
             Album album = task.getValue();
-            albumName.setText(album.getTitle());
-            artistName.setText(String.valueOf(album.getArtistId()));
-            // TODO: Load album cover
-
-            UiComponent.loadImage(albumCover, "images/albumCover/" + album.getId() + ".png", rmiClient);
+            ThreadManager.runOnFxThread(() -> {
+                albumName.setText(album.getTitle());
+                artistName.setText(String.valueOf(album.getArtistId()));
+                UiComponent.loadImage(albumCover, "images/albumCover/" + album.getId() + ".png", rmiClient);
+            });
         });
 
         task.setOnFailed(e -> {
-            Platform.runLater(() -> 
+            ThreadManager.runOnFxThread(() -> 
                 UiComponent.showError("Error", "Failed to load album details: " + task.getException().getMessage())
             );
         });
 
-        new Thread(task).start();
+        ThreadManager.submitTask(task);
     }
 
     private void loadAlbumSongs() {
@@ -73,15 +72,17 @@ public class AlbumViewController {
 
         task.setOnSucceeded(e -> {
             List<Song> songs = task.getValue();
-            UiComponent.createSongRow(songs, songsBox, rmiClient, mainAppController);
+            ThreadManager.runOnFxThread(() -> {
+                UiComponent.createSongRow(songs, songsBox, rmiClient, mainAppController);
+            });
         });
 
         task.setOnFailed(e -> {
-            Platform.runLater(() -> 
+            ThreadManager.runOnFxThread(() -> 
                 UiComponent.showError("Error", "Failed to load album songs: " + task.getException().getMessage())
             );
         });
 
-        new Thread(task).start();
+        ThreadManager.submitTask(task);
     }
 }

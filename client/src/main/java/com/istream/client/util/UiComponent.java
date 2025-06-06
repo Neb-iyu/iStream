@@ -30,11 +30,13 @@ import javafx.scene.layout.VBox;
 
 public class UiComponent {
     public static void showError(String title, String message) {
-        Alert alert = new Alert(AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setContentText(message);
-        alert.getDialogPane().getStyleClass().add("dialog-pane");
-        alert.showAndWait();
+        ThreadManager.runOnFxThread(() -> {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle(title);
+            alert.setContentText(message);
+            alert.getDialogPane().getStyleClass().add("dialog-pane");
+            alert.showAndWait();
+        });
     }
 
     public static String showInputDialog(String title, String message) {
@@ -58,77 +60,112 @@ public class UiComponent {
         task.setOnSucceeded(e -> {
             Image image = task.getValue();
             if (image != null) {
-                Platform.runLater(() -> imageView.setImage(image));
+                ThreadManager.runOnFxThread(() -> imageView.setImage(image));
             }
         });
 
         task.setOnFailed(e -> {
-            Platform.runLater(() -> 
+            ThreadManager.runOnFxThread(() -> 
                 showError("Error", "Failed to load image: " + task.getException().getMessage())
             );
         });
 
-        new Thread(task).start();
+        ThreadManager.submitTask(task);
     }
 
     public static void createSongRow(List<Song> songs, HBox container, RMIClient rmiClient, MainAppController mainAppController) {
-        container.getChildren().clear();
+        ThreadManager.runOnFxThread(() -> container.getChildren().clear());
         
         if (songs == null || songs.isEmpty()) {
+            createEmptyState(container, "No songs found");
+            return;
+        }
+
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                for (Song song : songs) {
+                    VBox songBox = createSongBox(song, rmiClient, mainAppController);
+                    ThreadManager.runOnFxThread(() -> container.getChildren().add(songBox));
+                }
+                return null;
+            }
+        };
+
+        task.setOnFailed(e -> {
+            ThreadManager.runOnFxThread(() -> {
+                createEmptyState(container, "Failed to load songs: " + task.getException().getMessage());
+                showError("Error", "Failed to load songs: " + task.getException().getMessage());
+            });
+        });
+
+        ThreadManager.submitTask(task);
+    }
+
+    private static VBox createSongBox(Song song, RMIClient rmiClient, MainAppController mainAppController) {
+        VBox songBox = new VBox(5);
+        songBox.setPadding(new Insets(10));
+        songBox.getStyleClass().add("card");
+        songBox.setPrefWidth(200);
+
+        ImageView imageView = new ImageView();
+        imageView.setFitHeight(150);
+        imageView.setFitWidth(150);
+        imageView.setPreserveRatio(true);
+        imageView.getStyleClass().add("image-view");
+        imageView.setCursor(Cursor.HAND);
+        imageView.setOnMouseClicked(e -> {
+            if (e.getButton() == MouseButton.PRIMARY) {
+                playSongAndClearQueue(song, rmiClient, mainAppController);
+            } else if (e.getButton() == MouseButton.SECONDARY) {
+                ContextMenu contextMenu = createSongContextMenu(song, rmiClient, mainAppController);
+                contextMenu.show(imageView, e.getScreenX(), e.getScreenY());
+            }
+        });
+        loadImage(imageView, "images/song/" + song.getId() + ".png", rmiClient);
+
+        Label titleLabel = new Label(song.getTitle());
+        titleLabel.getStyleClass().add("title");
+        
+        Label artistLabel = new Label();
+        Task<Artist> artistTask = new Task<>() {
+            @Override
+            protected Artist call() throws Exception {
+                return rmiClient.getArtistById(song.getArtistId());
+            }
+        };
+        
+        artistTask.setOnSucceeded(e -> {
+            Artist artist = artistTask.getValue();
+            ThreadManager.runOnFxThread(() -> {
+                artistLabel.setText(artist.getName());
+                artistLabel.getStyleClass().add("subtitle");
+            });
+        });
+
+        Button playButton = new Button("Play");
+        playButton.getStyleClass().add("primary");
+        playButton.setOnAction(e -> playSongAndClearQueue(song, rmiClient, mainAppController));
+
+        songBox.getChildren().addAll(imageView, titleLabel, artistLabel, playButton);
+        ThreadManager.submitTask(artistTask);
+        return songBox;
+    }
+
+    private static void createEmptyState(HBox container, String message) {
+        ThreadManager.runOnFxThread(() -> {
             VBox emptyBox = new VBox(10);
             emptyBox.setAlignment(Pos.CENTER);
             emptyBox.setPadding(new Insets(20));
             emptyBox.getStyleClass().add("empty-state");
             
-            Label emptyLabel = new Label("No songs found");
+            Label emptyLabel = new Label(message);
             emptyLabel.getStyleClass().add("empty-label");
             emptyLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #b3b3b3;");
             
             emptyBox.getChildren().add(emptyLabel);
             container.getChildren().add(emptyBox);
-            return;
-        }
-
-        for (Song song : songs) {
-            VBox songBox = new VBox(5);
-            songBox.setPadding(new Insets(10));
-            songBox.getStyleClass().add("card");
-            songBox.setPrefWidth(200);
-
-            ImageView imageView = new ImageView();
-            imageView.setFitHeight(150);
-            imageView.setFitWidth(150);
-            imageView.setPreserveRatio(true);
-            imageView.getStyleClass().add("image-view");
-            imageView.setCursor(Cursor.HAND);
-            imageView.setOnMouseClicked(e -> {
-                if (e.getButton() == MouseButton.PRIMARY) {
-                    playSongAndClearQueue(song, rmiClient, mainAppController);
-                } else if (e.getButton() == MouseButton.SECONDARY) {
-                    ContextMenu contextMenu = createSongContextMenu(song, rmiClient, mainAppController);
-                    contextMenu.show(imageView, e.getScreenX(), e.getScreenY());
-                }
-            });
-            loadImage(imageView, "images/song/" + song.getId() + ".png", rmiClient);
-
-            Label titleLabel = new Label(song.getTitle());
-            titleLabel.getStyleClass().add("title");
-            Label artistLabel = new Label();
-            try {
-                Artist artist = rmiClient.getArtistById(song.getArtistId());
-                artistLabel.setText(artist.getName());
-                artistLabel.getStyleClass().add("subtitle");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            Button playButton = new Button("Play");
-            playButton.getStyleClass().add("primary");
-            playButton.setOnAction(e -> playSongAndClearQueue(song, rmiClient, mainAppController));
-
-            songBox.getChildren().addAll(imageView, titleLabel, artistLabel, playButton);
-            container.getChildren().add(songBox);
-        }
+        });
     }
 
     public static void createAlbumRow(List<Album> albums, HBox container, RMIClient rmiClient, MainAppController mainAppController) {
@@ -253,12 +290,12 @@ public class UiComponent {
         });
 
         task.setOnFailed(e -> {
-            Platform.runLater(() -> 
+            ThreadManager.runOnFxThread(() -> 
                 showError("Error", "Failed to play song: " + task.getException().getMessage())
             );
         });
 
-        new Thread(task).start();
+        ThreadManager.submitTask(task);
     }
 
     public static void addSongToQueueAsync(Song song, RMIClient rmiClient, MainAppController mainAppController) {
@@ -273,11 +310,11 @@ public class UiComponent {
         task.setOnSucceeded(e -> {
             byte[] audioData = task.getValue();
             audioService.addToQueueAsync(song, audioData)
-                .thenRun(() -> Platform.runLater(() -> 
+                .thenRun(() -> ThreadManager.runOnFxThread(() -> 
                     showNotification("Added to Queue", song.getTitle() + " has been added to the queue")
                 ))
                 .exceptionally(ex -> {
-                    Platform.runLater(() -> 
+                    ThreadManager.runOnFxThread(() -> 
                         showError("Error", "Failed to add song to queue: " + ex.getMessage())
                     );
                     return null;
@@ -285,21 +322,36 @@ public class UiComponent {
         });
 
         task.setOnFailed(e -> {
-            Platform.runLater(() -> 
+            ThreadManager.runOnFxThread(() -> 
                 showError("Error", "Failed to load song: " + task.getException().getMessage())
             );
         });
 
-        new Thread(task).start();
+        ThreadManager.submitTask(task);
     }
 
     private static void handleSongPlay(Song song, RMIClient rmiClient, MainAppController mainAppController) {
-        try {
-            byte[] audioData = rmiClient.streamSong(song.getId());
-            mainAppController.playSong(song);
-        } catch (Exception e) {
-            showError("Error", "Failed to play song: " + e.getMessage());
-        }
+        AudioService audioService = mainAppController.getAudioService();
+        Task<byte[]> task = new Task<>() {
+            @Override
+            protected byte[] call() throws Exception {
+                return rmiClient.streamSong(song.getId());
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            byte[] audioData = task.getValue();
+            audioService.playSong(song, audioData);
+            mainAppController.getPlayerBarController().updateSongInfo(song);
+        });
+
+        task.setOnFailed(e -> {
+            ThreadManager.runOnFxThread(() -> 
+                showError("Error", "Failed to load song: " + task.getException().getMessage())
+            );
+        });
+
+        ThreadManager.submitTask(task);
     }
 
     private static void addNext(Song song, RMIClient rmiClient, MainAppController mainAppController) {
@@ -318,7 +370,7 @@ public class UiComponent {
     }
 
     public static void showNotification(String title, String message) {
-        Platform.runLater(() -> {
+        ThreadManager.runOnFxThread(() -> {
             Alert alert = new Alert(AlertType.INFORMATION);
             alert.setTitle(title);
             alert.setHeaderText(null);
@@ -350,18 +402,18 @@ public class UiComponent {
             task.setOnSucceeded(event -> {
                 byte[] audioData = task.getValue();
                 audioService.addToQueueAsync(song, audioData)
-                    .thenRun(() -> Platform.runLater(() -> 
+                    .thenRun(() -> ThreadManager.runOnFxThread(() -> 
                         showNotification("Added to Queue", song.getTitle() + " will play next")
                     ));
             });
 
             task.setOnFailed(event -> {
-                Platform.runLater(() -> 
+                ThreadManager.runOnFxThread(() -> 
                     showError("Error", "Failed to add song to queue: " + task.getException().getMessage())
                 );
             });
 
-            new Thread(task).start();
+            ThreadManager.submitTask(task);
         });
         
         MenuItem addToPlaylist = new MenuItem("Add to Playlist");
@@ -408,12 +460,12 @@ public class UiComponent {
                 });
 
                 task.setOnFailed(event -> {
-                    Platform.runLater(() -> 
+                    ThreadManager.runOnFxThread(() -> 
                         showError("Error", "Failed to add song to queue: " + task.getException().getMessage())
                     );
                 });
 
-                new Thread(task).start();
+                ThreadManager.submitTask(task);
             }
             showNotification("Added to Queue", album.getTitle() + " will play next");
         });
@@ -468,5 +520,15 @@ public class UiComponent {
         
         emptyBox.getChildren().add(emptyLabel);
         container.getChildren().add(emptyBox);
+    }
+    public static void showSuccess(String title, String message) {
+        ThreadManager.runOnFxThread(() -> {
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.getDialogPane().getStyleClass().add("dialog-pane");
+            alert.showAndWait();
+        });
     }
 }

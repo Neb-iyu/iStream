@@ -15,8 +15,8 @@ public class LikedView extends VBox {
     public LikedView(RMIClient rmiClient, MainAppController mainAppController) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/istream/fxml/content/LikedPage.fxml"));
         loader.setControllerFactory(param -> new LikedViewController(rmiClient, mainAppController));
-        VBox content = loader.load();
-        getChildren().add(content);
+        loader.setRoot(this);
+        loader.load();
         this.controller = loader.getController();
     }
 }

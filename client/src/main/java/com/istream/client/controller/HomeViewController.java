@@ -5,11 +5,11 @@ import java.util.List;
 import com.istream.client.service.RMIClient;
 import com.istream.client.util.UiComponent;
 import com.istream.client.util.AnimationUtil;
+import com.istream.client.util.ThreadManager;
 import com.istream.model.Album;
 import com.istream.model.Artist;
 import com.istream.model.Song;
 
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.layout.HBox;
@@ -60,7 +60,7 @@ public class HomeViewController {
 
         task.setOnSucceeded(e -> {
             List<Song> songs = task.getValue();
-            Platform.runLater(() -> {
+            ThreadManager.runOnFxThread(() -> {
                 if (listenAgainBox == null) {
                     System.err.println("Warning: listenAgainBox is null");
                     return;
@@ -81,7 +81,7 @@ public class HomeViewController {
             String errorMsg = "Failed to load recently played songs: " + task.getException().getMessage();
             System.err.println(errorMsg);
             task.getException().printStackTrace();
-            Platform.runLater(() -> {
+            ThreadManager.runOnFxThread(() -> {
                 if (listenAgainBox != null) {
                     listenAgainBox.getChildren().clear();
                     Label errorLabel = new Label("Failed to load recently played songs");
@@ -92,7 +92,7 @@ public class HomeViewController {
             });
         });
 
-        new Thread(task).start();
+        ThreadManager.submitTask(task);
     }
 
     private void loadArtists() {
@@ -105,7 +105,7 @@ public class HomeViewController {
 
         task.setOnSucceeded(e -> {
             List<Artist> artists = task.getValue();
-            Platform.runLater(() -> {
+            ThreadManager.runOnFxThread(() -> {
                 if (artistsBox == null) {
                     System.err.println("Warning: artistsBox is null");
                     return;
@@ -115,12 +115,12 @@ public class HomeViewController {
         });
 
         task.setOnFailed(e -> {
-            Platform.runLater(() -> 
+            ThreadManager.runOnFxThread(() -> 
                 UiComponent.showError("Error", "Failed to load artists: " + task.getException().getMessage())
             );
         });
 
-        new Thread(task).start();
+        ThreadManager.submitTask(task);
     }
 
     private void loadAlbums() {
@@ -133,7 +133,7 @@ public class HomeViewController {
 
         task.setOnSucceeded(e -> {
             List<Album> albums = task.getValue();
-            Platform.runLater(() -> {
+            ThreadManager.runOnFxThread(() -> {
                 if (albumsBox == null) {
                     System.err.println("Warning: albumsBox is null");
                     return;
@@ -143,12 +143,12 @@ public class HomeViewController {
         });
 
         task.setOnFailed(e -> {
-            Platform.runLater(() -> 
+            ThreadManager.runOnFxThread(() -> 
                 UiComponent.showError("Error", "Failed to load albums: " + task.getException().getMessage())
             );
         });
 
-        new Thread(task).start();
+        ThreadManager.submitTask(task);
     }
 
     /**
@@ -161,7 +161,7 @@ public class HomeViewController {
         AnimationUtil.fadeOut(albumsContainer, 300);
         
         // After fade out, update content and fade in
-        Platform.runLater(() -> {
+        ThreadManager.runOnFxThread(() -> {
             // Clear existing content
             listenAgainBox.getChildren().clear();
             artistsBox.getChildren().clear();
@@ -183,17 +183,21 @@ public class HomeViewController {
      * Shows a loading animation
      */
     public void showLoading() {
-        listenAgainContainer.getStyleClass().add("loading-spinner");
-        artistsContainer.getStyleClass().add("loading-spinner");
-        albumsContainer.getStyleClass().add("loading-spinner");
+        ThreadManager.runOnFxThread(() -> {
+            listenAgainContainer.getStyleClass().add("loading-spinner");
+            artistsContainer.getStyleClass().add("loading-spinner");
+            albumsContainer.getStyleClass().add("loading-spinner");
+        });
     }
     
     /**
      * Hides the loading animation
      */
     public void hideLoading() {
-        listenAgainContainer.getStyleClass().remove("loading-spinner");
-        artistsContainer.getStyleClass().remove("loading-spinner");
-        albumsContainer.getStyleClass().remove("loading-spinner");
+        ThreadManager.runOnFxThread(() -> {
+            listenAgainContainer.getStyleClass().remove("loading-spinner");
+            artistsContainer.getStyleClass().remove("loading-spinner");
+            albumsContainer.getStyleClass().remove("loading-spinner");
+        });
     }
 }

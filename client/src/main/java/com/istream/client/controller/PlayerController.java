@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.istream.client.service.AudioService;
 import com.istream.client.service.RMIClient;
+import com.istream.client.util.ThreadManager;
+import com.istream.client.util.UiComponent;
 import com.istream.client.view.SongListView;
 import com.istream.model.Song;
 
@@ -44,10 +46,16 @@ public class PlayerController {
         };
         
         loadTask.setOnSucceeded(e -> {
-            songList.setAll(loadTask.getValue());
+            ThreadManager.runOnFxThread(() -> songList.setAll(loadTask.getValue()));
         });
         
-        new Thread(loadTask).start();
+        loadTask.setOnFailed(e -> {
+            ThreadManager.runOnFxThread(() -> 
+                UiComponent.showError("Error", "Failed to load songs: " + loadTask.getException().getMessage())
+            );
+        });
+        
+        ThreadManager.submitTask(loadTask);
     }
     
     private void setupSongListView() {
@@ -57,7 +65,9 @@ public class PlayerController {
                 byte[] songData = rmiClient.streamSong(song.getId());
                 audioService.playStream(songData);
             } catch (Exception e) {
-                e.printStackTrace();
+                ThreadManager.runOnFxThread(() -> 
+                    UiComponent.showError("Error", "Failed to play song: " + e.getMessage())
+                );
             }
         }));
     }

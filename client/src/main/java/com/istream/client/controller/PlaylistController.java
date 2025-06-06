@@ -1,6 +1,8 @@
 package com.istream.client.controller;
 
 import com.istream.client.service.RMIClient;
+import com.istream.client.util.ThreadManager;
+import com.istream.client.util.UiComponent;
 import com.istream.client.util.SessionHolder;
 import com.istream.model.Playlist;
 import com.istream.model.Song;
@@ -35,8 +37,6 @@ public class PlaylistController {
         this.userId = userId;
         if (playlistListView != null && this.rmiClient != null) {
             loadPlaylists();
-        } else if (this.rmiClient != null) {
-            // if initialize() hasn't run yet, loadPlaylists will be called by it later.
         }
     }
 
@@ -65,15 +65,17 @@ public class PlaylistController {
             }
         };
         
-        task.setOnSucceeded(e -> playlists.setAll(task.getValue()));
-        task.setOnFailed(e -> {
-            if (task.getException() != null) {
-                showErrorAlert("Error loading playlists: " + task.getException().getMessage());
-            } else {
-                showErrorAlert("Error loading playlists: Unknown error.");
-            }
+        task.setOnSucceeded(e -> {
+            ThreadManager.runOnFxThread(() -> playlists.setAll(task.getValue()));
         });
-        new Thread(task).start();
+        
+        task.setOnFailed(e -> {
+            ThreadManager.runOnFxThread(() -> 
+                UiComponent.showError("Error", "Failed to load playlists: " + task.getException().getMessage())
+            );
+        });
+        
+        ThreadManager.submitTask(task);
     }
 
     public ObservableList<Playlist> getPlaylists() {
@@ -107,17 +109,18 @@ public class PlaylistController {
         };
         
         task.setOnSucceeded(e -> {
-            showSuccessAlert("Song added to playlist");
+            ThreadManager.runOnFxThread(() -> 
+                UiComponent.showSuccess("Success", "Song added to playlist")
+            );
         });
         
         task.setOnFailed(e -> {
-            if (task.getException() != null) {
-                showErrorAlert("Failed to add song: " + task.getException().getMessage());
-            } else {
-                showErrorAlert("Failed to add song: Unknown error.");
-            }
+            ThreadManager.runOnFxThread(() -> 
+                UiComponent.showError("Error", "Failed to add song: " + task.getException().getMessage())
+            );
         });
-        new Thread(task).start();
+        
+        ThreadManager.submitTask(task);
     }
 
     public void createPlaylist(String name) {
@@ -136,33 +139,22 @@ public class PlaylistController {
             Playlist createdPlaylist = task.getValue();
             if (createdPlaylist != null) {
                 loadPlaylists();
-                showSuccessAlert("Playlist '" + createdPlaylist.getName() + "' created");
+                ThreadManager.runOnFxThread(() -> 
+                    UiComponent.showSuccess("Success", "Playlist '" + createdPlaylist.getName() + "' created")
+                );
             } else {
-                showErrorAlert("Failed to create playlist (server returned null).");
+                ThreadManager.runOnFxThread(() -> 
+                    UiComponent.showError("Error", "Failed to create playlist (server returned null)")
+                );
             }
         });
+        
         task.setOnFailed(e -> {
-            if (task.getException() != null) {
-                showErrorAlert("Error creating playlist: " + task.getException().getMessage());
-            } else {
-                showErrorAlert("Error creating playlist: Unknown error.");
-            }
+            ThreadManager.runOnFxThread(() -> 
+                UiComponent.showError("Error", "Failed to create playlist: " + task.getException().getMessage())
+            );
         });
-        new Thread(task).start();
-    }
-    
-    public void showSuccessAlert(String message) {
-        Alert alert = new Alert(AlertType.INFORMATION);
-        alert.setTitle("Success");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-    public void showErrorAlert(String message) {
-        Alert alert = new Alert(AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        
+        ThreadManager.submitTask(task);
     }
 }

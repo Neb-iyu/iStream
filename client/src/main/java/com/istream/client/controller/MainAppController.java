@@ -250,4 +250,8 @@ public class MainAppController {
     public AudioService getAudioService() {
         return audioService;
     }
+
+    public PlayerBarController getPlayerBarController() {
+        return playerBarController;
+    }
 }
