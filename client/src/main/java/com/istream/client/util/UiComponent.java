@@ -1,41 +1,32 @@
 package com.istream.client.util;
 
-import java.security.PrivilegedActionException;
-
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.layout.VBox;
-import javafx.geometry.Pos;
-import javafx.scene.image.ImageView;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.ScrollPane;
-
-import com.istream.model.Song;
-import com.istream.model.Artist;
-import com.istream.model.Album;
-import com.istream.client.view.*;
-import com.istream.client.service.AudioService;
-import com.istream.rmi.MusicService;
-import com.istream.client.controller.MainAppController;
-
-import javafx.concurrent.Task;
-
-import com.istream.client.service.RMIClient;
-
-import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
-import javafx.scene.image.Image;
-import javafx.scene.text.TextAlignment;
-
 import java.util.List;
 
-import javafx.geometry.Insets;
+import com.istream.client.controller.MainAppController;
+import com.istream.client.service.AudioService;
+import com.istream.client.service.RMIClient;
+import com.istream.model.Album;
+import com.istream.model.Artist;
+import com.istream.model.Song;
+
 import javafx.application.Platform;
-import javafx.scene.input.MouseEvent;
+import javafx.concurrent.Task;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 public class UiComponent {
     public static void showError(String title, String message) {
@@ -82,6 +73,22 @@ public class UiComponent {
 
     public static void createSongRow(List<Song> songs, HBox container, RMIClient rmiClient, MainAppController mainAppController) {
         container.getChildren().clear();
+        
+        if (songs == null || songs.isEmpty()) {
+            VBox emptyBox = new VBox(10);
+            emptyBox.setAlignment(Pos.CENTER);
+            emptyBox.setPadding(new Insets(20));
+            emptyBox.getStyleClass().add("empty-state");
+            
+            Label emptyLabel = new Label("No songs found");
+            emptyLabel.getStyleClass().add("empty-label");
+            emptyLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #b3b3b3;");
+            
+            emptyBox.getChildren().add(emptyLabel);
+            container.getChildren().add(emptyBox);
+            return;
+        }
+
         for (Song song : songs) {
             VBox songBox = new VBox(5);
             songBox.setPadding(new Insets(10));
@@ -126,6 +133,22 @@ public class UiComponent {
 
     public static void createAlbumRow(List<Album> albums, HBox container, RMIClient rmiClient, MainAppController mainAppController) {
         container.getChildren().clear();
+        
+        if (albums == null || albums.isEmpty()) {
+            VBox emptyBox = new VBox(10);
+            emptyBox.setAlignment(Pos.CENTER);
+            emptyBox.setPadding(new Insets(20));
+            emptyBox.getStyleClass().add("empty-state");
+            
+            Label emptyLabel = new Label("No albums found");
+            emptyLabel.getStyleClass().add("empty-label");
+            emptyLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #b3b3b3;");
+            
+            emptyBox.getChildren().add(emptyLabel);
+            container.getChildren().add(emptyBox);
+            return;
+        }
+
         for (Album album : albums) {
             VBox albumBox = new VBox(5);
             albumBox.setPadding(new Insets(10));
@@ -171,6 +194,22 @@ public class UiComponent {
 
     public static void createArtistRow(List<Artist> artists, HBox container, RMIClient rmiClient, MainAppController mainAppController) {
         container.getChildren().clear();
+        
+        if (artists == null || artists.isEmpty()) {
+            VBox emptyBox = new VBox(10);
+            emptyBox.setAlignment(Pos.CENTER);
+            emptyBox.setPadding(new Insets(20));
+            emptyBox.getStyleClass().add("empty-state");
+            
+            Label emptyLabel = new Label("No artists found");
+            emptyLabel.getStyleClass().add("empty-label");
+            emptyLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #b3b3b3;");
+            
+            emptyBox.getChildren().add(emptyLabel);
+            container.getChildren().add(emptyBox);
+            return;
+        }
+
         for (Artist artist : artists) {
             VBox artistBox = new VBox(5);
             artistBox.setPadding(new Insets(10));
@@ -395,5 +434,39 @@ public class UiComponent {
                 addSongToQueueAsync(songs.get(i), rmiClient, mainAppController);
             }
         }
+    }
+
+    // Add a new method for handling empty playlist lists
+    public static void createEmptyPlaylistMessage(VBox container) {
+        container.getChildren().clear();
+        
+        VBox emptyBox = new VBox(10);
+        emptyBox.setAlignment(Pos.CENTER);
+        emptyBox.setPadding(new Insets(20));
+        emptyBox.getStyleClass().add("empty-state");
+        
+        Label emptyLabel = new Label("No playlists found");
+        emptyLabel.getStyleClass().add("empty-label");
+        emptyLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #b3b3b3;");
+        
+        emptyBox.getChildren().add(emptyLabel);
+        container.getChildren().add(emptyBox);
+    }
+
+    // Add a new method for handling empty liked songs in HBox
+    public static void createEmptyLikedSongsMessage(HBox container) {
+        container.getChildren().clear();
+        
+        VBox emptyBox = new VBox(10);
+        emptyBox.setAlignment(Pos.CENTER);
+        emptyBox.setPadding(new Insets(20));
+        emptyBox.getStyleClass().add("empty-state");
+        
+        Label emptyLabel = new Label("No liked songs yet");
+        emptyLabel.getStyleClass().add("empty-label");
+        emptyLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #b3b3b3;");
+        
+        emptyBox.getChildren().add(emptyLabel);
+        container.getChildren().add(emptyBox);
     }
 }

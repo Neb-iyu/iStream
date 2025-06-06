@@ -147,6 +147,16 @@ public class LeftMenuController {
         playlistTask.setOnSucceeded(event -> {
             List<Playlist> playlists = playlistTask.getValue();
             Platform.runLater(() -> {
+                if (playlistsBox == null) {
+                    System.err.println("Warning: playlistsBox is null");
+                    return;
+                }
+                
+                if (playlists == null || playlists.isEmpty()) {
+                    UiComponent.createEmptyPlaylistMessage(playlistsBox);
+                    return;
+                }
+
                 playlistsBox.getChildren().clear(); // Clear existing playlists
                 for (Playlist playlist : playlists) {
                     Button playlistButton = new Button(playlist.getName());

@@ -108,15 +108,19 @@ public class HistoryDAO implements BaseDAO {
                     ));
                 }
             }
+        } catch (SQLException e) {
+            // Log the error but return empty list instead of throwing
+            System.err.println("Error getting recent history: " + e.getMessage());
+            return new ArrayList<>();
         }
         return history;
     }
-    public List<Song> getHistorySongs(int userId) throws SQLException {
-        if (!userDAO.isAdmin(userId)) {
-            throw new SQLException("User is not an admin");
-        }
+
+    public List<Song> getHistorySongs(int userId) {
         List<Song> songs = new ArrayList<>();
+        //String sql = "SELECT DISTINCT song_id FROM play_history WHERE user_id = ? ORDER BY played_at DESC";
         String sql = "SELECT * FROM play_history WHERE user_id = ? ORDER BY played_at DESC";
+        System.out.println("Getting history songs for user " + userId);
         
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -129,6 +133,10 @@ public class HistoryDAO implements BaseDAO {
                     songs.add(song);
                 }
             }
+        } catch (SQLException e) {
+            System.err.println("Error getting history songs: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>(); // Return empty list on error
         }
         return songs;
     }

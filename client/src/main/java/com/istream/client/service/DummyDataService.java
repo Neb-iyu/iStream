@@ -94,15 +94,15 @@ public class DummyDataService {
         try {
             // First add artists to get their IDs
             List<Artist> artists = generateArtists();
-            // for (Artist artist : artists) {
-            //     rmiClient.addArtist(artist);
-            // }
+            for (Artist artist : artists) {
+                rmiClient.addArtist(artist);
+            }
 
             // Then add albums with proper artist IDs
             List<Album> albums = generateAlbums(artists);
-            // for (Album album : albums) {
-            //     rmiClient.addAlbum(album);
-            // }
+            for (Album album : albums) {
+                 rmiClient.addAlbum(album);
+            }
 
             // Finally add songs with proper artist and album IDs
             List<Song> songs = generateSongs(albums, artists);

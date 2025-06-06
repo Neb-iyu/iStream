@@ -284,7 +284,13 @@ public class RMIClientImpl implements RMIClient {
 
     @Override
     public List<Song> getHistorySongs() throws RemoteException {
-        return musicService.getHistorySongs(sessionToken);
+        try {
+            return musicService.getHistorySongs(sessionToken);
+        } catch (RemoteException e) {
+            System.err.println("Error getting history songs: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>(); // Return empty list on error
+        }
     }
 
     @Override

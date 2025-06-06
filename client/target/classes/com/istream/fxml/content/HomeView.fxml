@@ -6,7 +6,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.geometry.Pos?>
 
-<VBox styleClass="home-page fade-in" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<VBox styleClass="home-page fade-in" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.istream.client.controller.HomeViewController">
     <padding>
         <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
     </padding>
@@ -19,7 +19,7 @@
         </font>
     </Label>
     
-    <VBox fx:id="listenAgainContainer" styleClass="section-container slide-in" spacing="10.0">
+    <VBox fx:id="listenAgainContainer" styleClass="section-container slide-in" spacing="10.0" VBox.vgrow="ALWAYS">
         <Label text="Listen Again" styleClass="section-header">
             <font>
                 <Font name="Arial Bold" size="18.0"/>
@@ -29,11 +29,11 @@
                     fitToWidth="true" styleClass="scroll-pane">
             <content>
                 <HBox fx:id="listenAgainBox" styleClass="content-row" spacing="20.0" alignment="CENTER_LEFT" 
-                    minWidth="1000"/>
+                    minWidth="1000" HBox.hgrow="ALWAYS"/>
             </content>
         </ScrollPane>
     </VBox>
-    <VBox fx:id="artistsContainer" styleClass="section-container slide-in" spacing="10.0">
+    <VBox fx:id="artistsContainer" styleClass="section-container slide-in" spacing="10.0" VBox.vgrow="ALWAYS">
         <Label text="Artists" styleClass="section-header">
             <font>
                 <Font name="Arial Bold" size="18.0" />
@@ -43,11 +43,11 @@
                     fitToWidth="true" styleClass="scroll-pane">
             <content>
                 <HBox fx:id="artistsBox" styleClass="content-row" spacing="20.0" alignment="CENTER_LEFT" 
-                    minWidth="1000"/>
+                    minWidth="1000" HBox.hgrow="ALWAYS"/>
             </content>
         </ScrollPane>
     </VBox>
-    <VBox fx:id="albumsContainer" styleClass="section-container slide-in" spacing="10.0">
+    <VBox fx:id="albumsContainer" styleClass="section-container slide-in" spacing="10.0" VBox.vgrow="ALWAYS">
         <Label text="Albums" styleClass="section-header">
             <font>
                 <Font name="Arial Bold" size="18.0" />
@@ -57,7 +57,7 @@
                     fitToWidth="true" styleClass="scroll-pane">
             <content>
                 <HBox fx:id="albumsBox" styleClass="content-row" spacing="20.0" alignment="CENTER_LEFT" 
-                    minWidth="1000"/>
+                    minWidth="1000" HBox.hgrow="ALWAYS"/>
             </content>
         </ScrollPane>
     </VBox>

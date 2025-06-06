@@ -8,6 +8,94 @@
     -fx-text-fill-secondary: #b3b3b3;
 }
 
+/* Empty State Styles */
+.empty-state {
+    -fx-background-color: -fx-secondary;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 1);
+    -fx-min-width: 200;
+    -fx-min-height: 150;
+    -fx-alignment: center;
+    -fx-padding: 20;
+}
+
+.empty-label {
+    -fx-font-size: 16px;
+    -fx-text-fill: -fx-text-fill-secondary;
+    -fx-font-style: italic;
+}
+
+/* Home Page Styles */
+.home-page {
+    -fx-background-color: -fx-primary;
+}
+
+.section-container {
+    -fx-background-color: -fx-secondary;
+    -fx-background-radius: 10;
+    -fx-padding: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 1);
+}
+
+.section-header {
+    -fx-text-fill: -fx-text-fill;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.content-row {
+    -fx-padding: 10;
+    -fx-spacing: 20;
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane > .scroll-bar:horizontal {
+    -fx-background-color: -fx-secondary;
+    -fx-background-radius: 5;
+}
+
+.scroll-pane > .scroll-bar:horizontal > .thumb {
+    -fx-background-color: -fx-accent;
+    -fx-background-radius: 5;
+}
+
+/* Animation Classes */
+.fade-in {
+    -fx-opacity: 0;
+    -fx-animation: fadeIn 0.5s ease-in forwards;
+}
+
+.slide-in {
+    -fx-translate-x: -100%;
+    -fx-animation: slideIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        -fx-opacity: 0;
+    }
+    to {
+        -fx-opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        -fx-translate-x: -100%;
+    }
+    to {
+        -fx-translate-x: 0;
+    }
+}
+
 /* Base Styles */
 * {
     -fx-background-color: -fx-primary;

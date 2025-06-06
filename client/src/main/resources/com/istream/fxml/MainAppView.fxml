@@ -4,17 +4,17 @@
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane fx:id="rootPane" styleClass="main-app" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.istream.client.controller.MainAppController">
-    <!-- <stylesheets>
+    <stylesheets>
         @/com/istream/css/common.css,
         @/com/istream/css/components.css,
         @/com/istream/css/pages.css,
         @/com/istream/css/animations.css
-    </stylesheets> -->
+    </stylesheets>
     <left>
         <fx:include source="alwaysOnDisplay/LeftMenuPane.fxml" fx:id="leftMenuPane" />
     </left>
     <center>
-        <VBox fx:id="contentArea" styleClass="content-area fade-in" BorderPane.alignment="CENTER" />
+        <VBox fx:id="contentArea" styleClass="content-area fade-in" BorderPane.alignment="CENTER" VBox.vgrow="ALWAYS" />
     </center>
     <top>
         <fx:include source="alwaysOnDisplay/TopMenuPane.fxml" fx:id="topMenuPane" />

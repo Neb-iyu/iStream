@@ -13,9 +13,10 @@ public class HomeView extends VBox {
     private final HomeViewController controller;
 
     public HomeView(RMIClient rmiClient, MainAppController mainAppController) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/istream/fxml/content/HomePage.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/istream/fxml/content/HomeView.fxml"));
         loader.setControllerFactory(param -> new HomeViewController(rmiClient, mainAppController));
-        loader.load();
+        VBox content = loader.load();
+        getChildren().add(content);
         this.controller = loader.getController();
     }
 }

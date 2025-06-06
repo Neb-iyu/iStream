@@ -475,11 +475,7 @@ public class MusicServiceImpl extends UnicastRemoteObject implements MusicServic
     @Override
     public List<Song> getHistorySongs(String token) throws RemoteException {
         int userId = getUserId(token);
-        try {
-            return historyDAO.getHistorySongs(userId);
-        } catch (SQLException e) {
-            throw new RemoteException("Error fetching history songs", e);
-        }
+        return historyDAO.getHistorySongs(userId);
     }
 
     @Override

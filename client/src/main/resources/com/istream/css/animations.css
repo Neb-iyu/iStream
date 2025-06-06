@@ -3,7 +3,7 @@
 /* Fade In */
 .fade-in {
     -fx-opacity: 0;
-    -fx-animation: fadeIn 0.3s ease-in forwards;
+    -fx-animation: fadeIn 0.5s ease-in forwards;
 }
 
 @keyframes fadeIn {
@@ -32,13 +32,13 @@
 
 /* Slide In */
 .slide-in {
-    -fx-translate-x: -100;
+    -fx-translate-x: -100%;
     -fx-animation: slideIn 0.3s ease-out forwards;
 }
 
 @keyframes slideIn {
     from {
-        -fx-translate-x: -100;
+        -fx-translate-x: -100%;
     }
     to {
         -fx-translate-x: 0;
@@ -261,4 +261,67 @@
         -fx-opacity: 0;
         -fx-translate-y: -20;
     }
+}
+
+/* Scale Animation for Buttons */
+.menu-button {
+    -fx-transition: all 0.2s ease-in-out;
+}
+
+.menu-button:hover {
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 2);
+}
+
+/* Search Results Animation */
+.search-results-box {
+    -fx-background-color: white;
+    -fx-background-radius: 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 3);
+    -fx-opacity: 0;
+    -fx-translate-y: -10;
+    -fx-animation: searchResultsIn 0.3s ease-out forwards;
+}
+
+@keyframes searchResultsIn {
+    from {
+        -fx-opacity: 0;
+        -fx-translate-y: -10;
+    }
+    to {
+        -fx-opacity: 1;
+        -fx-translate-y: 0;
+    }
+}
+
+/* Top Menu Container Animation */
+.top-menu-container {
+    -fx-transition: all 0.3s ease-in-out;
+}
+
+.top-menu-container:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 2);
+}
+
+/* Playlist List Animation */
+.playlist-list .list-cell {
+    -fx-transition: all 0.2s ease-in-out;
+}
+
+.playlist-list .list-cell:hover {
+    -fx-background-color: derive(-fx-secondary, 20%);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+/* Profile Image Animation */
+#profileImage {
+    -fx-transition: all 0.2s ease-in-out;
+}
+
+#profileImage:hover {
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 2);
 } 
