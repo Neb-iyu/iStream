@@ -64,49 +64,5 @@ public class ArtistsViewController {
         ThreadManager.submitTask(task);
     }
 
-    private VBox createArtistBox(Artist artist, MainAppController mainAppController) {
-        VBox artistBox = new VBox(5);
-        artistBox.setAlignment(Pos.CENTER);
-        artistBox.setMinWidth(150);
-        
-        try {
-            ImageView imageView = new ImageView();
-            imageView.setFitWidth(150);
-            imageView.setFitHeight(150);
-            imageView.setPreserveRatio(true);
-            UiComponent.loadImage(imageView, "images/artist/" + artist.getId() + ".png", rmiClient);
-            
-            Button nameButton = new Button(artist.getName());
-            nameButton.setStyle("-fx-background-color: transparent; -fx-text-fill: white;");
-            nameButton.setOnAction(e -> {
-                Task<List<Song>> loadSongsTask = new Task<>() {
-                    @Override
-                    protected List<Song> call() throws Exception {
-                        return rmiClient.getSongsByArtistId(artist.getId());
-                    }
-                };
-
-                loadSongsTask.setOnSucceeded(success -> {
-                    List<Song> songs = loadSongsTask.getValue();
-                    ThreadManager.runOnFxThread(() -> {
-                        UiComponent.showNotification("Artist Songs", "Found " + songs.size() + " songs by " + artist.getName());
-                    });
-                });
-
-                loadSongsTask.setOnFailed(fail -> {
-                    ThreadManager.runOnFxThread(() -> {
-                        UiComponent.showError("Error", "Failed to load artist songs: " + loadSongsTask.getException().getMessage());
-                    });
-                });
-
-                ThreadManager.submitTask(loadSongsTask);
-            });
-            
-            artistBox.getChildren().addAll(imageView, nameButton);
-        } catch (Exception ex) {
-            System.err.println("Error loading artist: " + artist.getName() + " - " + ex.getMessage());
-        }
-        
-        return artistBox;
-    }
+    
 } 

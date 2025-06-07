@@ -1,32 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Rectangle?>
 
+<VBox fx:id="root" xmlns="http://javafx.com/javafx/23.0.1" 
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.istream.client.controller.ArtistViewController"
+      stylesheets="@../../css/ArtistView.css"
+      VBox.vgrow="ALWAYS">
+   
+   <!-- Header Section with Artist Info -->
+   <StackPane styleClass="header-container" maxHeight="300">
+      <ImageView fx:id="headerBackground" styleClass="header-background"/>
+      <VBox styleClass="header-content" alignment="BOTTOM_LEFT">
+         <HBox styleClass="artist-info-container" spacing="20">
+            <!-- Circular artist image -->
+            <StackPane styleClass="artist-image-container">
+               <ImageView fx:id="artistImage" styleClass="artist-image"/>
+               <Rectangle arcWidth="100" arcHeight="100" styleClass="artist-image-clip"/>
+            </StackPane>
+            
+            <VBox styleClass="artist-text-container" spacing="5">
+               <Label text="ARTIST" styleClass="artist-type-label"/>
+               <Label fx:id="artistName" styleClass="artist-name-label"/>
+               <HBox styleClass="stats-container" spacing="15">
+                  <Label fx:id="songCountLabel" styleClass="stat-label"/>
+                  <Label fx:id="monthlyListenersLabel" styleClass="stat-label"/>
+               </HBox>
+            </VBox>
+         </HBox>
+         
 
-<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" styleClass="vbox" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <VBox fx:id="songContainer" prefHeight="200.0" prefWidth="100.0" styleClass="vbox">
-         <children>
-            <Label prefHeight="28.0" prefWidth="71.0" text="Songs" styleClass="title" />
-            <ScrollPane fx:id="songScrollPane" hbarPolicy="ALWAYS" prefHeight="200.0" prefWidth="200.0" vbarPolicy="NEVER" styleClass="scroll-pane">
-               <content>
-                  <HBox fx:id="songBox" alignment="CENTER_LEFT" minWidth="1000.0" prefHeight="181.0" prefWidth="200.0" styleClass="hbox" />
-               </content>
-            </ScrollPane>
-         </children>
       </VBox>
-      <VBox fx:id="albumContainer" layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0" styleClass="vbox">
-         <children>
-            <Label prefHeight="28.0" prefWidth="71.0" text="Albums" styleClass="title" />
-            <ScrollPane fx:id="albumScrollPane" hbarPolicy="ALWAYS" prefHeight="200.0" prefWidth="200.0" vbarPolicy="NEVER" styleClass="scroll-pane">
-               <content>
-                  <HBox fx:id="albumBox" alignment="CENTER_LEFT" minWidth="1000.0" prefHeight="181.0" prefWidth="200.0" styleClass="hbox" />
-               </content>
+   </StackPane>
+   
+   <!-- Content Tabs -->
+   <TabPane styleClass="content-tabs" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+      <tabs>
+         <Tab text="SONGS">
+            <ScrollPane styleClass="content-scroll-pane" fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS">
+               <VBox fx:id="songsContainer" styleClass="songs-container" VBox.vgrow="ALWAYS"/>
             </ScrollPane>
-         </children>
-      </VBox>
-   </children>
+         </Tab>
+         <Tab text="ALBUMS">
+            <ScrollPane styleClass="content-scroll-pane" fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS">
+               <HBox fx:id="albumsContainer" styleClass="albums-container" HBox.hgrow="ALWAYS"/>
+            </ScrollPane>
+         </Tab>
+         <Tab text="ABOUT">
+            <ScrollPane styleClass="content-scroll-pane" fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS">
+               <Label fx:id="bioLabel" styleClass="bio-text" wrapText="true"/>
+            </ScrollPane>
+         </Tab>
+      </tabs>
+   </TabPane>
+            <!-- Action Buttons -->
+         <HBox styleClass="action-buttons" spacing="15">
+            <Button text="PLAY" styleClass="play-button"/>
+            <Button text="FOLLOW" styleClass="follow-button"/>
+            <Button text="SHARE" styleClass="share-button"/>
+         </HBox>
 </VBox>

@@ -1,12 +1,14 @@
 package com.istream.client.util;
 
-import javafx.scene.image.Image;
-import javafx.embed.swing.SwingFXUtils;
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
 
 public class ImageConverter {
     
@@ -22,10 +24,15 @@ public class ImageConverter {
 
     // Convert byte array to JavaFX Image
     public static Image bytesToImage(byte[] imageData) {
-        if (imageData == null) return null;
-        
+        if (imageData == null) {
+            System.out.println("Image data is null");
+            return null;
+        }
+        //System.out.println("Converting byte array to image, size: " + imageData.length);
         try (ByteArrayInputStream bais = new ByteArrayInputStream(imageData)) {
-            return new Image(bais);
+            Image img = new Image(bais);
+            //System.out.println("Loaded image: width=" + img.getWidth() + ", height=" + img.getHeight());
+            return img;
         } catch (IOException e) {
             e.printStackTrace();
             return null;

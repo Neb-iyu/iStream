@@ -1,7 +1,69 @@
-/* For better scrollbar appearance */
-.scroll-pane > .scroll-bar:horizontal {
+/* Modern Scrollbar Styles */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+/* Vertical Scrollbar */
+.scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 12px;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-background-radius: 6px;
+    -fx-background-insets: 2;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);
+}
+
+.scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.3);
+}
+
+.scroll-pane .scroll-bar:vertical .thumb:pressed {
+    -fx-background-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Horizontal Scrollbar (for HomeView content rows) */
+.scroll-pane .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+    -fx-pref-height: 12px;
     -fx-opacity: 0.7;
 }
-.scroll-pane > .scroll-bar:horizontal:hover {
+
+.scroll-pane .scroll-bar:horizontal .thumb {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-background-radius: 6px;
+    -fx-background-insets: 2;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);
+}
+
+.scroll-pane .scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.3);
     -fx-opacity: 1;
+}
+
+.scroll-pane .scroll-bar:horizontal .thumb:pressed {
+    -fx-background-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Scrollbar Buttons (Hide them) */
+.scroll-pane .scroll-bar .increment-button,
+.scroll-pane .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-padding: 0;
+}
+
+.scroll-pane .scroll-bar .increment-arrow,
+.scroll-pane .scroll-bar .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0;
+}
+
+/* Corner */
+.scroll-pane .corner {
+    -fx-background-color: transparent;
 }

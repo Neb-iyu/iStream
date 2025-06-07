@@ -11,44 +11,50 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.Region?>
 
-<AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="70.0" prefWidth="649.0" style="-fx-background-color: #210a0a;" stylesheets="@../../css/TopMenuPane.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.istream.client.controller.TopMenuController">
-   <children>
-      <HBox alignment="CENTER_LEFT" spacing="10" styleClass="top-menu-container" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <padding>
-            <Insets bottom="10" left="20" right="20" top="10" />
-         </padding>
-         
-         <Pane fx:id="leftPane" prefWidth="200">
+<HBox fx:id="root" styleClass="top-menu-container" xmlns="http://javafx.com/javafx/23.0.1" 
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.istream.client.controller.TopMenuController">
+   <padding>
+      <Insets bottom="10" left="20" right="20" top="10" />
+   </padding>
+   
+   <!-- Left Pane (Logo) -->
+   <Pane fx:id="leftPane" minWidth="150" maxWidth="250" prefWidth="200">
+      <children>
+         <HBox alignment="CENTER" prefHeight="50.0" prefWidth="165.0" styleClass="logo-container">
             <children>
-               <HBox alignment="CENTER" layoutX="10.0" layoutY="-6.0" prefHeight="50.0" prefWidth="165.0" styleClass="logo-container">
-                  <children>
-                     <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
-                        <image>
-                           <Image url="@../../images/logo.png" />
-                        </image>
-                     </ImageView>
-                     <Label styleClass="app-title" text="Stream" textFill="#eae3e3">
-                        <font>
-                           <Font name="Microsoft JhengHei Light" size="12.0" />
-                        </font>
-                     </Label>
-                  </children>
-               </HBox>
-            </children></Pane>
-         
-         <HBox fx:id="searchPane" spacing="5" HBox.hgrow="ALWAYS">
-            <TextField fx:id="searchField" promptText="Search..." HBox.hgrow="ALWAYS" />
-            <Button fx:id="searchButton" text="Search" />
+               <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
+                  <image>
+                     <Image url="@../../images/logo.png" />
+                  </image>
+               </ImageView>
+               <Label styleClass="app-title" text="Stream" textFill="#eae3e3">
+                  <font>
+                     <Font name="Microsoft JhengHei Light" size="12.0" />
+                  </font>
+               </Label>
+            </children>
          </HBox>
-         
-         <ImageView fx:id="profileImage" fitHeight="30" fitWidth="30" preserveRatio="true" />
-      </HBox>
-      
-      <VBox fx:id="searchResultsBox" styleClass="search-results-box" visible="false" AnchorPane.leftAnchor="220.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="50.0">
-         <padding>
-            <Insets bottom="5" left="5" right="5" top="5" />
-         </padding>
-      </VBox>
-   </children>
-</AnchorPane>
+      </children>
+   </Pane>
+   
+   <!-- Search Area -->
+   <HBox fx:id="searchPane" spacing="5" HBox.hgrow="ALWAYS">
+      <TextField fx:id="searchField" promptText="Search..." HBox.hgrow="ALWAYS" />
+      <Button fx:id="searchButton" text="Search" />
+   </HBox>
+   
+   <!-- Spacer -->
+   <Region HBox.hgrow="ALWAYS" />
+   
+   <!-- Profile Image -->
+   <ImageView fx:id="profileImage" fitHeight="30" fitWidth="30" preserveRatio="true" />
+   
+   <!-- Search Results -->
+   <VBox fx:id="searchResultsBox" styleClass="search-results-box" visible="false">
+      <padding>
+         <Insets bottom="5" left="5" right="5" top="5" />
+      </padding>
+   </VBox>
+</HBox>

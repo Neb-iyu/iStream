@@ -132,7 +132,7 @@ public class PlayerBarController {
     private void handleNext() {
         if (audioService != null) {
             audioService.skipToNext();
-            updateQueueDisplay();
+            updateSongInfo(audioService.getCurrentSong());
         }
     }
 
@@ -277,7 +277,7 @@ public class PlayerBarController {
         }
     }
 
-    private void updateQueueDisplay() {
+    public void updateQueueDisplay() {
         if (audioService != null) {
             ThreadManager.runOnFxThread(() -> {
                 queueItems.clear();

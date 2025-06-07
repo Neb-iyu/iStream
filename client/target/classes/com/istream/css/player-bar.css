@@ -1,0 +1,199 @@
+/* Base styles */
+.player-bar {
+    -fx-background-color: #282828;
+    -fx-border-color: #404040;
+    -fx-border-width: 1px 0 0 0;
+    -fx-spacing: 15px;
+    -fx-min-width: 300px;
+    -fx-pref-width: 300px;
+    -fx-max-width: 300px;
+}
+
+/* Now playing section */
+.now-playing {
+    -fx-padding: 0 0 0 10px;
+    -fx-min-width: 300px;
+    -fx-max-width: 300px;
+}
+
+.album-art {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 0);
+    -fx-background-radius: 5px;
+}
+
+.song-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-wrap-text: true;
+}
+
+.artist-name {
+    -fx-font-size: 14px;
+    -fx-text-fill: #b3b3b3;
+    -fx-wrap-text: true;
+}
+
+/* Button styles */
+.icon-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 50%;
+    -fx-padding: 8px;
+    -fx-cursor: hand;
+    -fx-min-width: 40px;
+    -fx-min-height: 40px;
+}
+
+.icon-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+}
+
+.control-button {
+    -fx-opacity: 0.7;
+}
+
+.control-button:hover {
+    -fx-opacity: 1;
+}
+
+.play-button {
+    -fx-background-color: #1DB954;
+    -fx-background-radius: 50%;
+    -fx-min-width: 48px;
+    -fx-min-height: 48px;
+}
+
+.play-button:hover {
+    -fx-background-color: #1ED760;
+}
+
+.like-button {
+    -fx-padding: 5px;
+}
+
+.like-button .image-view {
+    -fx-opacity: 0.7;
+}
+
+.like-button:hover .image-view {
+    -fx-opacity: 1;
+}
+
+.like-button.liked .image-view {
+    -fx-opacity: 1;
+}
+
+/* Progress bar */
+.progress-container {
+    -fx-padding: 0 20px;
+    -fx-alignment: center;
+    -fx-spacing: 10px;
+}
+
+.progress-slider {
+    -fx-pref-width: 400px;
+    -fx-max-width: 400px;
+}
+
+.progress-slider .track {
+    -fx-background-color: #535353;
+    -fx-background-radius: 2px;
+    -fx-pref-height: 4px;
+}
+
+.progress-slider .thumb {
+    -fx-background-color: white;
+    -fx-background-radius: 50%;
+    -fx-pref-height: 12px;
+    -fx-pref-width: 12px;
+    -fx-opacity: 0;
+}
+
+.progress-slider:hover .thumb {
+    -fx-opacity: 1;
+}
+
+.time-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #b3b3b3;
+    -fx-min-width: 40px;
+}
+
+/* Volume control */
+.volume-control {
+    -fx-padding: 0 10px 0 0;
+    -fx-min-width: 150px;
+    -fx-alignment: center-right;
+}
+
+.volume-slider {
+    -fx-pref-width: 100px;
+}
+
+.volume-slider .track {
+    -fx-background-color: #535353;
+    -fx-background-radius: 2px;
+    -fx-pref-height: 4px;
+}
+
+.volume-slider .thumb {
+    -fx-background-color: white;
+    -fx-background-radius: 50%;
+    -fx-pref-height: 12px;
+    -fx-pref-width: 12px;
+    -fx-opacity: 0;
+}
+
+.volume-slider:hover .thumb {
+    -fx-opacity: 1;
+}
+
+/* Queue section */
+.queue-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 10px;
+}
+
+.queue-pane .title {
+    -fx-background-color: transparent;
+    -fx-padding: 5px;
+    -fx-font-size: 14px;
+}
+
+.queue-pane .content {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 5px 0 0 0;
+}
+
+.queue-list {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 5px;
+    -fx-background-insets: 0;
+}
+
+.queue-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-padding: 8px 10px;
+    -fx-font-size: 13px;
+}
+
+.queue-list .list-cell:filled:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+}
+
+.queue-list .list-cell:filled:selected {
+    -fx-background-color: rgba(30, 215, 96, 0.2);
+}
+
+/* Controls section */
+.controls {
+    -fx-alignment: center;
+    -fx-spacing: 25px;
+    -fx-padding: 10px 0;
+}

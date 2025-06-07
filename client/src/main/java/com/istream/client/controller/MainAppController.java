@@ -126,25 +126,53 @@ public class MainAppController {
         }
     }
 
+    private void showPlayerBar() {
+        if (rootPane.getRight() == null) {
+            rootPane.setRight(playerBar);
+            if (playerBarController != null) {
+                playerBarController.setAudioService(audioService);
+                playerBarController.setRMIClient(rmiClient);
+                playerBarController.setSessionHolder(sessionHolder);
+            }
+        }
+    }
+
+    private void hidePlayerBar() {
+        if (audioService != null && !audioService.isPlaying() && audioService.getSongQueue().isEmpty()) {
+            rootPane.setRight(null);
+        }
+    }
+
     public void playSong(Song song) {
         try {
             byte[] audioData = rmiClient.streamSong(song.getId());
             audioService.playSong(song, audioData);
-            playerBarController.updateSongInfo(song);
+            if (playerBarController != null) {
+                playerBarController.updateSongInfo(song);
+            }
             showPlayerBar();
         } catch (Exception e) {
             UiComponent.showError("Error", "Failed to play song: " + e.getMessage());
         }
     }
 
-    private void showPlayerBar() {
-        if (rootPane.getRight() == null) {
-            rootPane.setRight(playerBar);
-        }
-    }
+    public void addToQueue(Song song) {
+        try {
+            byte[] audioData = rmiClient.streamSong(song.getId());
+            audioService.addToQueueAsync(song, audioData).thenRun(() -> {
+                if (playerBarController != null) {
+                    playerBarController.updateQueueDisplay();
+                }
+                showPlayerBar();
+            }).exceptionally(ex -> {
+                UiComponent.showError("Error", "Failed to add song to queue: " + ex.getMessage());
+                return null;
+            });
 
-    private void hidePlayerBar() {
-        rootPane.setRight(null);
+            showPlayerBar();
+        } catch (Exception e) {
+            UiComponent.showError("Error", "Failed to add song to queue: " + e.getMessage());
+        }
     }
 
     private void loadHomeView() {

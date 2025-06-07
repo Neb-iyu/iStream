@@ -1,5 +1,4 @@
 com\istream\client\view\ProfileView$1.class
-com\istream\client\controller\ArtistsViewController$3.class
 com\istream\client\controller\AuthController$1.class
 com\istream\client\controller\PlayerController$1.class
 com\istream\client\view\PlaylistView$3.class
@@ -70,7 +69,6 @@ com\istream\client\service\DummyDataService.class
 com\istream\client\controller\PlaylistPageController.class
 com\istream\client\view\PlaylistView$4.class
 com\istream\client\util\ImageConverter.class
-com\istream\client\controller\ArtistsViewController$3$1.class
 com\istream\client\util\UiComponent$1.class
 com\istream\client\controller\PlayerBarController$1.class
 com\istream\client\view\SongTile.class

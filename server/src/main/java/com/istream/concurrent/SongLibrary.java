@@ -72,9 +72,17 @@ public class SongLibrary {
     private void addSongFromFile(Path filePath) {
         try {
             String fileName = filePath.getFileName().toString();
+            System.out.println("Processing file: " + fileName);
             String title = fileName.substring(0, fileName.lastIndexOf('.'));
-            
-            if (songs.stream().noneMatch(s -> s.getTitle().equals(title))) {
+            final int id;
+            try {
+                id = Integer.parseInt(title);
+            }
+            catch (NumberFormatException e) {
+                System.err.println("Invalid song ID in file name: " + fileName);
+                return;
+            }
+            if (songs.stream().noneMatch(s -> s.getId() == id)) {
                 // Create default artist and album
                 Artist artist = artistDAO.getArtistByName("Unknown Artist");
                 if (artist == null) {
@@ -98,7 +106,7 @@ public class SongLibrary {
                     album.getId(),
                     "Unknown Genre",
                     0,
-                    null, // filePath will be set after insertion
+                    " ", // filePath will be set after insertion
                     null,
                     0
                 );

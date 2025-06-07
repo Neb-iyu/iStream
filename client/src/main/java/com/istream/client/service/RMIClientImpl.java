@@ -1,14 +1,19 @@
 package com.istream.client.service;
 
-import com.istream.model.*;
-import com.istream.rmi.MusicService;
-import com.istream.client.util.ImageConverter;
-
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.rmi.RemoteException;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+
+import com.istream.client.util.ImageConverter;
+import com.istream.model.Album;
+import com.istream.model.Artist;
+import com.istream.model.Playlist;
+import com.istream.model.Song;
+import com.istream.model.User;
+import com.istream.rmi.MusicService;
+
 import javafx.scene.image.Image;
 
 public class RMIClientImpl implements RMIClient {
@@ -242,11 +247,12 @@ public class RMIClientImpl implements RMIClient {
     @Override
     public Image getImage(String path) throws RemoteException {
         try {
+            //System.out.println("Getting image: " + path);
             byte[] imageData = musicService.getImage(path);
             return ImageConverter.bytesToImage(imageData);
         }
         catch (Exception e) {
-            System.out.println("Error getting image: " + e.getMessage());
+            //System.out.println("Error getting image: " + e.getMessage());
             return null;
         }
     }

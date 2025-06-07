@@ -1,24 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Separator?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Region?>
 
+<ScrollPane xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            styleClass="smooth-scroll"
+            fx:id="scrollPane"
+            fitToWidth="true"
+            hbarPolicy="NEVER"
+            fx:controller="com.istream.client.controller.AlbumViewController">
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #323131;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <Separator layoutX="188.0" orientation="VERTICAL" prefHeight="400.0" prefWidth="9.0" style="-fx-background-color: #323131;" />
-      <VBox alignment="CENTER" layoutX="1.0" layoutY="39.0" prefHeight="259.0" prefWidth="185.0">
-         <children>
-            <Label text="Label" textFill="#dcc9c9" />
-            <ImageView fitHeight="150.0" fitWidth="135.0" pickOnBounds="true" preserveRatio="true" />
-            <Button mnemonicParsing="false" style="-fx-background-color: #210a0a;" text="Button" textFill="#c4bbbb" />
-         </children>
-      </VBox>
-      <ScrollPane layoutX="197.0" layoutY="1.0" prefHeight="400.0" prefWidth="403.0" style="-fx-background-color: #210a0a;" />
-   </children>
-</Pane>
+    <content>
+        <VBox styleClass="album-page" fx:id="contentPane">
+            <!-- Album Header -->
+            <VBox styleClass="album-header">
+                <HBox styleClass="album-header-content" alignment="CENTER_LEFT">
+                    <ImageView fx:id="albumCover"
+                               styleClass="album-header-image"
+                               fitWidth="240"
+                               fitHeight="240"
+                               preserveRatio="true"/>
+                    
+                    <VBox styleClass="album-header-info" spacing="12">
+                        <Label text="ALBUM" styleClass="album-meta-label"/>
+                        <Label fx:id="albumName" styleClass="album-header-title" text="Album Title"/>
+                        
+                        <HBox styleClass="album-meta" spacing="15">
+                            <Label fx:id="artistName" styleClass="album-header-artist" text="Artist Name"/>
+                            <Label fx:id="albumYear" styleClass="album-meta-label" text="• 2023"/>
+                            <Label fx:id="songCount" styleClass="album-meta-label" text="• 10 songs"/>
+                            <Label fx:id="totalDuration" styleClass="album-meta-label" text="• 42 min 15 sec"/>
+                        </HBox>
+                        
+                        <HBox styleClass="action-buttons" spacing="15">
+                            <Button text="PLAY" styleClass="action-button play-button" fx:id="playButton"/>
+                            <Button text="SHUFFLE" styleClass="action-button secondary-button" fx:id="shuffleButton"/>
+                            <Button text="ADD TO QUEUE" styleClass="action-button secondary-button" fx:id="addToQueueButton"/>
+                        </HBox>
+                    </VBox>
+                </HBox>
+            </VBox>
+            
+            <!-- Songs List -->
+            <VBox styleClass="songs-container">
+                <VBox fx:id="songsBox" styleClass="songs-list"/>
+            </VBox>
+        </VBox>
+    </content>
+</ScrollPane>

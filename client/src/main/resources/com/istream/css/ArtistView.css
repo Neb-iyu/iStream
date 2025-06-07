@@ -1,0 +1,182 @@
+/* Main Container */
+.root {
+    -fx-background-color: -fx-primary;
+    -fx-primary: #1a1a1a;
+    -fx-secondary: #2d2d2d;
+    -fx-accent: #1db954;
+    -fx-accent-hover: #1ed760;
+    -fx-text-fill-primary: #ffffff;
+    -fx-text-fill-secondary: #b3b3b3;
+}
+
+/* Header Section */
+.header-container {
+    -fx-min-height: 350px;
+    -fx-pref-height: 350px;
+    -fx-background-color: linear-gradient(to bottom, rgba(0,0,0,0.3), -fx-primary);
+}
+
+.header-background {
+    -fx-opacity: 0.6;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 20, 0, 0, 0);
+}
+
+.header-content {
+    -fx-padding: 20 40 40 40;
+    -fx-spacing: 20;
+}
+
+/* Artist Image */
+.artist-image-container {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 15, 0, 0, 0);
+}
+
+.artist-image {
+    -fx-fit-width: 200px;
+    -fx-fit-height: 200px;
+}
+
+.artist-image-clip {
+    -fx-width: 200px;
+    -fx-height: 200px;
+    -fx-fill: transparent;
+    -fx-stroke: rgba(255,255,255,0.1);
+    -fx-stroke-width: 2;
+}
+
+/* Text Styling */
+.artist-type-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: -fx-text-fill-secondary;
+    -fx-font-weight: bold;
+    -fx-letter-spacing: 1px;
+}
+
+.artist-name-label {
+    -fx-font-size: 48px;
+    -fx-text-fill: -fx-text-fill-primary;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 10, 0, 0, 0);
+}
+
+.stat-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: -fx-text-fill-secondary;
+}
+
+.bio-text {
+    -fx-text-fill: -fx-text-fill-secondary;
+    -fx-font-size: 14px;
+    -fx-line-spacing: 5px;
+}
+
+/* Ensure all labels are white or light gray for visibility */
+.label,
+.artist-name-label,
+.artist-type-label,
+.stat-label,
+.bio-text {
+    -fx-text-fill: #fff; /* White text */
+}
+
+/* For secondary text, use a light gray */
+.stat-label,
+.bio-text {
+    -fx-text-fill: #e0e0e0;
+}
+
+/* Action Buttons */
+.action-buttons {
+    -fx-padding: 20 0 0 0;
+}
+
+.play-button {
+    -fx-background-color: -fx-accent;
+    -fx-text-fill: -fx-text-fill-secondary;
+    -fx-font-weight: bold;
+    -fx-padding: 10 25;
+    -fx-background-radius: 20;
+    -fx-font-size: 14px;
+}
+
+.play-button:hover {
+    -fx-background-color: #1ed760;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.follow-button, .share-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -fx-text-fill-secondary;
+    -fx-border-color: -fx-text-fill-primary;
+    -fx-border-radius: 20;
+    -fx-padding: 10 25;
+    -fx-font-size: 14px;
+}
+
+.follow-button:hover, .share-button:hover {
+    -fx-border-width: 2px;
+    -fx-text-fill: -fx-accent;
+    -fx-border-color: -fx-accent;
+}
+
+/* Content Tabs */
+.content-tabs {
+    -fx-background-color: transparent;
+    -fx-tab-min-width: 100px;
+    -fx-tab-max-width: 100px;
+}
+
+.content-tabs .tab-header-area {
+    -fx-padding: 0 40;
+}
+
+.content-tabs .tab-header-background {
+    -fx-background-color: transparent;
+}
+
+.content-tabs .tab {
+    -fx-background-color: transparent;
+    -fx-padding: 10 0;
+}
+
+.content-tabs .tab:selected {
+    -fx-border-color: -fx-accent;
+    -fx-border-width: 0 0 2px 0;
+}
+
+.content-tabs .tab .tab-label {
+    -fx-text-fill: #b3b3b3;
+    -fx-font-weight: bold;
+}
+
+.content-tabs .tab:selected .tab-label {
+    -fx-text-fill: -fx-text-fill-primary;
+}
+
+/* Content Sections */
+.content-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-padding: 20 40;
+    -fx-hbar-policy: never;
+    -fx-vbar-policy: as-needed;
+}
+
+.songs-container {
+    -fx-spacing: 10;
+}
+
+.song-item {
+    -fx-padding: 10 15;
+    -fx-background-color: rgba(255,255,255,0.03);
+    -fx-background-radius: 5;
+    -fx-spacing: 15;
+}
+
+.song-item:hover {
+    -fx-background-color: rgba(255,255,255,0.08);
+}
+
+.albums-container {
+    -fx-spacing: 20;
+}

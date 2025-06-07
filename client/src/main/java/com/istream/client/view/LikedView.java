@@ -13,10 +13,10 @@ public class LikedView extends VBox {
     private final LikedViewController controller;
 
     public LikedView(RMIClient rmiClient, MainAppController mainAppController) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/istream/fxml/content/LikedPage.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/istream/fxml/content/LikedView.fxml"));
         loader.setControllerFactory(param -> new LikedViewController(rmiClient, mainAppController));
-        loader.setRoot(this);
-        loader.load();
+        VBox content = loader.load();
+        getChildren().add(content);
         this.controller = loader.getController();
     }
 }

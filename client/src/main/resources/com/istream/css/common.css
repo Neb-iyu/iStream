@@ -48,23 +48,29 @@
     -fx-spacing: 20;
 }
 
-.scroll-pane {
-    -fx-background-color: transparent;
-    -fx-background: transparent;
-}
-
+/* Enhanced ScrollPane Viewport */
 .scroll-pane > .viewport {
     -fx-background-color: transparent;
+    -fx-border-color: transparent;
 }
 
-.scroll-pane > .scroll-bar:horizontal {
-    -fx-background-color: -fx-secondary;
-    -fx-background-radius: 5;
+/* Smooth Scrolling Behavior */
+.scroll-pane {
+    -fx-fit-to-width: true;
+    -fx-fit-to-height: true;
+    -fx-hbar-policy: never; /* Hide horizontal unless needed */
+    -fx-vbar-policy: never;  /* Hide vertical unless needed */
 }
 
-.scroll-pane > .scroll-bar:horizontal > .thumb {
-    -fx-background-color: -fx-accent;
-    -fx-background-radius: 5;
+/* Show scrollbars only on hover */
+.scroll-pane:hover > .scroll-bar:horizontal,
+.scroll-pane:hover > .scroll-bar:vertical {
+    -fx-opacity: 0.7;
+}
+
+.scroll-pane > .scroll-bar:horizontal:hover,
+.scroll-pane > .scroll-bar:vertical:hover {
+    -fx-opacity: 1;
 }
 
 /* Animation Classes */

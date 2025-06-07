@@ -38,6 +38,13 @@ public class ClientMain extends Application {
         primaryStage.setMinHeight(600);
         primaryStage.show();
     }
+
+    @Override
+    public void stop() {
+        com.istream.client.util.ThreadManager.shutdown();
+        javafx.application.Platform.exit();
+        System.exit(0);
+    }
     
     private void initializeRMI() {
         try {

@@ -4,20 +4,28 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashSet;
-import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import com.istream.concurrent.PlaylistManager;
 import com.istream.concurrent.SongLibrary;
 import com.istream.database.DatabaseManager;
-import com.istream.database.dao.*;
+import com.istream.database.dao.AlbumDAO;
+import com.istream.database.dao.ArtistDAO;
+import com.istream.database.dao.HistoryDAO;
+import com.istream.database.dao.SongDAO;
+import com.istream.database.dao.UserDAO;
 import com.istream.file.FileManager;
-import com.istream.model.*;
+import com.istream.model.Album;
+import com.istream.model.Artist;
+import com.istream.model.PlayHistory;
+import com.istream.model.Playlist;
+import com.istream.model.Song;
+import com.istream.model.User;
 import com.istream.service.AuthService;
 import com.istream.service.SessionManager;
 
@@ -48,7 +56,7 @@ public class MusicServiceImpl extends UnicastRemoteObject implements MusicServic
         this.artistDAO = dbManager.getArtistDAO();
         this.userDAO = dbManager.getUserDAO();
         this.historyDAO = dbManager.getHistoryDAO();
-        this.songLibrary = new SongLibrary(dbManager, "songs");
+        this.songLibrary = new SongLibrary(dbManager, "server/src/main/resources/songs");
         this.playlistManager = new PlaylistManager(dbManager);
         this.fileManager = new FileManager();
         this.sessionManager = new SessionManager();
@@ -107,6 +115,10 @@ public class MusicServiceImpl extends UnicastRemoteObject implements MusicServic
         activeStreams.add(songId);
         try {
             byte[] songData = songLibrary.getSongData(songId);
+            if (songData == null) {
+                System.err.println("Song data not found for ID: " + songId);
+                throw new RemoteException("Song data not found for ID: " + songId);
+            }
             System.out.println("Successfully retrieved song data for ID: " + songId);
             return songData;
         } catch (Exception e) {
@@ -406,10 +418,10 @@ public class MusicServiceImpl extends UnicastRemoteObject implements MusicServic
 
     @Override
     public byte[] getImage(String path) throws RemoteException {
-        // TODO: Implement
         try {
             return fileManager.getImage(path);
         } catch (IOException e) {
+            System.err.println("Error fetching image: " + e.getMessage());
             throw new RemoteException("Error fetching image", e);
         }
     }

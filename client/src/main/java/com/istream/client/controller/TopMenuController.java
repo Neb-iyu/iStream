@@ -10,6 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.input.KeyCode;
 import javafx.collections.FXCollections;
@@ -27,9 +28,10 @@ import javafx.concurrent.Task;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import com.istream.model.User;
+import com.istream.client.util.ThreadManager;
 
 public class TopMenuController {
-    @FXML private AnchorPane root;
+    @FXML private HBox root;
     @FXML private Pane searchPane;
     @FXML private TextField searchField;
     @FXML private Button searchButton;
@@ -209,7 +211,6 @@ public class TopMenuController {
         imageView.setFitWidth(40);
         imageView.setPreserveRatio(true);
 
-        // Load image asynchronously
         Task<Image> imageTask = new Task<>() {
             @Override
             protected Image call() throws Exception {
@@ -224,7 +225,7 @@ public class TopMenuController {
             }
         });
 
-        new Thread(imageTask).start();
+        ThreadManager.submitTask(imageTask);
 
         VBox textBox = new VBox(2);
         Label titleLabel = new Label(result.getTitle());
