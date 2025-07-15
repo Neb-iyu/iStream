@@ -42,6 +42,18 @@ public class HistoryDAO implements BaseDAO {
     }
 
     public void addToHistory(int userId, int songId) throws SQLException {
+        if (isSongInHistory(userId, songId)) {
+            System.out.println("Song already in history for user " + userId);
+            String sql = "UPDATE play_history SET played_at = ? WHERE user_id = ? AND song_id = ?";
+            try (Connection conn = getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+                pstmt.setInt(2, userId);
+                pstmt.setInt(3, songId);
+                pstmt.executeUpdate();
+            }
+            return;
+        }
         String sql = "INSERT INTO play_history (user_id, song_id, played_at) VALUES (?, ?, ?)";
         
         try (Connection conn = getConnection();
@@ -139,5 +151,23 @@ public class HistoryDAO implements BaseDAO {
             return new ArrayList<>(); // Return empty list on error
         }
         return songs;
+    }
+
+    public boolean isSongInHistory(int userId, int songId) {
+        String sql = "SELECT COUNT(*) FROM play_history WHERE user_id = ? AND song_id = ?";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            pstmt.setInt(2, songId);
+            ResultSet rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error checking song in history: " + e.getMessage());
+        }
+        return false;
     }
 } 

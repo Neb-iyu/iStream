@@ -2,6 +2,8 @@ package com.istream.client.view;
 
 import com.istream.client.controller.MainAppController;
 import com.istream.client.service.RMIClient;
+import com.istream.client.util.ThreadManager;
+import com.istream.client.util.UiComponent;
 import com.istream.model.Playlist;
 import com.istream.model.Song;
 import javafx.geometry.Insets;
@@ -20,8 +22,12 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.util.StringConverter;
+import javafx.util.Duration;
+import javafx.animation.PauseTransition;
 import com.istream.model.Artist;
 import com.istream.model.Album;
+import java.util.Collections;
+import java.util.Set;
 
 public class PlaylistView extends VBox {
     private final RMIClient rmiClient;
@@ -32,12 +38,15 @@ public class PlaylistView extends VBox {
     private Button shuffleButton;
     private ComboBox<Song> songSearchBox;
     private ObservableList<Song> searchResults;
+    private PauseTransition searchDebouncer;
+    private Label infoLabel; // Make this a field
 
     public PlaylistView(RMIClient rmiClient, MainAppController mainAppController, Playlist playlist) {
         this.rmiClient = rmiClient;
         this.mainAppController = mainAppController;
         this.playlist = playlist;
         this.searchResults = FXCollections.observableArrayList();
+        this.searchDebouncer = new PauseTransition(Duration.millis(300));
 
         setSpacing(20);
         setPadding(new Insets(20));
@@ -68,23 +77,27 @@ public class PlaylistView extends VBox {
         coverImage.setFitHeight(200);
         coverImage.setPreserveRatio(true);
         coverImage.getStyleClass().add("image-view");
-        try {
-            Image image = rmiClient.getImage("images/playlist/default.png");
-            if (image != null) {
-                coverImage.setImage(image);
+        
+        Task<Image> imageTask = new Task<>() {
+            @Override
+            protected Image call() throws Exception {
+                return rmiClient.getImage("images/playlist/default.png");
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        };
+        imageTask.setOnSucceeded(e -> {
+            Image image = imageTask.getValue();
+            if (image != null) coverImage.setImage(image);
+        });
+        ThreadManager.submitTask(imageTask);
 
         // Playlist info
         VBox infoBox = new VBox(10);
         infoBox.getStyleClass().add("vbox");
-        
+
         Label titleLabel = new Label(playlist.getName());
         titleLabel.getStyleClass().add("title");
 
-        Label infoLabel = new Label(playlist.getSongs().size() + " songs");
+        infoLabel = new Label("Loading songs...");
         infoLabel.getStyleClass().add("subtitle");
 
         infoBox.getChildren().addAll(titleLabel, infoLabel);
@@ -110,34 +123,59 @@ public class PlaylistView extends VBox {
 
         // Song search box
         songSearchBox = new ComboBox<>();
+        songSearchBox.setCellFactory(listView -> new ListCell<>() {
+            @Override
+            protected void updateItem(Song song, boolean empty) {
+                super.updateItem(song, empty);
+                if (empty || song == null) {
+                    setText(null);
+                } else {
+                    setText(song.getTitle() + " - Loading...");
+                    // Fetch artist name in background
+                    Task<String> artistTask = new Task<>() {
+                        @Override
+                        protected String call() throws Exception {
+                            Artist artist = rmiClient.getArtistById(song.getArtistId());
+                            return artist != null ? artist.getName() : "Unknown Artist";
+                        }
+                    };
+                    artistTask.setOnSucceeded(e -> setText(song.getTitle() + " - " + artistTask.getValue()));
+                    ThreadManager.submitTask(artistTask);
+                }
+            }
+        });
         songSearchBox.setPromptText("Search songs to add...");
         songSearchBox.setEditable(true);
         songSearchBox.setPrefWidth(300);
         songSearchBox.getStyleClass().add("combo-box");
         
-        // Set up the converter to display song title and artist
         songSearchBox.setConverter(new StringConverter<Song>() {
             @Override
             public String toString(Song song) {
                 if (song == null) return "";
-                try {
-                    Artist artist = rmiClient.getArtistById(song.getArtistId());
-                    return song.getTitle() + " - " + (artist != null ? artist.getName() : "Unknown Artist");
-                } catch (Exception e) {
-                    return song.getTitle() + " - Unknown Artist";
-                }
+                String base = song.getTitle();
+                Task<String> artistTask = new Task<>() {
+                    @Override
+                    protected String call() throws Exception {
+                        Artist artist = rmiClient.getArtistById(song.getArtistId());
+                        return artist != null ? artist.getName() : "Unknown Artist";
+                    }
+                };
+                artistTask.setOnSucceeded(e -> {
+                    String display = base + " - " + artistTask.getValue();
+                    Platform.runLater(() -> songSearchBox.getEditor().setText(display));
+                });
+                ThreadManager.submitTask(artistTask);
+                return base;
             }
-
             @Override
-            public Song fromString(String string) {
-                return null;
-            }
+            public Song fromString(String string) { return null; }
         });
 
         // Set up the search functionality
         songSearchBox.getEditor().textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null && !newVal.isEmpty()) {
-                searchSongs(newVal);
+                performSearch(newVal);
             } else {
                 searchResults.clear();
                 songSearchBox.setItems(searchResults);
@@ -158,36 +196,107 @@ public class PlaylistView extends VBox {
         return buttonsBox;
     }
 
-    private void searchSongs(String query) {
-        Task<List<Song>> task = new Task<>() {
+     private void setupSearchBox() {
+        songSearchBox.setConverter(new StringConverter<Song>() {
+            @Override
+            public String toString(Song song) {
+                if (song == null) return "";
+                String base = song.getTitle();
+                Task<String> artistTask = new Task<>() {
+                    @Override
+                    protected String call() throws Exception {
+                        Artist artist = rmiClient.getArtistById(song.getArtistId());
+                        return artist != null ? artist.getName() : "Unknown Artist";
+                    }
+                };
+                artistTask.setOnSucceeded(e -> {
+                    String display = base + " - " + artistTask.getValue();
+                    Platform.runLater(() -> songSearchBox.getEditor().setText(display));
+                });
+                ThreadManager.submitTask(artistTask);
+                return base;
+            }
+            @Override
+            public Song fromString(String string) {
+                return null;
+            }
+        });
+
+        songSearchBox.getEditor().textProperty().addListener((obs, oldVal, newVal) -> {
+            if (searchDebouncer.getStatus() == javafx.animation.Animation.Status.RUNNING) {
+                searchDebouncer.stop();
+            }
+            
+            searchDebouncer.setOnFinished(e -> {
+                if (newVal != null && !newVal.trim().isEmpty()) {
+                    performSearch(newVal.trim());
+                } else {
+                    Platform.runLater(() -> {
+                        searchResults.clear();
+                        songSearchBox.setItems(searchResults);
+                    });
+                }
+            });
+            searchDebouncer.playFromStart();
+        });
+
+        songSearchBox.setOnAction(e -> {
+            Song selectedSong = songSearchBox.getValue();
+            if (selectedSong != null) {
+                addSongToPlaylist(selectedSong);
+                songSearchBox.setValue(null);
+                songSearchBox.getEditor().clear();
+            }
+        });
+    }
+
+    private void performSearch(String query) {
+        // Cancel any existing search
+        if (searchDebouncer.getStatus() == javafx.animation.Animation.Status.RUNNING) {
+            searchDebouncer.stop();
+        }
+
+        Task<List<Song>> searchTask = new Task<>() {
             @Override
             protected List<Song> call() throws Exception {
-                return rmiClient.searchSongs(query);
+                if (query == null || query.trim().isEmpty()) {
+                    return new ArrayList<>();
+                }
+                return rmiClient.searchSongs(query.trim());
             }
         };
 
-        task.setOnSucceeded(e -> {
-            List<Song> results = task.getValue();
-            searchResults.setAll(results);
-            songSearchBox.setItems(searchResults);
-            songSearchBox.show();
-        });
+        // searchTask.setOnRunning(e -> {
+        //     Platform.runLater(() -> {
+        //         songSearchBox.setPromptText("Searching...");
+        //         songSearchBox.show();
+        //     });
+        // });
 
-        task.setOnFailed(e -> {
+        searchTask.setOnSucceeded(e -> {
+            List<Song> results = searchTask.getValue();
             Platform.runLater(() -> {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error");
-                alert.setHeaderText("Failed to search songs");
-                alert.setContentText(task.getException().getMessage());
-                alert.showAndWait();
+                searchResults.setAll(results);
+                songSearchBox.setItems(searchResults);
+                //songSearchBox.setPromptText(results.isEmpty() ? "No results found" : "Select a song to add");
+                songSearchBox.show();
             });
         });
 
-        new Thread(task).start();
+        searchTask.setOnFailed(e -> {
+            Platform.runLater(() -> {
+                songSearchBox.setPromptText("Search failed - try again");
+                searchResults.clear();
+                songSearchBox.setItems(searchResults);
+                System.err.println("Search failed: " + searchTask.getException().getMessage());
+            });
+        });
+
+        ThreadManager.submitTask(searchTask);
     }
 
     private void addSongToPlaylist(Song song) {
-        Task<Void> task = new Task<>() {
+        Task<Void> addTask = new Task<>() {
             @Override
             protected Void call() throws Exception {
                 rmiClient.addSongToPlaylist(playlist.getId(), song.getId());
@@ -195,22 +304,31 @@ public class PlaylistView extends VBox {
             }
         };
 
-        task.setOnSucceeded(e -> {
-            loadSongs(); // Reload the songs list
+        addTask.setOnRunning(e -> {
+            songSearchBox.setDisable(true);
+            songSearchBox.setPromptText("Adding song...");
         });
 
-        task.setOnFailed(e -> {
-            Platform.runLater(() -> {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error");
-                alert.setHeaderText("Failed to add song to playlist");
-                alert.setContentText(task.getException().getMessage());
-                alert.showAndWait();
+        addTask.setOnSucceeded(e -> {
+            ThreadManager.runOnFxThread(() -> {
+                songSearchBox.setDisable(false);
+                songSearchBox.setPromptText("Search songs to add...");
+                loadSongs();
             });
         });
 
-        new Thread(task).start();
+        addTask.setOnFailed(e -> {
+            ThreadManager.runOnFxThread(() -> {
+                songSearchBox.setDisable(false);
+                songSearchBox.setPromptText("Failed to add - try again");
+                new Alert(Alert.AlertType.ERROR, 
+                    "Failed to add song: " + addTask.getException().getMessage()).show();
+            });
+        });
+
+        ThreadManager.submitTask(addTask);
     }
+
 
     private TableView<Song> createSongsTable() {
         TableView<Song> table = new TableView<>();
@@ -224,12 +342,19 @@ public class PlaylistView extends VBox {
         // Artist column
         TableColumn<Song, String> artistCol = new TableColumn<>("Artist");
         artistCol.setCellValueFactory(cellData -> {
-            try {
-                Artist artist = rmiClient.getArtistById(cellData.getValue().getArtistId());
-                return new SimpleStringProperty(artist != null ? artist.getName() : "Unknown Artist");
-            } catch (Exception e) {
-                return new SimpleStringProperty("Unknown Artist");
-            }
+            SimpleStringProperty prop = new SimpleStringProperty("Loading...");
+            Song song = cellData.getValue();
+            Task<String> artistTask = new Task<>() {
+                @Override
+                protected String call() throws Exception {
+                    Artist artist = rmiClient.getArtistById(song.getArtistId());
+                    return artist != null ? artist.getName() : "Unknown Artist";
+                }
+            };
+            artistTask.setOnSucceeded(e -> prop.set(artistTask.getValue()));
+            artistTask.setOnFailed(e -> prop.set("Unknown Artist"));
+            ThreadManager.submitTask(artistTask);
+            return prop;
         });
         artistCol.setPrefWidth(200);
 
@@ -271,20 +396,27 @@ public class PlaylistView extends VBox {
     }
 
     private void loadSongs() {
-        Task<List<Song>> task = new Task<>() {
+        Task<Set<Song>> task = new Task<>() {
             @Override
-            protected List<Song> call() throws Exception {
-                return new ArrayList<>(playlist.getSongs());
+            protected Set<Song> call() throws Exception {
+                // Fetch songs from the server/database here!
+                return playlist.getSongs();
             }
         };
 
         task.setOnSucceeded(e -> {
-            List<Song> songs = task.getValue();
+            Set<Song> songs = task.getValue();
             songsTable.getItems().setAll(songs);
+            if (infoLabel != null) {
+                infoLabel.setText(songs.size() + " songs");
+            }
         });
 
         task.setOnFailed(e -> {
             Platform.runLater(() -> {
+                if (infoLabel != null) {
+                    infoLabel.setText("Failed to load songs");
+                }
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error");
                 alert.setHeaderText("Failed to load playlist songs");
@@ -293,32 +425,30 @@ public class PlaylistView extends VBox {
             });
         });
 
-        new Thread(task).start();
+        ThreadManager.submitTask(task);
     }
 
     private void handlePlayAll() {
         if (!songsTable.getItems().isEmpty()) {
-            handleSongPlay(songsTable.getItems().get(0));
+            mainAppController.playSongs(new ArrayList<>(songsTable.getItems()));
         }
     }
 
     private void handleShuffle() {
         if (!songsTable.getItems().isEmpty()) {
-            int randomIndex = (int) (Math.random() * songsTable.getItems().size());
-            handleSongPlay(songsTable.getItems().get(randomIndex));
+            List<Song> shuffledSongs = new ArrayList<>(songsTable.getItems());
+            Collections.shuffle(shuffledSongs);
+            mainAppController.playSongs(shuffledSongs);
         }
     }
 
     private void handleSongPlay(Song song) {
         try {
-            byte[] audioData = rmiClient.streamSong(song.getId());
-            mainAppController.getAudioService().playSong(song, audioData);
+            mainAppController.playSong(song);
         } catch (Exception e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Failed to play song");
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
+            ThreadManager.runOnFxThread(() -> 
+                UiComponent.showError("Error", "Failed to play song: " + e.getMessage())
+            );
         }
     }
 }

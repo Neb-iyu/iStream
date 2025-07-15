@@ -1,34 +1,32 @@
 package com.istream.client.controller;
 
+import java.util.List;
+import java.util.function.Consumer;
+
+import com.istream.client.service.RMIClient;
+import com.istream.client.service.SearchService;
+import com.istream.client.util.ThreadManager;
+import com.istream.client.util.UiComponent;
+import com.istream.model.User;
+
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Label;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.input.KeyCode;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
-import javafx.scene.control.ListCell;
-import javafx.scene.layout.HBox;
-import javafx.scene.image.Image;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.function.Consumer;
-import com.istream.client.service.RMIClient;
-import com.istream.client.util.UiComponent;
-import javafx.concurrent.Task;
-import javafx.application.Platform;
+import javafx.scene.Parent;
 import javafx.scene.control.Alert;
-import com.istream.model.User;
-import com.istream.client.util.ThreadManager;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Popup;
+import javafx.stage.Window;
 
 public class TopMenuController {
     @FXML private HBox root;
@@ -37,15 +35,18 @@ public class TopMenuController {
     @FXML private Button searchButton;
     @FXML private ImageView profileImage;
     @FXML private Pane leftPane;
-    @FXML private VBox searchResultsBox;
 
+    private VBox searchResultsBox;
     private RMIClient rmiClient;
     private Runnable onSearchByName;
     private Runnable onProfileClick;
     private Consumer<SearchResult> onResultClick;
+    private SearchService searchService;
+    private Popup searchResultsPopup;
 
-    public void initServices(RMIClient rmiClient) {
+    public void initServices(RMIClient rmiClient, MainAppController mainAppController) {
         this.rmiClient = rmiClient;
+        this.searchService = new SearchService(rmiClient, this, mainAppController);
         loadProfileImage();
     }
 
@@ -83,9 +84,15 @@ public class TopMenuController {
     private void handleSearchByName() {
         String searchQuery = searchField.getText().trim();
         if (searchQuery.isEmpty()) {
-            searchResultsBox.setVisible(false);
+            searchResultsPopup.hide();
             return;
         }
+        searchResultsBox.getChildren().clear();
+        Label loadingLabel = new Label("Searching...");
+        loadingLabel.setStyle("-fx-text-fill: gray; -fx-padding: 10;");
+        searchResultsBox.getChildren().add(loadingLabel);
+
+        showSearchResultsPopup(); 
 
         if (onSearchByName != null) {
             onSearchByName.run();
@@ -141,7 +148,17 @@ public class TopMenuController {
     @FXML
     public void initialize() {
         setupEventHandlers();
+
+        // Create popup and VBox for results
+        searchResultsBox = new VBox();
+        searchResultsBox.setStyle("-fx-background-color: white; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.15),8,0,0,2);");
+        searchResultsBox.setMaxHeight(300);
+
+        searchResultsPopup = new Popup();
+        searchResultsPopup.setAutoHide(true);
+        searchResultsPopup.getContent().add(searchResultsBox);
         setupSearchResults();
+
     }
 
     private void setupEventHandlers() {
@@ -154,14 +171,14 @@ public class TopMenuController {
             if (newVal.length() >= 2) {
                 handleSearchByName();
             } else {
-                searchResultsBox.setVisible(false);
+                searchResultsPopup.hide(); 
             }
         });
         profileImage.setOnMouseClicked(e -> handleProfileClick());
     }
 
     private void setupSearchResults() {
-        searchResultsBox.setVisible(false);
+        searchResultsBox.setVisible(true);
         searchResultsBox.setStyle("-fx-background-color: white; -fx-background-radius: 5;");
         searchResultsBox.setMaxHeight(300);
     }
@@ -180,7 +197,7 @@ public class TopMenuController {
 
     public void updateSearchResults(List<SearchResult> results) {
         searchResultsBox.getChildren().clear();
-        
+
         if (results.isEmpty()) {
             Label noResults = new Label("No results found");
             noResults.setStyle("-fx-text-fill: gray; -fx-padding: 10;");
@@ -191,8 +208,16 @@ public class TopMenuController {
                 searchResultsBox.getChildren().add(resultItem);
             }
         }
-        
-        searchResultsBox.setVisible(true);
+
+        showSearchResultsPopup(); 
+    }
+
+    private void showSearchResultsPopup() {
+        Window window = searchField.getScene().getWindow();
+        double x = window.getX() + searchField.localToScene(0, 0).getX() + searchField.getScene().getX();
+        double y = window.getY() + searchField.localToScene(0, 0).getY() + searchField.getScene().getY() + searchField.getHeight();
+        searchResultsPopup.show(window, x, y);
+        searchResultsBox.setPrefWidth(searchField.getWidth());
     }
 
     private HBox createSearchResultItem(SearchResult result) {
@@ -203,13 +228,14 @@ public class TopMenuController {
             if (onResultClick != null) {
                 onResultClick.accept(result);
             }
-            searchResultsBox.setVisible(false);
+            searchResultsPopup.hide(); 
         });
 
         ImageView imageView = new ImageView();
         imageView.setFitHeight(40);
         imageView.setFitWidth(40);
         imageView.setPreserveRatio(true);
+        UiComponent.loadImage(imageView, result.getImageUrl(), rmiClient);
 
         Task<Image> imageTask = new Task<>() {
             @Override
@@ -251,4 +277,4 @@ public class TopMenuController {
     public TextField getSearchField() {
         return searchField;
     }
-} 
+}

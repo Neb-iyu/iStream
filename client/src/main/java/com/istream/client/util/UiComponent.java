@@ -476,7 +476,7 @@ public class UiComponent {
         addToQueue.setOnAction(e -> {
             List<Song> songs = album.getSongs();
             for (Song song : songs) {
-                addSongToQueueAsync(song, rmiClient, mainAppController);
+                mainAppController.addToQueue(song);
             }
             showNotification("Added to Queue", album.getTitle() + " has been added to the queue");
         });
@@ -517,18 +517,15 @@ public class UiComponent {
     private static void playAlbum(Album album, RMIClient rmiClient, MainAppController mainAppController) {
         List<Song> songs = album.getSongs();
         if (!songs.isEmpty()) {
-            // Play the first song and add the rest to queue
             Song firstSong = songs.get(0);
             playSongAndClearQueue(firstSong, rmiClient, mainAppController);
             
-            // Add remaining songs to queue
             for (int i = 1; i < songs.size(); i++) {
-                addSongToQueueAsync(songs.get(i), rmiClient, mainAppController);
+                mainAppController.addToQueue(songs.get(i));
             }
         }
     }
 
-    // Add a new method for handling empty playlist lists
     public static void createEmptyPlaylistMessage(VBox container) {
         container.getChildren().clear();
         
@@ -606,7 +603,7 @@ public class UiComponent {
             songImage.setFitHeight(40);
             songImage.getStyleClass().add("song-image");
             loadImage(songImage, song.getCoverArtPath(), rmiClient);
-            System.out.println("Imagewidth" + songImage.getFitWidth() + " height: " + songImage.getFitHeight());
+            //System.out.println("Imagewidth" + songImage.getFitWidth() + " height: " + songImage.getFitHeight());
             
 
             // Song info
@@ -644,7 +641,7 @@ public class UiComponent {
 
             Button addToQueueButton = new Button("+");
             addToQueueButton.getStyleClass().add("song-action-button");
-            addToQueueButton.setOnAction(e -> addSongToQueueAsync(song, rmiClient, mainAppController));
+            addToQueueButton.setOnAction(e -> mainAppController.addToQueue(song));
 
             actionButtons.getChildren().addAll(playButton, addToQueueButton);
 

@@ -2,25 +2,25 @@ package com.istream.client.controller;
 
 import com.istream.client.service.AudioService;
 import com.istream.client.service.RMIClient;
+import com.istream.client.util.SessionHolder;
 import com.istream.client.util.ThreadManager;
 import com.istream.client.util.UiComponent;
 import com.istream.model.Song;
+
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.util.Duration;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.concurrent.Task;
-import javafx.application.Platform;
 import javafx.scene.layout.VBox;
-import javafx.scene.control.ListView;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import com.istream.client.util.SessionHolder;
+import javafx.util.Duration;
 
 public class PlayerBarController {
     @FXML private ImageView songImage;
@@ -108,7 +108,7 @@ public class PlayerBarController {
     }
 
     @FXML
-    private void handlePlayPause() {
+    public void handlePlayPause() {
         if (audioService != null) {
             if (audioService.isPlaying()) {
                 audioService.pause();
@@ -177,6 +177,7 @@ public class PlayerBarController {
                 Task<Void> task = new Task<>() {
                     @Override
                     protected Void call() throws Exception {
+                        System.out.println("Toggling like status for song ID: " + currentSong.getId());
                         if (isLiked) {
                             rmiClient.unlikeSong(currentSong.getId());
                         } else {
@@ -248,29 +249,30 @@ public class PlayerBarController {
             }
             
             // Load song image
-            if (rmiClient != null) {
-                Task<Image> task = new Task<>() {
-                    @Override
-                    protected Image call() throws Exception {
-                        return rmiClient.getImage("images/song/" + song.getId() + ".png");
-                    }
-                };
+            UiComponent.loadImage(songImage, song.getCoverArtPath(), rmiClient);
+            // if (rmiClient != null) {
+            //     Task<Image> task = new Task<>() {
+            //         @Override
+            //         protected Image call() throws Exception {
+            //             return rmiClient.getImage("images/song/" + song.getId() + ".png");
+            //         }
+            //     };
 
-                task.setOnSucceeded(e -> {
-                    Image image = task.getValue();
-                    if (image != null) {
-                        ThreadManager.runOnFxThread(() -> songImage.setImage(image));
-                    }
-                });
+            //     task.setOnSucceeded(e -> {
+            //         Image image = task.getValue();
+            //         if (image != null) {
+            //             ThreadManager.runOnFxThread(() -> songImage.setImage(image));
+            //         }
+            //     });
 
-                task.setOnFailed(e -> {
-                    ThreadManager.runOnFxThread(() -> 
-                        UiComponent.showError("Error", "Failed to load song image: " + task.getException().getMessage())
-                    );
-                });
+            //     task.setOnFailed(e -> {
+            //         ThreadManager.runOnFxThread(() -> 
+            //             UiComponent.showError("Error", "Failed to load song image: " + task.getException().getMessage())
+            //         );
+            //     });
 
-                ThreadManager.submitTask(task);
-            }
+            //     ThreadManager.submitTask(task);
+            // }
             
             timeline.play();
             updateQueueDisplay();
@@ -294,7 +296,7 @@ public class PlayerBarController {
                 setText(null);
                 setGraphic(null);
             } else {
-                setText(song.getTitle() + " - " + song.getArtistId());
+                setText(song.getTitle() + " - ");
             }
         }
     }

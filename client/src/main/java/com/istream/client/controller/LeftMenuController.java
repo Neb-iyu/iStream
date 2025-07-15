@@ -7,6 +7,7 @@ import com.istream.client.service.RMIClient;
 import com.istream.client.util.UiComponent;
 import com.istream.client.util.ThreadManager;
 import com.istream.model.Playlist;
+import com.istream.client.view.PlaylistView;
 
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -27,9 +28,11 @@ public class LeftMenuController {
     private Consumer<Parent> onPlaylistClick;
     private Consumer<Parent> onUploadClick;
     private Consumer<Void> onNewPlaylistClick;
+    private MainAppController mainAppController;
 
-    public void initServices(RMIClient rmiClient) {
+    public void initServices(RMIClient rmiClient, MainAppController mainAppController) {
         this.rmiClient = rmiClient;
+        this.mainAppController = mainAppController;
         System.out.println("Initializing LeftMenuController services");
         loadPlaylists();
         checkAdminStatus();
@@ -181,14 +184,10 @@ public class LeftMenuController {
     private void handlePlaylistClick(Playlist playlist) {
         System.out.println("Handling click for playlist: " + playlist.getName());
         try {
-            Parent playlistPage = PlaylistPageController.createView();
-            PlaylistPageController controller = (PlaylistPageController) playlistPage.getUserData();
-            controller.setRMIClient(rmiClient);
-            controller.loadPlaylist(playlist);
-            
+            PlaylistView playlistView = new PlaylistView(rmiClient, mainAppController, playlist);
             if (onPlaylistClick != null) {
-                onPlaylistClick.accept(playlistPage);
-                System.out.println("Successfully loaded playlist page: " + playlist.getName());
+                onPlaylistClick.accept(playlistView);
+                System.out.println("Successfully loaded playlist view: " + playlist.getName());
             }
         } catch (Exception ex) {
             String errorMsg = "Failed to load playlist: " + ex.getMessage();

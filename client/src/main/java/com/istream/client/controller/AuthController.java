@@ -48,6 +48,12 @@ public class AuthController {
         this.sessionManager = sessionManager;
     }
 
+    public AuthController(RMIClient rmiClient, SessionHolder sessionManager, boolean isLoginView) {
+        this.rmiClient = rmiClient;
+        this.sessionManager = sessionManager;
+        this.isLoginView = isLoginView;
+    }
+
     public void initServices(RMIClient rmiClient, SessionHolder sessionManager) {
         this.rmiClient = rmiClient;
         this.sessionManager = sessionManager;
@@ -237,8 +243,10 @@ public class AuthController {
     @FXML
     private void handleSwitchView() {
         if (isLoginView) {
+            System.out.println("Switching to register view");
             switchToRegisterView();
         } else {
+            System.out.println("Switching to login view");
             switchToLoginView();
         }
     }
@@ -259,7 +267,9 @@ public class AuthController {
             Parent registerView = createRegisterView(rmiClient, sessionManager, onLoginSuccess);
             root.getChildren().clear();
             root.getChildren().add(registerView);
+            System.out.println("Switched to register view");
         isLoginView = false;
+        System.out.println("isLoginView set to " + isLoginView);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -299,7 +309,7 @@ public class AuthController {
         try {
             FXMLLoader loader = new FXMLLoader(AuthController.class.getResource("/com/istream/fxml/content/LoginView.fxml"));
             loader.setControllerFactory(param -> {
-                AuthController ctrl = new AuthController(rmiClient, sessionManager);
+                AuthController ctrl = new AuthController(rmiClient, sessionManager, true);
                 ctrl.setOnLoginSuccess(onLoginSuccess);
                 return ctrl;
             });
@@ -313,7 +323,7 @@ public class AuthController {
         try {
             FXMLLoader loader = new FXMLLoader(AuthController.class.getResource("/com/istream/fxml/content/RegisterView.fxml"));
             loader.setControllerFactory(param -> {
-                AuthController ctrl = new AuthController(rmiClient, sessionManager);
+                AuthController ctrl = new AuthController(rmiClient, sessionManager, false);
                 ctrl.setOnLoginSuccess(onLoginSuccess);
                 return ctrl;
             });

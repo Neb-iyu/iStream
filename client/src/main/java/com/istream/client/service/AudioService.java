@@ -1,22 +1,22 @@
 package com.istream.client.service;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Stack;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.CompletableFuture;
+
+import com.istream.model.Song;
 
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
-
-import com.istream.model.Song;
 
 public class AudioService {
     private MediaPlayer mediaPlayer;
@@ -27,12 +27,14 @@ public class AudioService {
     private Duration currentPosition;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private LinkedList<Song> history;
+    private Stack<byte[]> audioDataHistory;
     
     public AudioService() {
         this.songQueue = new LinkedList<>();
         this.audioDataQueue = new LinkedList<>();
         this.history = new LinkedList<>();
         this.isPlaying = false;
+        this.audioDataHistory = new Stack<>();
     }
     
     public void playSong(Song song, byte[] audioData) {
@@ -41,10 +43,12 @@ public class AudioService {
         }
         if (currentSong != null) {
             history.addFirst(currentSong);
+            audioDataHistory.push(audioData);
         }
         currentSong = song;
         Media media = createMediaFromStream(audioData);
         mediaPlayer = new MediaPlayer(media);
+        mediaPlayer.setOnEndOfMedia(this::playNextInQueue);
         mediaPlayer.play();
         isPlaying = true;
     }
@@ -86,9 +90,7 @@ public class AudioService {
     }
     
     private byte[] getAudioDataForSong(Song song) {
-        // This method should be implemented to retrieve audio data for a song
-        // For now, we'll return null and handle the error in the calling method
-        return null;
+        return audioDataHistory.isEmpty() ? null : audioDataHistory.pop();
     }
     
     public void pause() {

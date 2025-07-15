@@ -31,10 +31,13 @@
     -fx-prompt-text-fill: #888888;
     -fx-padding: 8;
     -fx-background-radius: 4;
+    -fx-border-color: #444444;
+    -fx-border-radius: 4;
 }
 
 .text-field:focused {
     -fx-background-color: #444444;
+    -fx-border-color: #1db954;
 }
 
 .primary-button {

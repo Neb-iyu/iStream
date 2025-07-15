@@ -3,10 +3,11 @@ package com.istream.client.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.istream.client.controller.MainAppController;
 import com.istream.client.controller.TopMenuController;
 import com.istream.client.controller.TopMenuController.SearchResult;
-import com.istream.client.controller.MainAppController;
 import com.istream.client.util.ThreadManager;
+import com.istream.client.util.UiComponent;
 import com.istream.model.Album;
 import com.istream.model.Artist;
 import com.istream.model.Song;
@@ -22,7 +23,6 @@ public class SearchService {
         this.mainAppController = mainAppController;
         this.rmiClient = rmiClient;
         this.topMenuController = topMenuController;
-        setupSearchHandlers();
     }
 
     private void setupSearchHandlers() {
@@ -55,7 +55,7 @@ public class SearchService {
         });
     }
 
-    private void performSearch(String query) {
+    public void performSearch(String query) {
         Task<List<SearchResult>> task = new Task<>() {
             @Override
             protected List<SearchResult> call() {
@@ -72,6 +72,7 @@ public class SearchService {
                             album.getId(),
                             album.getCoverArtPath()
                         ));
+                        System.out.println("Found album: " + album.getTitle() + " by " + (artist != null ? artist.getName() : "Unknown Artist"));
                     }
 
                     // Search artists
@@ -111,10 +112,6 @@ public class SearchService {
             topMenuController.updateSearchResults(results);
         });
 
-        task.setOnFailed(event -> {
-            // Optionally show error on UI
-            // You can show an error dialog here if you want
-        });
 
         ThreadManager.submitTask(task);
     }

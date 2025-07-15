@@ -80,7 +80,6 @@ public class FileManager {
             return null;
         }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        // Use the actual file extension for encoding
         ImageIO.write(image, ext, baos);
             return baos.toByteArray();
         }

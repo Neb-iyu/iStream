@@ -31,7 +31,12 @@ public class LikedViewController {
         Task<List<Song>> task = new Task<>() {
             @Override
             protected List<Song> call() throws Exception {
-                return rmiClient.getLikedSongs();
+                List<Song> songs =  rmiClient.getLikedSongs();
+                for (Song song : songs) {
+                    // Ensure each song has the necessary details loaded
+                    System.out.println("Loading song: " + song.getTitle());
+                }
+                return songs;
             }
         };
 

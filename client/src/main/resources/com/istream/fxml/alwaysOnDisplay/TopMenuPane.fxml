@@ -9,52 +9,60 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<?import javafx.scene.layout.Region?>
+<?import javafx.scene.effect.DropShadow?>
 
-<HBox fx:id="root" styleClass="top-menu-container" xmlns="http://javafx.com/javafx/23.0.1" 
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.istream.client.controller.TopMenuController">
-   <padding>
-      <Insets bottom="10" left="20" right="20" top="10" />
-   </padding>
-   
-   <!-- Left Pane (Logo) -->
-   <Pane fx:id="leftPane" minWidth="150" maxWidth="250" prefWidth="200">
-      <children>
-         <HBox alignment="CENTER" prefHeight="50.0" prefWidth="165.0" styleClass="logo-container">
+<StackPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.istream.client.controller.TopMenuController">
+    <HBox fx:id="root" styleClass="top-menu-container">
+        <!-- Left Pane (Logo) -->
+        <Pane fx:id="leftPane" minWidth="150" maxWidth="250" prefWidth="200">
             <children>
-               <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
-                  <image>
-                     <Image url="@../../images/logo.png" />
-                  </image>
-               </ImageView>
-               <Label styleClass="app-title" text="Stream" textFill="#eae3e3">
-                  <font>
-                     <Font name="Microsoft JhengHei Light" size="12.0" />
-                  </font>
-               </Label>
+                <HBox alignment="CENTER" prefHeight="50.0" prefWidth="165.0" styleClass="logo-container">
+                    <children>
+                        <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
+                            <image>
+                                <Image url="@../../images/logo.png" />
+                            </image>
+                        </ImageView>
+                        <Label styleClass="app-title" text="Stream" textFill="#eae3e3">
+                            <font>
+                                <Font name="Microsoft JhengHei Light" size="12.0" />
+                            </font>
+                        </Label>
+                    </children>
+                </HBox>
             </children>
-         </HBox>
-      </children>
-   </Pane>
-   
-   <!-- Search Area -->
-   <HBox fx:id="searchPane" spacing="5" HBox.hgrow="ALWAYS">
-      <TextField fx:id="searchField" promptText="Search..." HBox.hgrow="ALWAYS" />
-      <Button fx:id="searchButton" text="Search" />
-   </HBox>
-   
-   <!-- Spacer -->
-   <Region HBox.hgrow="ALWAYS" />
-   
-   <!-- Profile Image -->
-   <ImageView fx:id="profileImage" fitHeight="30" fitWidth="30" preserveRatio="true" />
-   
-   <!-- Search Results -->
-   <VBox fx:id="searchResultsBox" styleClass="search-results-box" visible="false">
-      <padding>
-         <Insets bottom="5" left="5" right="5" top="5" />
-      </padding>
-   </VBox>
-</HBox>
+        </Pane>
+        <AnchorPane HBox.hgrow="ALWAYS" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0">
+            <!-- Search Area -->
+            <HBox fx:id="searchPane" spacing="5" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" HBox.hgrow="ALWAYS">
+                <TextField fx:id="searchField" promptText="Search..." HBox.hgrow="ALWAYS" />
+                <Button fx:id="searchButton" text="Search" />
+            </HBox>
+            <!-- Search Results -->
+            <!-- <VBox fx:id="searchResultsBox"
+                  styleClass="search-results-box"
+                  visible="false"
+                  maxHeight="300"
+                  AnchorPane.topAnchor="45"
+                  AnchorPane.leftAnchor="0"
+                  AnchorPane.rightAnchor="0"
+                  prefWidth="200">
+                <padding>
+                    <Insets bottom="5" left="0" right="0" top="0" />
+                </padding>
+                <effect>
+                    <DropShadow color="#00000080" radius="5" />
+                </effect>
+            </VBox> -->
+        </AnchorPane>
+        <!-- Spacer -->
+        <Region HBox.hgrow="ALWAYS" />
+        
+        <!-- Profile Image -->
+        <ImageView fx:id="profileImage" fitHeight="30" fitWidth="30" preserveRatio="true" />
+    </HBox>
+</StackPane>

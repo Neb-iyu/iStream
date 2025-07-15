@@ -89,7 +89,7 @@
                               <Font size="14.0" />
                            </font>
                         </Label>
-                        <Button fx:id="switchViewButton" mnemonicParsing="false" onAction="#handleSwitchView" style="-fx-background-color: transparent;" text="Register" textFill="#210f04">
+                        <Button fx:id="switchViewButton" mnemonicParsing="false" onAction="#handleSwitchView"  text="Register" textFill="#210f04">
                            <font>
                               <Font size="14.0" />
                            </font>

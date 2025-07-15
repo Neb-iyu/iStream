@@ -23,6 +23,7 @@ public class UploadController {
     @FXML private Label statusLabel;
     @FXML private ProgressBar progressBar;
     @FXML private Label selectedFileLabel;
+    @FXML private Button selectImageButton;
 
     private RMIClient rmiClient;
     private File selectedFile;
@@ -54,6 +55,21 @@ public class UploadController {
                 statusLabel.setText(validation.getErrorMessage());
                 uploadButton.setDisable(true);
             }
+        }
+    }
+
+    @FXML
+    private void handleSelectImage() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Cover Image");
+        fileChooser.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
+        );
+        File file = fileChooser.showOpenDialog(selectImageButton.getScene().getWindow());
+        if (file != null) {
+            // imagePreview.setImage(new javafx.scene.image.Image(file.toURI().toString()));
+            // Optionally, store the selected image file for upload
+            // this.selectedImageFile = file;
         }
     }
 
@@ -105,4 +121,4 @@ public class UploadController {
         selectFileButton.setDisable(false);
         progressBar.setVisible(false);
     }
-} 
+}

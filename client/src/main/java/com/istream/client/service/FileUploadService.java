@@ -50,6 +50,12 @@ public class FileUploadService {
         try {
             String mimeType = Files.probeContentType(file.toPath());
             if (mimeType == null || !ALLOWED_AUDIO_TYPES.contains(mimeType)) {
+                // Fallback: check extension
+                String name = file.getName().toLowerCase();
+                if (name.endsWith(".mp3") || name.endsWith(".wav") || name.endsWith(".ogg") ||
+                    name.endsWith(".m4a") || name.endsWith(".aac")) {
+                    return new FileValidationResult(true, null);
+                }
                 return new FileValidationResult(false, "Only audio files are allowed (MP3, WAV, OGG, M4A, AAC)");
             }
         } catch (IOException e) {
@@ -62,4 +68,4 @@ public class FileUploadService {
     public static byte[] readFile(File file) throws IOException {
         return Files.readAllBytes(file.toPath());
     }
-} 
+}

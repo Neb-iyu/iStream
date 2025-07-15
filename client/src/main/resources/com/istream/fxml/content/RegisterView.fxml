@@ -4,21 +4,21 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
-<?import javafx.scene.effect.DropShadow?>
 
-<AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: linear-gradient(to bottom right, #1a1a1a, #2d2d2d);" xmlns="http://javafx.com/javafx/17.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.istream.client.controller.AuthController">
+<AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: linear-gradient(to bottom right, #1a1a1a, #2d2d2d);" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.istream.client.controller.AuthController">
    <children>
-      <Pane layoutX="0.0" layoutY="0.0" prefHeight="600.0" prefWidth="400.0" style="-fx-background-color: #210a0a;">
+      <Pane layoutX="0.0" layoutY="0.0" prefHeight="600.0" prefWidth="300.0" style="-fx-background-color: #210a0a;">
          <children>
-            <VBox alignment="CENTER" layoutX="50.0" layoutY="150.0" prefHeight="300.0" prefWidth="300.0" spacing="20.0">
+            <VBox alignment="CENTER" layoutX="7.0" layoutY="150.0" prefHeight="300.0" prefWidth="300.0" spacing="20.0">
                <children>
                   <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -42,7 +42,7 @@
             </VBox>
          </children>
       </Pane>
-      <VBox alignment="CENTER" layoutX="400.0" layoutY="0.0" prefHeight="600.0" prefWidth="400.0" spacing="20.0">
+      <VBox alignment="CENTER" layoutX="300.0" layoutY="0.0" prefHeight="600.0" prefWidth="500.0" spacing="20.0" style="-fx-padding: 50;">
          <children>
             <Text fill="#e4c3c3" strokeType="OUTSIDE" strokeWidth="0.0" text="Create Account" textAlignment="CENTER">
                <font>
@@ -54,7 +54,7 @@
                   <Font size="14.0" />
                </font>
             </Text>
-            <VBox alignment="CENTER_LEFT" prefHeight="300.0" prefWidth="300.0" spacing="15.0">
+            <VBox alignment="CENTER" prefHeight="304.0" prefWidth="555.0" spacing="15.0">
                <children>
                   <VBox spacing="5.0">
                      <children>

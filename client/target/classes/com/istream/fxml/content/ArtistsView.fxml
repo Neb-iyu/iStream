@@ -19,7 +19,7 @@
     </Label>
     
     <VBox fx:id="artistsContainer" spacing="10.0">
-        <ScrollPane fx:id="artistsScrollPane" fitToHeight="true" hbarPolicy="ALWAYS" vbarPolicy="NEVER" 
+        <ScrollPane fx:id="artistsScrollPane" fitToHeight="true" hbarPolicy="NEVER" vbarPolicy="NEVER" 
                     fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
             <content>
                 <HBox fx:id="artistsBox" spacing="20.0" alignment="CENTER_LEFT" 

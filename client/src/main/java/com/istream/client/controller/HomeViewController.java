@@ -34,12 +34,10 @@ public class HomeViewController {
 
     @FXML
     public void initialize() {
-        // Animate containers with a slight delay between each
         AnimationUtil.slideIn(listenAgainContainer, 500);
         AnimationUtil.slideIn(artistsContainer, 700);
         AnimationUtil.slideIn(albumsContainer, 900);
         
-        // Add hover effects to content rows
         listenAgainBox.getStyleClass().add("hover-scale");
         artistsBox.getStyleClass().add("hover-scale");
         albumsBox.getStyleClass().add("hover-scale");
@@ -67,7 +65,7 @@ public class HomeViewController {
                 }
                 listenAgainBox.getChildren().clear();
                 if (songs == null || songs.isEmpty()) {
-                    // Show empty state message
+
                     Label emptyLabel = new Label("No recently played songs");
                     emptyLabel.getStyleClass().add("empty-state-label");
                     listenAgainBox.getChildren().add(emptyLabel);
@@ -155,24 +153,19 @@ public class HomeViewController {
      * Refreshes the content with animations
      */
     public void refreshContent() {
-        // Fade out current content
         AnimationUtil.fadeOut(listenAgainContainer, 300);
         AnimationUtil.fadeOut(artistsContainer, 300);
         AnimationUtil.fadeOut(albumsContainer, 300);
         
-        // After fade out, update content and fade in
         ThreadManager.runOnFxThread(() -> {
-            // Clear existing content
             listenAgainBox.getChildren().clear();
             artistsBox.getChildren().clear();
             albumsBox.getChildren().clear();
             
-            // Reload data
             loadListenAgainSongs();
             loadArtists();
             loadAlbums();
             
-            // Fade in with delay
             AnimationUtil.fadeIn(listenAgainContainer, 300);
             AnimationUtil.fadeIn(artistsContainer, 500);
             AnimationUtil.fadeIn(albumsContainer, 700);

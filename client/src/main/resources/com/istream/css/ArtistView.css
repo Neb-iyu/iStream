@@ -3,8 +3,8 @@
     -fx-background-color: -fx-primary;
     -fx-primary: #1a1a1a;
     -fx-secondary: #2d2d2d;
-    -fx-accent: #1db954;
-    -fx-accent-hover: #1ed760;
+    -fx-accent: #b91d1d;
+    -fx-accent-hover: #d71e1e;
     -fx-text-fill-primary: #ffffff;
     -fx-text-fill-secondary: #b3b3b3;
 }
@@ -70,7 +70,6 @@
     -fx-line-spacing: 5px;
 }
 
-/* Ensure all labels are white or light gray for visibility */
 .label,
 .artist-name-label,
 .artist-type-label,
@@ -79,7 +78,6 @@
     -fx-text-fill: #fff; /* White text */
 }
 
-/* For secondary text, use a light gray */
 .stat-label,
 .bio-text {
     -fx-text-fill: #e0e0e0;
@@ -92,7 +90,7 @@
 
 .play-button {
     -fx-background-color: -fx-accent;
-    -fx-text-fill: -fx-text-fill-secondary;
+    -fx-text-fill: #b3b3b3;
     -fx-font-weight: bold;
     -fx-padding: 10 25;
     -fx-background-radius: 20;
@@ -107,8 +105,8 @@
 
 .follow-button, .share-button {
     -fx-background-color: transparent;
-    -fx-text-fill: -fx-text-fill-secondary;
-    -fx-border-color: -fx-text-fill-primary;
+    -fx-text-fill: #b3b3b3;
+    -fx-border-color: #ffffff;
     -fx-border-radius: 20;
     -fx-padding: 10 25;
     -fx-font-size: 14px;
@@ -120,7 +118,6 @@
     -fx-border-color: -fx-accent;
 }
 
-/* Content Tabs */
 .content-tabs {
     -fx-background-color: transparent;
     -fx-tab-min-width: 100px;
@@ -151,10 +148,9 @@
 }
 
 .content-tabs .tab:selected .tab-label {
-    -fx-text-fill: -fx-text-fill-primary;
+    -fx-text-fill: #ffffff;
 }
 
-/* Content Sections */
 .content-scroll-pane {
     -fx-background-color: transparent;
     -fx-padding: 20 40;

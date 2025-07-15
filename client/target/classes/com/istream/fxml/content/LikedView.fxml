@@ -19,7 +19,7 @@
         <ScrollPane fx:id="likedScrollPane" fitToHeight="true" hbarPolicy="ALWAYS" vbarPolicy="NEVER" 
                     fitToWidth="true" styleClass="scroll-pane">
             <content>
-                <HBox fx:id="likedBox" spacing="20.0" alignment="CENTER_LEFT" 
+                <HBox fx:id="likedSongsBox" spacing="20.0" alignment="CENTER_LEFT" 
                     minWidth="1000" styleClass="hbox"/>
             </content>
         </ScrollPane>

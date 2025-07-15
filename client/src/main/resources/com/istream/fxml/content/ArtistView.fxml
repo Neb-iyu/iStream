@@ -1,38 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.Button?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Rectangle?>
 
-<VBox fx:id="root" xmlns="http://javafx.com/javafx/23.0.1" 
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.istream.client.controller.ArtistViewController"
-      stylesheets="@../../css/ArtistView.css"
-      VBox.vgrow="ALWAYS">
+<VBox fx:id="root" stylesheets="@../../css/ArtistView.css" VBox.vgrow="ALWAYS" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.istream.client.controller.ArtistViewController">
    
    <!-- Header Section with Artist Info -->
-   <StackPane styleClass="header-container" maxHeight="300">
-      <ImageView fx:id="headerBackground" styleClass="header-background"/>
-      <VBox styleClass="header-content" alignment="BOTTOM_LEFT">
-         <HBox styleClass="artist-info-container" spacing="20">
+   <StackPane maxHeight="300" styleClass="header-container">
+      <ImageView fx:id="headerBackground" styleClass="header-background" />
+      <VBox alignment="BOTTOM_LEFT" styleClass="header-content">
+         <HBox spacing="20" styleClass="artist-info-container">
             <!-- Circular artist image -->
             <StackPane styleClass="artist-image-container">
-               <ImageView fx:id="artistImage" styleClass="artist-image"/>
-               <Rectangle arcWidth="100" arcHeight="100" styleClass="artist-image-clip"/>
+               <ImageView fx:id="artistImage" styleClass="artist-image" />
+               <Rectangle arcHeight="100" arcWidth="100" styleClass="artist-image-clip" />
             </StackPane>
             
-            <VBox styleClass="artist-text-container" spacing="5">
-               <Label text="ARTIST" styleClass="artist-type-label"/>
-               <Label fx:id="artistName" styleClass="artist-name-label"/>
-               <HBox styleClass="stats-container" spacing="15">
-                  <Label fx:id="songCountLabel" styleClass="stat-label"/>
-                  <Label fx:id="monthlyListenersLabel" styleClass="stat-label"/>
+            <VBox spacing="5" styleClass="artist-text-container">
+               <Label styleClass="artist-type-label" text="ARTIST" />
+               <Label fx:id="artistName" styleClass="artist-name-label" />
+               <HBox spacing="15" styleClass="stats-container">
+                  <Label fx:id="songCountLabel" styleClass="stat-label" />
+                  <Label fx:id="monthlyListenersLabel" styleClass="stat-label" />
                </HBox>
             </VBox>
          </HBox>
@@ -45,26 +42,26 @@
    <TabPane styleClass="content-tabs" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
       <tabs>
          <Tab text="SONGS">
-            <ScrollPane styleClass="content-scroll-pane" fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS">
-               <VBox fx:id="songsContainer" styleClass="songs-container" VBox.vgrow="ALWAYS"/>
+            <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="121.0" prefWidth="430.0" styleClass="content-scroll-pane" VBox.vgrow="ALWAYS">
+               <VBox fx:id="songsContainer" styleClass="songs-container" VBox.vgrow="ALWAYS" />
             </ScrollPane>
          </Tab>
          <Tab text="ALBUMS">
-            <ScrollPane styleClass="content-scroll-pane" fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS">
-               <HBox fx:id="albumsContainer" styleClass="albums-container" HBox.hgrow="ALWAYS"/>
+            <ScrollPane fitToHeight="true" fitToWidth="true" styleClass="content-scroll-pane" VBox.vgrow="ALWAYS">
+               <HBox fx:id="albumsContainer" styleClass="albums-container" HBox.hgrow="ALWAYS" />
             </ScrollPane>
          </Tab>
          <Tab text="ABOUT">
-            <ScrollPane styleClass="content-scroll-pane" fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS">
-               <Label fx:id="bioLabel" styleClass="bio-text" wrapText="true"/>
+            <ScrollPane fitToHeight="true" fitToWidth="true" styleClass="content-scroll-pane" VBox.vgrow="ALWAYS">
+               <Label fx:id="bioLabel" styleClass="bio-text" wrapText="true" />
             </ScrollPane>
          </Tab>
       </tabs>
    </TabPane>
             <!-- Action Buttons -->
-         <HBox styleClass="action-buttons" spacing="15">
-            <Button text="PLAY" styleClass="play-button"/>
-            <Button text="FOLLOW" styleClass="follow-button"/>
-            <Button text="SHARE" styleClass="share-button"/>
+         <HBox spacing="15" styleClass="action-buttons">
+            <Button fx:id="playAll" styleClass="play-button" text="PLAY" />
+            <Button styleClass="follow-button" text="FOLLOW" />
+            <Button styleClass="share-button" text="SHARE" />
          </HBox>
 </VBox>

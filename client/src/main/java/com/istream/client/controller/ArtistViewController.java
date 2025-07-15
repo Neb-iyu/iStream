@@ -1,22 +1,27 @@
 package com.istream.client.controller;
 
 import java.util.List;
+
 import com.istream.client.service.RMIClient;
-import com.istream.client.util.UiComponent;
 import com.istream.client.util.ThreadManager;
+import com.istream.client.util.UiComponent;
+import com.istream.model.Album;
 import com.istream.model.Artist;
 import com.istream.model.Song;
-import com.istream.model.Album;
+
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.*;
-import javafx.concurrent.Task;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
-import javafx.application.Platform;
 
 public class ArtistViewController {
     @FXML private VBox root;
@@ -28,6 +33,7 @@ public class ArtistViewController {
     @FXML private Label bioLabel;
     @FXML private VBox songsContainer;
     @FXML private HBox albumsContainer;
+    @FXML private Button playAll;
     
     private final RMIClient rmiClient;
     private final int artistId;
@@ -43,6 +49,7 @@ public class ArtistViewController {
     public void initialize() {
         setupArtistImageClip();
         loadArtistData();
+        playAll.setOnAction(e -> playArtistSongs());
     }
 
     private void setupArtistImageClip() {
@@ -52,7 +59,27 @@ public class ArtistViewController {
         artistImage.setClip(clip);
     }
 
+    private void playArtistSongs() {
+        Task<List<Song>> task = new Task<>() {
+            @Override
+            protected List<Song> call() throws Exception {
+                Artist artist = rmiClient.getArtistById(artistId);
+                return artist != null ? artist.getSongs() : List.of();
+            }
+        };
+        task.setOnSucceeded(e -> {
+            List<Song> songs = task.getValue();
+            if (!songs.isEmpty()) 
+                mainAppController.playSongs(songs);
+        });
+
+        ThreadManager.submitTask(task);
+    }
+ 
+
+
     private void loadArtistData() {
+
         Task<Artist> artistTask = new Task<>() {
             @Override
             protected Artist call() throws Exception {
@@ -79,7 +106,6 @@ public class ArtistViewController {
             monthlyListenersLabel.setText("0 monthly listeners"); // Placeholder since model doesn't have this
             bioLabel.setText("No biography available"); // Placeholder since model doesn't have this
             
-            // Load images
             UiComponent.loadImage(artistImage, 
                 "images/artist/" + artist.getId() + ".png", 
                 rmiClient
@@ -129,24 +155,20 @@ public class ArtistViewController {
         item.setAlignment(Pos.CENTER_LEFT);
         item.setPadding(new Insets(8, 16, 8, 16));
 
-        // Song title
         Label titleLabel = new Label(song.getTitle());
         titleLabel.getStyleClass().add("song-title");
         titleLabel.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(titleLabel, Priority.ALWAYS);
 
-        // Play button
         Button playButton = new Button("▶");
         playButton.getStyleClass().add("song-action-button");
         playButton.setOnAction(e -> mainAppController.playSong(song));
 
-        // Optionally, add artist name or duration
         Label durationLabel = new Label(formatDuration(song.getDuration()));
         durationLabel.getStyleClass().add("song-duration");
 
         item.getChildren().addAll(playButton, titleLabel, durationLabel);
 
-        // Play song on row click (not just button)
         item.setOnMouseClicked(e -> {
             if (e.getButton() == MouseButton.PRIMARY) {
                 mainAppController.playSong(song);

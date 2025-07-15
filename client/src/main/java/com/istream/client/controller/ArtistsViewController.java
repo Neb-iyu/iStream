@@ -31,7 +31,6 @@ public class ArtistsViewController {
     
     @FXML
     public void initialize() {
-        // Configure scroll pane behavior
         artistsScrollPane.setFitToHeight(true);
         artistsScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         artistsScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
